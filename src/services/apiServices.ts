@@ -5,7 +5,8 @@ import { storage } from '@/lib/storage/localstorage';
 
 
 const service = axios.create({
-  baseURL: Config.apiUrl,
+  // baseURL: Config.apiUrl,
+  baseURL: 'https://dev.api.cloudman.site/v1/api/',
   headers: {
     // 'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
