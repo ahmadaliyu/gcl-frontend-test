@@ -22,7 +22,7 @@ function GetAQuote() {
   const handleNext = (serviceId: string) => {
     if (user?.email) {
       dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
-      router.push(`/user/quote-review`);
+      router.push(`/quote-review`);
     } else {
       dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
       router.push(`/auth/login?quote=quote`);
