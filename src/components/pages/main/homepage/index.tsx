@@ -14,6 +14,8 @@ function Homepage() {
   const { data: cities, isLoading: isLoadingCities } = useGetCities();
 
   console.log(countries,1112);
+    console.log(cities, 661111);
+
   
 
   const dispatch = useAppDispatch();
