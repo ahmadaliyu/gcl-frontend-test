@@ -92,7 +92,7 @@ export interface RegisterResponse {
 }
 
 export interface VerifyOtpResponse {
-  data: { message: string; success: boolean; user: User, token: string, refresh: string };
+  data: { message: string; success: boolean; user: User; token: string; refresh: string };
   success: boolean;
   message: string;
   status: number;
@@ -149,3 +149,96 @@ export type T = {
     parentId: string;
   };
 };
+
+export interface CountryResponse {
+  success: boolean;
+  data: Country[];
+}
+
+export interface Country {
+  name: string;
+  alpha_2_code: string;
+  has_postal: boolean;
+  is_active: boolean;
+}
+
+export interface City {
+  name: string;
+  code: string;
+  is_active: boolean;
+}
+
+export interface CityResponse {
+  success: boolean;
+  data: City[];
+}
+
+export interface QuotesResponse {
+  status: number;
+  success: boolean;
+  data: {
+    origin: Address;
+    destination: Address;
+    currency: string;
+    parcels: Parcel[];
+    options: ShippingOption[];
+    summary: ShipmentSummary;
+  };
+}
+
+interface Address {
+  name: string;
+  postcode: string;
+  country_iso: string;
+}
+
+interface Parcel {
+  description: string;
+  items: Item[];
+}
+
+interface Item {
+  description: string;
+  sku: string;
+  quantity: number;
+  weight: number;
+  unit_weight: string;
+  weight_unit: string;
+  hs_code: string;
+}
+
+interface ShippingOption {
+  serviceId: string;
+  serviceName: string;
+  serviceType: string;
+  totalPrice: number;
+  totalAmount: number;
+  legDetails: LegDetail[];
+  estimatedDeliveryTime: number;
+  estimatedDeliveryDate: string;
+  isExpress: boolean;
+  requiresDropoff: boolean;
+  routeType: string;
+}
+
+interface LegDetail {
+  from: string;
+  to: string;
+  price: number;
+  amount: number;
+  handlingFee: string;
+  estimatedTime: number;
+  courier: string;
+}
+
+interface ShipmentSummary {
+  isDomestic: boolean;
+  isInternational: boolean;
+  isPickupRequired: boolean;
+  isDropoffToOffice: boolean;
+  isFromUKOffice: boolean;
+  isToNigeriaOffice: boolean;
+  isFromNigeriaOffice: boolean;
+  isToUKOffice: boolean;
+  totalOptions: number;
+}

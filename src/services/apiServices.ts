@@ -2,8 +2,6 @@ import axios from 'axios';
 import Config from './Config';
 import { storage } from '@/lib/storage/localstorage';
 
-
-
 const service = axios.create({
   baseURL: Config.apiUrl,
   headers: {
@@ -12,16 +10,13 @@ const service = axios.create({
   },
 });
 
-
-
 // Add a request interceptor
 service.interceptors.request.use(
   async function (config) {
-
-    const token: any = await storage.getValueFor("token");
+    const token: any = await storage.getValueFor('token');
 
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
@@ -38,14 +33,14 @@ service.interceptors.request.use(
   }
 );
 
-
 // Add a response interceptor
 service.interceptors.response.use(
   async function (response) {
-
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
     if (response.status === 200) {
+      // alert(response?.data?.message || 'Success');
+
       const token = response?.data?.data.token;
       const refreshToken = response?.data?.data.refresh;
 
@@ -67,6 +62,7 @@ service.interceptors.response.use(
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     if (error.response) {
+      alert(error.response?.data?.message);
       return Promise.reject(error.response);
     } else if (error.request) {
       return Promise.reject(error.request);
@@ -89,7 +85,7 @@ export const post = async (url: any, payload?: any) => {
       window.location.href = '/auth/login';
     } else if (error?.status === 0) {
       throw new Error('An error ocurred, please try again later.');
-    } else if (error.data?.code === 400) {
+    } else if (error.data?.code >= 400) {
       throw new Error(`${error?.data?.message}`);
     }
 

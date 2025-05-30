@@ -1,125 +1,47 @@
 import React, { Fragment, useState } from 'react';
-import { activeStep, inActiveStep, steps, EStepIds } from './constants';
-
+import { steps, EStepIds, inActiveStep, activeStep } from '../constants';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Button from '@/components/reuseables/Button';
-import Link from 'next/link';
-
-const services = [
-  {
-    id: 'SFX-001-3921',
-    company: 'SwiftFreight',
-    transitTime: '3',
-    weight: '2.50kg',
-    surcharge: '$5.00',
-    total: '$45.00',
-    collection: '$0.00',
-    insurance: '$50 free cover',
-  },
-
-  {
-    id: 'GMO-002-8473',
-    company: 'GlobalMove',
-    transitTime: '7',
-    weight: '10.00kg',
-    surcharge: '$12.50',
-    total: '$120.00',
-    collection: '$10.00',
-    insurance: '$100 optional',
-  },
-
-  {
-    id: 'PSV-003-1256',
-    company: 'PackSavvy',
-    transitTime: '2',
-    weight: '1.20kg',
-    surcharge: '$0.00',
-    total: '$15.00',
-    collection: '$0.00',
-    insurance: '$20 free cover',
-  },
-
-  {
-    id: 'EXL-004-6739',
-    company: 'ExpressLane',
-    transitTime: '5',
-    weight: '6.75kg',
-    surcharge: '$8.00',
-    total: '$75.50',
-    collection: '$5.00',
-    insurance: '$75 free cover',
-  },
-
-  {
-    id: 'CGK-005-2948',
-    company: 'CargoKing',
-    transitTime: '9',
-    weight: '15.30kg',
-    surcharge: '$20.00',
-    total: '$200.00',
-    collection: '$15.00',
-    insurance: '$150 optional',
-  },
-
-  {
-    id: 'QSH-006-5182',
-    company: 'QuickShip',
-    transitTime: '1',
-    weight: '0.80kg',
-    surcharge: '$2.00',
-    total: '$12.00',
-    collection: '$0.00',
-    insurance: '$10 free cover',
-  },
-
-  {
-    id: 'FFL-007-9304',
-    company: 'FreightFlow',
-    transitTime: '6',
-    weight: '8.00kg',
-    surcharge: '$0.00',
-    total: '$90.00',
-    collection: '$0.00',
-    insurance: '$80 free cover',
-  },
-
-  {
-    id: 'MMS-008-3761',
-    company: 'MoveMasters',
-    transitTime: '4',
-    weight: '3.15kg',
-    surcharge: '$3.50',
-    total: '$38.00',
-    collection: '$0.00',
-    insurance: '$30 free cover',
-  },
-
-  {
-    id: 'PPR-009-7520',
-    company: 'ParcelPro',
-    transitTime: '8',
-    weight: '12.40kg',
-    surcharge: '$15.00',
-    total: '$145.00',
-    collection: '$10.00',
-    insurance: '$120 optional',
-  },
-
-  {
-    id: 'SPT-010-4893',
-    company: 'SpeedyTrans',
-    transitTime: '3',
-    weight: '5.60kg',
-    surcharge: '$0.00',
-    total: '$60.00',
-    collection: '$5.00',
-    insurance: '$50 free cover',
-  },
-];
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { useRouter } from 'next/navigation';
+import { updateBookingField } from '@/store/booking/bookingSlice';
 
 function GetAQuote() {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.SampleQuote);
   const activeStepIndex = steps.findIndex((step) => step.id === activeStepId);
+
+  const { quote } = useAppSelector((state) => state.quoteData);
+  const user = useAppSelector((state) => state.user);
+
+  const dispatch = useAppDispatch();
+
+  console.log(user, 'the user is logged in');
+
+  const router = useRouter();
+
+  const handleNext = (serviceId: string) => {
+    if (user?.email) {
+      dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
+      router.push(`/user/quote-review`);
+    } else {
+      dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
+      router.push(`/auth/login?quote=quote`);
+    }
+  };
+
+  const SERVICES = !!quote?.data
+    ? quote?.data?.options.map((option) => ({
+        id: option.serviceId,
+        company: option.serviceName,
+        type: option.serviceType,
+        delivery: new Date(option.estimatedDeliveryDate).toLocaleDateString(),
+        transitTime: `${option.estimatedDeliveryTime} hours`,
+        weight: quote.data.parcels.reduce((sum, p) => sum + p.items.reduce((s, i) => s + i.weight, 0), 0) + 'kg',
+        fees: `£${option.legDetails.reduce((sum, leg) => sum + parseFloat(leg.handlingFee), 0)}`,
+        total: `£${option.totalAmount}`,
+        isExpress: option.isExpress,
+      }))
+    : [];
 
   return (
     <div className="py-[80px]">
@@ -142,8 +64,9 @@ function GetAQuote() {
                   </div>
                   {isLast ? null : (
                     <div
-                      className={`flex-1  ${active ? 'bg-[#0088DD]' : 'bg-[#E3E3E3]'
-                        } h-[4px] mt-[-25px] mx-[-25px] relative z-[1]`}
+                      className={`flex-1  ${
+                        active ? 'bg-[#0088DD]' : 'bg-[#E3E3E3]'
+                      } h-[4px] mt-[-25px] mx-[-25px] relative z-[1]`}
                     />
                   )}
                 </Fragment>
@@ -152,30 +75,15 @@ function GetAQuote() {
           </div>
 
           <div className="flex items-center justify-center pt-[80px] gap-[40px]">
-            <p className="text-[#232526] text-[24px] font-[600] font-poppins text-center">Destination</p>
-            <svg width="57" height="32" viewBox="0 0 57 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clipPath="url(#clip0_0_14055)">
-                <rect x="0.5" width="56" height="32" rx="8" fill="#272727" />
-                <g clipPath="url(#clip1_0_14055)">
-                  <path d="M-11.5 26H68.5V46H-11.5V26Z" fill="#FFCC00" />
-                  <path d="M-11.5 -14H68.5V6H-11.5V-14Z" fill="#000001" />
-                  <path d="M-11.5 6H68.5V26H-11.5V6Z" fill="#FF0000" />
-                </g>
-              </g>
-              <defs>
-                <clipPath id="clip0_0_14055">
-                  <rect x="0.5" width="56" height="32" rx="8" fill="white" />
-                </clipPath>
-                <clipPath id="clip1_0_14055">
-                  <rect width="80" height="60" fill="white" transform="translate(-11.5 -14)" />
-                </clipPath>
-              </defs>
-            </svg>
+            <p className="text-[#232526] text-[24px] font-[600] font-poppins text-center">Destination:</p>
+            <p className="text-[#232526] text-[24px] font-[600] font-poppins text-center">
+              {quote?.data?.destination?.country_iso}
+            </p>
           </div>
 
           <div className="flex items-center justify-center ">
             <p className="text-[#0088DD] text-[14px] font-[400] font-poppins text-center">
-              Please check for any restrictions to Germany here.
+              Please check for any restrictions to {quote?.data?.origin.country_iso || 'this country'} here.
             </p>
           </div>
 
@@ -203,7 +111,7 @@ function GetAQuote() {
             </TableHeader>
 
             <TableBody>
-              {services.map((service, index) => (
+              {SERVICES.map((service, index) => (
                 <TableRow key={service?.id}>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px] flex items-center gap-[10px]">
                     <img src="/icons/outer.png" className="w-[80px] h-[56px]" />
@@ -216,21 +124,19 @@ function GetAQuote() {
                     {service.weight}
                   </TableCell>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                    {service.surcharge}
+                    {service.fees}
                   </TableCell>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
                     {service.total}
                   </TableCell>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                    {service.collection}
+                    {service.type}
                   </TableCell>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                    {service.insurance}
+                    {service.company}
                   </TableCell>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                    <Link href={'/auth/login'}>
-                      <Button title="Proceed" height="38px" />
-                    </Link>
+                    <Button onClick={() => handleNext(service.id)} title="Buy Now" />
                   </TableCell>
                 </TableRow>
               ))}

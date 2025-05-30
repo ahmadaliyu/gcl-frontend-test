@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import LogoutModal from '../modal/LogoutModal';
+import { resetBooking } from '@/store/booking/bookingSlice';
+import { clearQuote } from '@/store/auth/quoteDataSlice';
+import { clearQuotesData } from '@/store/auth/quoteSlice';
 
 const chevron_down = (
   <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,12 +117,13 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    dispatch(resetForm())
-    dispatch(setTempCredentials({ email: '', password: '' }));
-    dispatch(resetUser())
+    dispatch(resetUser());
+    dispatch(resetBooking());
+    dispatch(clearQuote());
+    dispatch(clearQuotesData());
     setShowLogoutModal(false);
     router.replace('/auth/login');
-  }
+  };
 
   useEffect(() => {
     window.addEventListener('scroll', () => {
@@ -128,12 +132,11 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   }, []);
   // console.log('scroll', scroll);
 
-
-
   return (
     <div
-      className={`${fixed ? (scroll ? 'fixed top-0' : '') : ''
-        } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
+      className={`${
+        fixed ? (scroll ? 'fixed top-0' : '') : ''
+      } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
     >
       <div className="max-screen-inner h-[96px] flex items-center justify-between">
         <a href="/">
@@ -159,7 +162,16 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
             <Button title="Get Started" />
           </Link>
         </div> */}
-        {pathname === '/' || pathname?.startsWith('/auth') ? (
+        {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
+          <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
+            <Link href="/auth/login">
+              <Button title="Login" variant="outlined-blue" />
+            </Link>
+            <Link href="/auth/register">
+              <Button title="Get Started" />
+            </Link>
+          </div>
+        ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
           <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
             <Link href="/auth/login">
               <Button title="Login" variant="outlined-blue" />
@@ -172,16 +184,12 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
           <div className="flex items-center gap-4 max-[1120px]:hidden">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                <span className="text-xs font-medium">{user?.firstName.slice(0, 1)}</span>
+                <span className="text-xs font-medium">{user?.firstName ? user?.firstName.slice(0, 1) : ''}</span>
               </div>
               <span className="font-poppins text-sm">Hello, {user?.firstName}</span>
             </div>
             <Button onClick={() => setShowLogoutModal(true)} title="Logout" variant="outlined-blue-dark" />
-            <LogoutModal
-              show={showLogoutModal}
-              onClose={() => setShowLogoutModal(false)}
-              onConfirm={handleLogout}
-            />
+            <LogoutModal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
           </div>
         )}
 

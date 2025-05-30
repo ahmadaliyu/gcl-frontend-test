@@ -18,6 +18,14 @@ import {
 import Button from '@/components/reuseables/Button';
 import Link from 'next/link';
 import InputField from '@/components/reuseables/InputField';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { RootState } from '@/store/store';
+import { useGetQuotes } from '@/services';
+import { loadQuotes } from '@/store/auth/quoteDataSlice';
+import { useRouter } from 'next/navigation';
+import { clearQuotesData } from '@/store/auth/quoteSlice';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 function GetAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
@@ -61,19 +69,57 @@ function GetAQuote() {
           );
         })}
       </div>
-      {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
+      {activeTab.id === TTabIds.RoadFreight && <RoadFreightAndAirFreightForm activeChannel={activeChannel} />}
       {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
-      {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
       {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
     </div>
   );
 }
 
-const RoadFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
+const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
+  const { shipment } = useAppSelector((state: RootState) => state.quote);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const [showModal, setShowModal] = React.useState(false);
+  const [guestEmail, setGuestEmail] = React.useState('');
+  const [guestName, setGuestName] = React.useState('');
+
+  const { mutate, isPending } = useGetQuotes((response: any) => {
+    if (response?.data?.data?.options && response.data.data.options.length === 0) {
+      setShowModal(true); // Show the modal instead of alert
+      return;
+    }
+    if (response?.status === 200) {
+      dispatch(clearQuotesData());
+      dispatch(loadQuotes(response.data));
+      router.push('/get-a-quote');
+    }
+  });
+
+  const handleGetQuote = () => {
+    const payload = {
+      shipment: {
+        ...shipment,
+        despatch_date:
+          shipment.despatch_date instanceof Date ? shipment.despatch_date.toISOString() : shipment.despatch_date,
+      },
+    };
+    mutate({ payload });
+  };
+
+  const handleModalSubmit = () => {
+    // Optionally: Submit guestEmail and guestName somewhere
+    console.log('Guest Name:', guestName);
+    console.log('Guest Email:', guestEmail);
+
+    setShowModal(false);
+  };
+
   return (
     <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
       <div className="flex gap-[16px]">
-        <SendFrom />
+        <SendFrom sendFrom={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
         <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
@@ -91,12 +137,36 @@ const RoadFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          <Link href={'/get-a-quote'}>
-            <Button title="Get a Quote" variant="red" className="w-full" />
-          </Link>
+          <Button
+            loading={isPending}
+            disabled={isPending}
+            onClick={handleGetQuote}
+            title="Get a Quote"
+            variant="red"
+            className="w-full"
+          />
         </div>
-        <div className="flex-1"></div>
+        <div className="flex-1" />
       </div>
+
+      {/* MODAL */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>No services available for this quote</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            <Input placeholder="Enter your name" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
+            <Input
+              placeholder="Enter your email"
+              type="email"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+            />
+            <Button title="Submit" onClick={handleModalSubmit} className="w-full" variant="blue" />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -112,30 +182,6 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
       <div className="flex gap-[16px] mt-[16px]">
         <ChooseYourPackages />
         <FCLPackages />
-      </div>
-
-      <div className="flex gap-[16px] mt-[16px]">
-        <div className="flex-1">
-          <Link href={'/get-a-quote'}>
-            <Button title="Get a Quote" variant="red" className="w-full" />
-          </Link>
-        </div>
-        <div className="flex-1"></div>
-      </div>
-    </div>
-  );
-};
-
-const AirFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
-  return (
-    <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
-      <div className="flex gap-[16px]">
-        <SendFrom />
-        <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
-      </div>
-
-      <div className="flex gap-[16px] mt-[16px]">
-        <WhatAreYouSending />
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">

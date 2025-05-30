@@ -8,7 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { COUNTRY_CODE_LIST } from '@/constants';
+// import { COUNTRY_CODE_LIST } from '@/constants';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { addOrUpdateItemInParcel, updateShipFrom, updateShipTo } from '@/store/auth/quoteSlice';
+import InputField from '@/components/reuseables/InputField';
+import { useDispatch } from 'react-redux';
+import { RootState } from '@/store/store';
 
 export enum EChannels {
   WithinUK = 'within-uk',
@@ -18,6 +23,7 @@ export enum EChannels {
 }
 
 export enum TTabIds {
+  RoadAndAirFreight = 'road-freight-air-freight',
   RoadFreight = 'road-freight',
   SeaFreight = 'sea-freight',
   AirFreight = 'air-freight',
@@ -57,74 +63,117 @@ export const tabs: TTab[] = [
   {
     channels: [EChannels.WithinUK, EChannels.SendInternational],
     id: TTabIds.RoadFreight,
-    title: 'Road Freight',
+    title: 'Road & Air Freight',
     icon_active: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
-        <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
-        <path
-          d="M29.0313 32C30.1358 32 31.0313 31.1046 31.0313 30C31.0313 28.8954 30.1358 28 29.0313 28C27.9267 28 27.0312 28.8954 27.0312 30C27.0312 31.1046 27.9267 32 29.0313 32Z"
-          stroke="#E51520"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M19.0313 32C20.1358 32 21.0313 31.1046 21.0313 30C21.0313 28.8954 20.1358 28 19.0313 28C17.9267 28 17.0312 28.8954 17.0312 30C17.0312 31.1046 17.9267 32 19.0313 32Z"
-          stroke="#E51520"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M17.0312 29.972C15.9342 29.918 15.2512 29.755 14.7633 29.268C14.2753 28.781 14.1133 28.097 14.0593 27M21.0312 30H27.0312M31.0312 29.972C32.1282 29.918 32.8112 29.755 33.2992 29.268C34.0312 28.535 34.0312 27.357 34.0312 25V23H29.3312C28.5862 23 28.2142 23 27.9132 22.902C27.6131 22.8045 27.3403 22.6373 27.1171 22.4141C26.894 22.191 26.7268 21.9181 26.6292 21.618C26.5312 21.317 26.5312 20.945 26.5312 20.2C26.5312 19.083 26.5312 18.525 26.3842 18.073C26.2379 17.6228 25.9872 17.2136 25.6524 16.8788C25.3177 16.5441 24.9085 16.2933 24.4582 16.147C24.0062 16 23.4482 16 22.3312 16H14.0312M14.0312 20H20.0312M14.0312 23H18.0312"
-          stroke="#E51520"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M26.5312 18H28.3522C29.8082 18 30.5353 18 31.1273 18.354C31.7203 18.707 32.0653 19.348 32.7553 20.63L34.0312 23"
-          stroke="#E51520"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Truck icon */}
+        <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
+          <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
+          <path
+            d="M29.0313 32C30.1358 32 31.0313 31.1046 31.0313 30C31.0313 28.8954 30.1358 28 29.0313 28C27.9267 28 27.0312 28.8954 27.0312 30C27.0312 31.1046 27.9267 32 29.0313 32Z"
+            stroke="#E51520"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M19.0313 32C20.1358 32 21.0313 31.1046 21.0313 30C21.0313 28.8954 20.1358 28 19.0313 28C17.9267 28 17.0312 28.8954 17.0312 30C17.0312 31.1046 17.9267 32 19.0313 32Z"
+            stroke="#E51520"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M17.0312 29.972C15.9342 29.918 15.2512 29.755 14.7633 29.268C14.2753 28.781 14.1133 28.097 14.0593 27M21.0312 30H27.0312M31.0312 29.972C32.1282 29.918 32.8112 29.755 33.2992 29.268C34.0312 28.535 34.0312 27.357 34.0312 25V23H29.3312C28.5862 23 28.2142 23 27.9132 22.902C27.6131 22.8045 27.3403 22.6373 27.1171 22.4141C26.894 22.191 26.7268 21.9181 26.6292 21.618C26.5312 21.317 26.5312 20.945 26.5312 20.2C26.5312 19.083 26.5312 18.525 26.3842 18.073C26.2379 17.6228 25.9872 17.2136 25.6524 16.8788C25.3177 16.5441 24.9085 16.2933 24.4582 16.147C24.0062 16 23.4482 16 22.3312 16H14.0312M14.0312 20H20.0312M14.0312 23H18.0312"
+            stroke="#E51520"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M26.5312 18H28.3522C29.8082 18 30.5353 18 31.1273 18.354C31.7203 18.707 32.0653 19.348 32.7553 20.63L34.0312 23"
+            stroke="#E51520"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        {/* Flight Icon */}
+        <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
+          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
+          <g clipPath="url(#clip0_0_11552)">
+            <path
+              d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
+              fill="#E51520"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_0_11552">
+              <rect width="31.25" height="30" fill="white" transform="translate(9.15625 9)" />
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
     ),
     icon_inactive: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" fill="#CCCCCC" />
-        <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" stroke="#E3E3E3" />
-        <path
-          d="M29.0313 32C30.1358 32 31.0313 31.1046 31.0313 30C31.0313 28.8954 30.1358 28 29.0313 28C27.9267 28 27.0312 28.8954 27.0312 30C27.0312 31.1046 27.9267 32 29.0313 32Z"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M19.0313 32C20.1358 32 21.0313 31.1046 21.0313 30C21.0313 28.8954 20.1358 28 19.0313 28C17.9267 28 17.0312 28.8954 17.0312 30C17.0312 31.1046 17.9267 32 19.0313 32Z"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M17.0312 29.972C15.9342 29.918 15.2512 29.755 14.7633 29.268C14.2753 28.781 14.1133 28.097 14.0593 27M21.0312 30H27.0312M31.0312 29.972C32.1282 29.918 32.8112 29.755 33.2992 29.268C34.0312 28.535 34.0312 27.357 34.0312 25V23H29.3312C28.5862 23 28.2142 23 27.9132 22.902C27.6131 22.8045 27.3403 22.6373 27.1171 22.4141C26.894 22.191 26.7268 21.9181 26.6292 21.618C26.5312 21.317 26.5312 20.945 26.5312 20.2C26.5312 19.083 26.5312 18.525 26.3842 18.073C26.2379 17.6228 25.9872 17.2136 25.6524 16.8788C25.3177 16.5441 24.9085 16.2933 24.4582 16.147C24.0062 16 23.4482 16 22.3312 16H14.0312M14.0312 20H20.0312M14.0312 23H18.0312"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M26.5312 18H28.3522C29.8082 18 30.5353 18 31.1273 18.354C31.7203 18.707 32.0653 19.348 32.7553 20.63L34.0312 23"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Truck Icon  */}
+        <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" fill="#CCCCCC" />
+          <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" stroke="#E3E3E3" />
+          <path
+            d="M29.0313 32C30.1358 32 31.0313 31.1046 31.0313 30C31.0313 28.8954 30.1358 28 29.0313 28C27.9267 28 27.0312 28.8954 27.0312 30C27.0312 31.1046 27.9267 32 29.0313 32Z"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M19.0313 32C20.1358 32 21.0313 31.1046 21.0313 30C21.0313 28.8954 20.1358 28 19.0313 28C17.9267 28 17.0312 28.8954 17.0312 30C17.0312 31.1046 17.9267 32 19.0313 32Z"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M17.0312 29.972C15.9342 29.918 15.2512 29.755 14.7633 29.268C14.2753 28.781 14.1133 28.097 14.0593 27M21.0312 30H27.0312M31.0312 29.972C32.1282 29.918 32.8112 29.755 33.2992 29.268C34.0312 28.535 34.0312 27.357 34.0312 25V23H29.3312C28.5862 23 28.2142 23 27.9132 22.902C27.6131 22.8045 27.3403 22.6373 27.1171 22.4141C26.894 22.191 26.7268 21.9181 26.6292 21.618C26.5312 21.317 26.5312 20.945 26.5312 20.2C26.5312 19.083 26.5312 18.525 26.3842 18.073C26.2379 17.6228 25.9872 17.2136 25.6524 16.8788C25.3177 16.5441 24.9085 16.2933 24.4582 16.147C24.0062 16 23.4482 16 22.3312 16H14.0312M14.0312 20H20.0312M14.0312 23H18.0312"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M26.5312 18H28.3522C29.8082 18 30.5353 18 31.1273 18.354C31.7203 18.707 32.0653 19.348 32.7553 20.63L34.0312 23"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        {/* Flight Icon */}
+        <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="white" fill-opacity="0.14" />
+          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#CCCCCC" />
+          <g clipPath="url(#clip0_0_11524)">
+            <path
+              d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
+              fill="white"
+            />
+            <path
+              d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
+              fill="white"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_0_11524">
+              <rect width="31.25" height="30" fill="white" transform="translate(9.15625 9)" />
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
     ),
   },
   {
@@ -153,49 +202,6 @@ export const tabs: TTab[] = [
           d="M19.5938 12.8096C19.5938 12.6107 19.6728 12.4199 19.8134 12.2792C19.9541 12.1386 20.1448 12.0596 20.3438 12.0596H27.8438C28.0427 12.0596 28.2334 12.1386 28.3741 12.2792C28.5147 12.4199 28.5938 12.6107 28.5938 12.8096V16.4996H32.3438C32.5427 16.4996 32.7334 16.5786 32.8741 16.7192C33.0147 16.8599 33.0938 17.0507 33.0938 17.2496V23.3456L35.5448 24.0281C35.6504 24.0574 35.7483 24.1096 35.8316 24.1808C35.9149 24.2521 35.9816 24.3408 36.0269 24.4406C36.0722 24.5404 36.0951 24.6489 36.094 24.7586C36.0928 24.8682 36.0677 24.9762 36.0203 25.0751L33.2827 30.7571C33.0261 30.4679 32.6993 30.2498 32.3339 30.1236C31.9684 29.9975 31.5767 29.9677 31.1963 30.037C30.816 30.1064 30.4599 30.2726 30.1625 30.5195C29.8651 30.7665 29.6363 31.086 29.4982 31.4471L29.4832 31.4816C29.3474 31.7866 29.173 32.073 28.9642 32.3336C28.5758 32.8136 28.2173 32.9996 27.8542 32.9996C27.4943 32.9996 27.1312 32.8106 26.7352 32.3246C26.5161 32.0504 26.3336 31.7488 26.1923 31.4276C26.0275 30.9998 25.736 30.6325 25.3567 30.3749C24.9775 30.1174 24.5286 29.9818 24.0702 29.9864C23.6118 29.9909 23.1657 30.1354 22.7916 30.4005C22.4176 30.6656 22.1335 31.0386 21.9772 31.4696C21.8406 31.7775 21.6646 32.0664 21.4537 32.3291C21.0637 32.8121 20.7037 32.9996 20.3438 32.9996C19.9823 32.9996 19.6238 32.8121 19.2353 32.3336C19.0185 32.0626 18.839 31.764 18.7013 31.4456C18.5607 31.0788 18.3265 30.7552 18.0221 30.507C17.7177 30.2588 17.3536 30.0946 16.9661 30.0308C16.5785 29.9669 16.181 30.0056 15.8131 30.143C15.4451 30.2805 15.1196 30.5118 14.8687 30.8141L12.1658 25.0691C12.1194 24.9704 12.0952 24.8628 12.0947 24.7538C12.0942 24.6448 12.1174 24.537 12.1628 24.438C12.2082 24.3389 12.2747 24.2509 12.3576 24.1801C12.4405 24.1093 12.5378 24.0574 12.6427 24.0281L15.0938 23.3441V17.2511C15.0938 17.0522 15.1728 16.8614 15.3134 16.7207C15.4541 16.5801 15.6448 16.5011 15.8438 16.5011H19.5938V12.8096ZM27.0938 13.5596H21.0938V16.4996H27.0938V13.5596ZM31.5938 22.9271V18.0011H16.5938V22.9256L22.8787 21.1736C23.6692 20.9532 24.5048 20.9532 25.2952 21.1736L31.5938 22.9271ZM26.1923 31.4276L26.1952 31.4336V31.4381L26.1923 31.4276ZM32.3258 32.0846L32.3212 32.0696C32.2825 31.9145 32.1952 31.7758 32.0721 31.6738C31.9489 31.5718 31.7964 31.5119 31.6368 31.5026C31.4772 31.4934 31.3189 31.5355 31.1848 31.6226C31.0508 31.7098 30.9481 31.8375 30.8918 31.9871L30.8843 32.0021L30.8542 32.0786C30.6636 32.5088 30.4175 32.9122 30.1222 33.2786C29.5853 33.9386 28.8398 34.4996 27.8438 34.4996C26.8477 34.4996 26.1007 33.9371 25.5607 33.2756C25.2471 32.8881 24.9887 32.459 24.7927 32.0006L24.7853 31.9841C24.7308 31.8419 24.6344 31.7197 24.5089 31.6337C24.3834 31.5476 24.2346 31.5018 24.0824 31.5023C23.9303 31.5028 23.7818 31.5496 23.6568 31.6364C23.5319 31.7233 23.4363 31.8461 23.3827 31.9886L23.3752 32.0036L23.3453 32.0801C23.3153 32.1511 23.2682 32.2491 23.2042 32.3741C23.0389 32.6944 22.842 32.9975 22.6163 33.2786C22.0823 33.9386 21.3398 34.4996 20.3438 34.4996C19.3478 34.4996 18.6037 33.9371 18.0667 33.2771C17.7542 32.8894 17.4967 32.4603 17.3018 32.0021L17.2957 31.9871C17.2394 31.8375 17.1367 31.7083 17.0027 31.6211C16.8686 31.534 16.7103 31.4919 16.5507 31.5011C16.3911 31.5104 16.2386 31.5703 16.1154 31.6723C15.9923 31.7743 15.905 31.913 15.8662 32.0681L15.8633 32.0801L15.8423 32.1491C15.7058 32.5622 15.5038 32.9507 15.2437 33.2996C14.7832 33.9146 14.0498 34.4996 12.8438 34.4996C12.6448 34.4996 12.4541 34.5786 12.3134 34.7192C12.1728 34.8599 12.0938 35.0507 12.0938 35.2496C12.0938 35.4485 12.1728 35.6392 12.3134 35.7799C12.4541 35.9206 12.6448 35.9996 12.8438 35.9996C14.6377 35.9996 15.7793 35.0876 16.4438 34.1996C16.5198 34.0986 16.5897 33.9981 16.6537 33.8981C16.7298 34.0051 16.8127 34.1136 16.9028 34.2236C17.5837 35.0636 18.7148 35.9996 20.3438 35.9996C21.9727 35.9996 23.1007 35.0606 23.7817 34.2206C23.8938 34.0806 23.9958 33.9436 24.0878 33.8096C24.1828 33.9456 24.2863 34.0836 24.3983 34.2236C25.0837 35.0651 26.2148 35.9996 27.8438 35.9996C29.4727 35.9996 30.6038 35.0636 31.2847 34.2236C31.3717 34.1166 31.4528 34.0106 31.5278 33.9056C31.5928 34.0066 31.6628 34.1086 31.7377 34.2116C32.4037 35.1056 33.5483 36.0221 35.3528 35.9996C35.4512 35.9984 35.5485 35.9778 35.6391 35.939C35.7296 35.9003 35.8116 35.844 35.8804 35.7735C35.9493 35.7031 36.0035 35.6197 36.0401 35.5283C36.0767 35.4368 36.0949 35.3391 36.0938 35.2406C36.0926 35.1421 36.072 35.0448 36.0332 34.9542C35.9944 34.8637 35.9382 34.7817 35.8677 34.7129C35.7972 34.6441 35.7139 34.5898 35.6224 34.5532C35.531 34.5166 35.4332 34.4984 35.3347 34.4996C34.1302 34.5146 33.3997 33.9311 32.9422 33.3161C32.6823 32.9638 32.4812 32.5717 32.3468 32.1551L32.3258 32.0846Z"
           fill="white"
         />
-      </svg>
-    ),
-  },
-  {
-    channels: [EChannels.ClearInternational],
-    id: TTabIds.AirFreight,
-    title: 'Air Freight',
-    icon_active: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
-        <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
-        <g clipPath="url(#clip0_0_11552)">
-          <path
-            d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
-            fill="#E51520"
-          />
-        </g>
-        <defs>
-          <clipPath id="clip0_0_11552">
-            <rect width="31.25" height="30" fill="white" transform="translate(9.15625 9)" />
-          </clipPath>
-        </defs>
-      </svg>
-    ),
-    icon_inactive: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="white" fill-opacity="0.14" />
-        <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#CCCCCC" />
-        <g clipPath="url(#clip0_0_11524)">
-          <path
-            d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
-            fill="white"
-          />
-          <path
-            d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
-            fill="white"
-          />
-        </g>
-        <defs>
-          <clipPath id="clip0_0_11524">
-            <rect width="31.25" height="30" fill="white" transform="translate(9.15625 9)" />
-          </clipPath>
-        </defs>
       </svg>
     ),
   },
@@ -230,33 +236,153 @@ export const tabs: TTab[] = [
   },
 ];
 
-export const SendFrom = () => {
+export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) => {
+  const INTERNATIONAL = [
+    { name: 'UK Mainland', alpha_2_code: 'GB', emoji: '' },
+    { name: 'Nigeria', alpha_2_code: 'NG', emoji: '' },
+    { name: 'China', alpha_2_code: 'CH', emoji: '' },
+  ];
+
+  const [country, setCountry] = React.useState('');
+  const [postCode, setPostCode] = React.useState('');
+  const [area, setArea] = React.useState('');
+
+  const CITIES_LIST = useAppSelector((state) => state.country.cities);
+  const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    if (postCode && country) {
+      dispatch(updateShipFrom({ country_iso: country, name: '', postcode: postCode }));
+    }
+  }, [postCode, country]);
+
   return (
     <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
-      <div className="flex-1">
-        <p className="text-[#0088DD] text-[12px]">Send From</p>
-        <div className="flex w-full">
-          <input
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-            placeholder={'UK Mainland'}
-          />
-          <img src="/icons/chevron-down.png" className="h-[24px] w-[24px]" />
-        </div>
+      <div className="flex-1 overflow-hidden">
+        {sendFrom === 'uk' ? (
+          <Select value={area} onValueChange={(value) => setArea(value)}>
+            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0 border-none shadow-none">
+              <p className="text-[#0088DD] text-[12px]">Send From</p>
+              <div className="flex w-full text-[12px]">
+                <SelectValue
+                  placeholder="UK Mainland"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
+                />
+                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select area</SelectLabel>
+                <SelectItem value="UK Mainland">UK Mainland</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        ) : (
+          <Select
+            value={country}
+            onValueChange={(value) => {
+              setCountry(value);
+              setPostCode(''); // Reset postcode when changing country
+            }}
+          >
+            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+              <p className="text-[#0088DD] text-[12px]">Send From</p>
+              <div className="flex w-full">
+                <SelectValue
+                  placeholder="Select Country"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
+                />
+                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select A Country</SelectLabel>
+                {INTERNATIONAL.map((c) => (
+                  <SelectItem key={c.alpha_2_code} value={c.alpha_2_code}>
+                    {c.emoji} {c.name.length > 10 ? `${c.name.slice(0, 10)}...` : c.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
       </div>
+
       <div className="flex-1">
-        <p className="text-[#0088DD] text-[12px]">Passcode</p>
-        <input
-          className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-          placeholder="Enter Postcode"
-        />
+        <p className="text-[#0088DD] text-[12px]">{country === 'NG' ? 'City' : 'Postcode'}</p>
+        {country === 'NG' ? (
+          <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
+            <SelectTrigger className="w-full text-[12px] p-0 border-0 outline-none focus:ring-0">
+              <SelectValue
+                placeholder="Select City"
+                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
+              />
+              <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select A City</SelectLabel>
+                {CITIES_LIST.map((city) => (
+                  <SelectItem key={city.code} value={city.code}>
+                    {city.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        ) : (
+          <input
+            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:border-[#CCD6DF] focus:outline-none"
+            placeholder="Enter Postcode"
+            value={postCode}
+            onChange={(e) => setPostCode(e.target.value)}
+          />
+        )}
       </div>
     </div>
   );
 };
 
 export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
+  const COUNTRY_CODE_LIST = useAppSelector((state) => state.country.countries);
+  const CITIES_LIST = useAppSelector((state) => state.country.cities);
+
+  const WITHINUKLIST = [
+    {
+      name: 'UK Mainland',
+      alpha_2_code: 'GB',
+      emoji: '',
+    },
+    {
+      name: 'Scotish Highlands',
+      alpha_2_code: 'SC',
+      emoji: '',
+    },
+    {
+      name: 'Northern Island',
+      alpha_2_code: 'NT',
+      emoji: '',
+    },
+    {
+      name: 'Channel Island',
+      alpha_2_code: 'CH',
+      emoji: '',
+    },
+  ];
+
   const [country, setCountry] = React.useState('');
   const [area, setArea] = React.useState('');
+  const [postCode, setPostCode] = React.useState('');
+
+  const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    if (postCode && country) {
+      dispatch(updateShipTo({ country_iso: country, name: '', postcode: postCode }));
+    }
+  }, [postCode, country]);
 
   return (
     <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
@@ -278,12 +404,24 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
               <SelectGroup>
                 <SelectLabel>Select area</SelectLabel>
 
-                <SelectItem value={'UK Mainland'}>UK Mainland</SelectItem>
+                {WITHINUKLIST.map((c) => {
+                  return (
+                    <SelectItem value={c?.alpha_2_code}>
+                      {c?.emoji} {c?.name.length > 10 ? `${c?.name.slice(0, 15)}...` : c?.name}
+                    </SelectItem>
+                  );
+                })}
               </SelectGroup>
             </SelectContent>
           </Select>
         ) : (
-          <Select value={country} onValueChange={(value) => setCountry(value)}>
+          <Select
+            value={country}
+            onValueChange={(value) => {
+              setCountry(value);
+              setPostCode(''); // Reset postcode when changing country
+            }}
+          >
             <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none   focus:ring-0">
               <p className="text-[#0088DD] text-[12px]">Send To</p>
 
@@ -301,8 +439,8 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
 
                 {COUNTRY_CODE_LIST.map((c) => {
                   return (
-                    <SelectItem value={c?.code}>
-                      {c?.emoji} {c?.name}
+                    <SelectItem value={c?.alpha_2_code}>
+                      {c?.emoji} {c?.name.length > 10 ? `${c?.name.slice(0, 10)}...` : c?.name}
                     </SelectItem>
                   );
                 })}
@@ -313,11 +451,35 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
       </div>
 
       <div className="flex-1">
-        <p className="text-[#0088DD] text-[12px]">Passcode</p>
-        <input
-          className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-          placeholder="Enter Postcode"
-        />
+        <p className="text-[#0088DD] text-[12px]">{country === 'NG' ? 'City' : 'Postcode'}</p>
+        {country === 'NG' ? (
+          <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
+            <SelectTrigger className="w-full text-[12px] p-0 border-0 outline-none focus:ring-0">
+              <SelectValue
+                placeholder="Select City"
+                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
+              />
+              <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select A City</SelectLabel>
+                {CITIES_LIST.map((city) => (
+                  <SelectItem key={city.code} value={city.code}>
+                    {city.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        ) : (
+          <input
+            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:border-[#CCD6DF] focus:outline-none"
+            placeholder="Enter Postcode"
+            value={postCode}
+            onChange={(e) => setPostCode(e.target.value)}
+          />
+        )}
       </div>
     </div>
   );
@@ -325,6 +487,7 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
 
 export const WhatAreYouSending = () => {
   const [area, setArea] = React.useState('');
+
   return (
     <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
       <div className="flex-1">
@@ -343,8 +506,8 @@ export const WhatAreYouSending = () => {
           <SelectContent>
             <SelectGroup>
               <SelectItem value={'Parcel/Large Letter'}>Parcel/Large Letter</SelectItem>
-              <SelectItem value={'Option 1'}>Option 1</SelectItem>
-              <SelectItem value={'Option 2'}>Option 2</SelectItem>
+              {/* <SelectItem value={'Option 1'}>Option 1</SelectItem>
+              <SelectItem value={'Option 2'}>Option 2</SelectItem> */}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -383,49 +546,85 @@ export const OuterPackagingType = () => {
   );
 };
 
-export const WeightLengthWidthHeight = () => {
-  return (
-    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex  h-[61px] py-[8px] px-[16px] items-center">
-      <div className="flex-1 flex w-full justify-between gap-[8px]">
-        <div className="w-full">
-          <p className="text-[#0088DD] text-[12px]">Weight</p>
-          <input
-            type="number"
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-            placeholder={'1'}
-          />
-        </div>
-        <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
-        <div className="w-full">
-          <p className="text-[#0088DD] text-[12px]">Weight</p>
-          <input
-            type="number"
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-            placeholder={'1'}
-          />
-        </div>
-        <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
-        <div className="w-full">
-          <p className="text-[#0088DD] text-[12px]">Weight</p>
-          <input
-            type="number"
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-            placeholder={'1'}
-          />
-        </div>
-        <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
-        <div className="w-full">
-          <p className="text-[#0088DD] text-[12px]">Weight</p>
-          <input
-            type="number"
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
-            placeholder={'1'}
-          />
-        </div>
+export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any) => {
+  const dispatch = useDispatch();
+  const parcels = useAppSelector((state: RootState) => state.quote.shipment.parcels);
 
-        <p className="text-[#0088DD] text-[16px] mt-auto">Kg</p>
+  const item = parcels[parcelIndex]?.items[itemIndex];
+
+  const [quantity, setQuantity] = React.useState<number>(item?.quantity || 1);
+  const [weight, setWeight] = React.useState<number>(item?.weight || 1);
+  const [unit, setUnit] = React.useState<number>(item?.unit_weight ? Number(item.unit_weight) : 1);
+  const [weightUnit, setWeightUnit] = React.useState<string>(item?.weight_unit || 'kg');
+  const [description, setDescription] = React.useState<string>(parcels[parcelIndex]?.description || '');
+
+  React.useEffect(() => {
+    dispatch(
+      addOrUpdateItemInParcel({
+        parcelIndex,
+        itemIndex,
+        item: {
+          quantity: Number(quantity),
+          weight: Number(weight),
+          unit_weight: unit.toString(),
+          description: description,
+        },
+        description: '',
+      })
+    );
+  }, [quantity, weight, unit, weightUnit, description, parcelIndex, itemIndex, dispatch]);
+
+  // console.log(shipment, 99999);
+
+  return (
+    <>
+      <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex h-[61px] py-[8px] px-[16px] items-center">
+        <div className="flex-1 flex w-full justify-between gap-[8px]">
+          <div className="w-full">
+            <p className="text-[#0088DD] text-[12px]">Quantity</p>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
+              placeholder="1"
+            />
+          </div>
+          <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
+          <div className="w-full">
+            <p className="text-[#0088DD] text-[12px]">Weight</p>
+            <input
+              type="number"
+              value={weight}
+              onChange={(e) => setWeight(Number(e.target.value))}
+              className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
+              placeholder="1"
+            />
+          </div>
+          <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
+          <div className="w-full">
+            <p className="text-[#0088DD] text-[12px]">Unit</p>
+            <input
+              type="number"
+              value={unit}
+              onChange={(e) => setUnit(Number(e.target.value))}
+              className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
+              placeholder="1"
+            />
+          </div>
+          <p className="text-[#0088DD] text-[16px] mt-auto">Kg</p>
+        </div>
       </div>
-    </div>
+      <div className="flex-1 mt-4">
+        <p className="text-[#0088DD] text-[12px]">Description</p>
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none "
+          placeholder="Enter description"
+        />
+      </div>
+    </>
   );
 };
 

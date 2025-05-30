@@ -3,6 +3,10 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import formSlice from './auth/formSlice';
 import storage from 'redux-persist/lib/storage';
 import userSlice from './user/userSlice';
+import countrySlice from './auth/countrySlice';
+import quoteSlice from './auth/quoteSlice';
+import quoteDataSlice from './auth/quoteDataSlice';
+import bookingSlice from './booking/bookingSlice';
 const persistConfig = {
   key: 'root',
   storage,
@@ -10,7 +14,11 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   form: formSlice,
+  country: countrySlice,
   user: userSlice,
+  quote: quoteSlice,
+  quoteData: quoteDataSlice,
+  booking: bookingSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

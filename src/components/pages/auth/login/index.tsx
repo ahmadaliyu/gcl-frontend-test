@@ -1,12 +1,12 @@
 import Button from '@/components/reuseables/Button';
 import InputField from '@/components/reuseables/InputField';
 import { Checkbox } from '@/components/ui/checkbox';
-import { LoginResponse, useSignIn } from '@/services';
+import { useSignIn } from '@/services';
 import { clearTempCredentials, setTempCredentials } from '@/store/auth/formSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { RootState } from '@/store/store';
+import { useAppDispatch } from '@/store/hook';
+import { setUser } from '@/store/user/userSlice';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 
 function LoginPage() {
@@ -17,9 +17,20 @@ function LoginPage() {
 
   const router = useRouter();
 
-  const { isPending, mutate } = useSignIn((response: LoginResponse) => {
+  const params = useSearchParams();
+  let quote = params.get('quote');
+
+  const { isPending, mutate } = useSignIn((response: any) => {
+    // console.log(response?.data?.data, 11);
+
     if (response?.data?.success || response?.status === 200) {
-      router.push('/user/overview');
+      if (quote) {
+        dispatch(setUser(response?.data?.data?.user));
+        router.push('/quote-review');
+        return;
+      }
+      router.push('/user/book-a-quote');
+      dispatch(setUser(response?.data?.data?.user));
     }
   });
 
@@ -30,7 +41,7 @@ function LoginPage() {
     }));
   };
 
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   const handleLogin = () => {
     let { email, password } = formData;
@@ -39,6 +50,10 @@ function LoginPage() {
     mutate({
       payload: { email: formData.email, password: formData.password },
     });
+  };
+
+  const handleRegister = () => {
+    router.push('/auth/register');
   };
   return (
     <div>
@@ -88,13 +103,14 @@ function LoginPage() {
             className="w-[274px]"
           />
 
-          <Link className="text-[#21222D] text-[16px] mb-[16px] mt-[32px]" href="/auth/register">
-            Don’t have an account
-          </Link>
+          <div className="text-[#21222D] text-[16px] mb-[16px] mt-[32px]">Don’t have an account</div>
 
-          <Link href="/auth/register">
-            <Button title="Register a New Account" variant="outlined-blue-dark" className="w-[274px]" />
-          </Link>
+          <Button
+            onClick={handleRegister}
+            title="Register a New Account"
+            variant="outlined-blue-dark"
+            className="w-[274px]"
+          />
         </div>
       </div>
     </div>

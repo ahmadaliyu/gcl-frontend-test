@@ -7,6 +7,10 @@ import { useAppDispatch } from '@/store/hook';
 export const useGetProfile = (onSuccess?: (data: any) => void) => {
     return useQuery<UserResponse['user'], Error>({
         queryKey: ['profile'],
+        refetchOnReconnect: true,
+        refetchOnWindowFocus: true,
+        refetchInterval: 5000,
+        refetchIntervalInBackground: true,
         queryFn: async (): Promise<UserResponse['user']> => {
 
             const response: UserResponse = await get('users/profile');

@@ -1,12 +1,48 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from '@/components/reuseables/Button';
 import FaqsPage from '@/components/reuseables/faqs';
 
 import GetAQuote from './GetAQuote';
 import { BlurFade } from '@/components/ui/blur-fade';
 import './style.css';
+import { useGetCities, useGetCountries } from '@/services';
+import { useAppDispatch } from '@/store/hook';
+import { setCities, setCountries } from '@/store/auth/countrySlice';
 
 function Homepage() {
+  const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
+  const { data: cities, isLoading: isLoadingCities } = useGetCities();
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (countries?.data) {
+      const transformedCountries = countries.data.map((country) => ({
+        name: country.name,
+        countryCode: country.alpha_2_code,
+        alpha_2_code: country.alpha_2_code,
+        has_postal: country.has_postal,
+        is_active: country.is_active,
+        emoji: country.alpha_2_code
+          .split('')
+          .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+          .join(''),
+      }));
+      dispatch(setCountries(transformedCountries));
+    }
+  }, [countries, dispatch]);
+
+  useEffect(() => {
+    if (cities?.data) {
+      const transformedCities = cities.data.map((city) => ({
+        name: city.name,
+        code: city.code,
+        is_active: city.is_active,
+      }));
+      dispatch(setCities(transformedCities));
+    }
+  }, [countries, dispatch]);
+
   return (
     <>
       {/* HEADER */}
@@ -31,7 +67,7 @@ function Homepage() {
               <Button title="Begin UK Import Readiness Quiz" variant="white" />
             </BlurFade>
           </div>
-          <div className="flex-1 h-full ">
+          <div className="flex-1 h-full">
             <BlurFade delay={0.25} inView>
               <GetAQuote />
             </BlurFade>
@@ -64,7 +100,7 @@ function Homepage() {
 
           <BlurFade delay={0.25} inView>
             <div className="mt-[40px] mb-[56px]">
-              <Button title="Read About Us" className="w-[311px]" height="62px" />
+              <Button title="Read About Us" className="w-[311px]" />
             </div>
           </BlurFade>
 

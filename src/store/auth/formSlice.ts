@@ -32,6 +32,11 @@ interface FormState {
     email?: string;
     password?: string;
   };
+  selectedCountry?: {
+    name: string;
+    code: string;
+    dial_code: string;
+  };
 }
 
 const initialState: FormState = {
@@ -60,6 +65,7 @@ const initialState: FormState = {
   eori_number: '',
   is_residential: true,
   is_vat_registered: false,
+  selectedCountry: undefined,
 };
 
 export const formSlice = createSlice({
@@ -77,6 +83,13 @@ export const formSlice = createSlice({
     setFormData: (state, action: PayloadAction<Partial<FormState>>) => {
       return { ...state, ...action.payload };
     },
+    setSelectedCountry: (state, action: PayloadAction<{ name: string; code: string; dial_code: string }>) => {
+      state.selectedCountry = {
+        name: action.payload.name,
+        code: action.payload.code,
+        dial_code: action.payload.dial_code,
+      }
+    },
     setTempCredentials: (state, action: PayloadAction<{ email: string; password: string }>) => {
       state.temp_credentials = {
         email: action.payload.email,
@@ -89,10 +102,10 @@ export const formSlice = createSlice({
   },
 });
 
-export const { updateField, resetForm, setFormData, setTempCredentials, clearTempCredentials } = formSlice.actions;
+export const { updateField, resetForm, setFormData, setTempCredentials, clearTempCredentials, setSelectedCountry } = formSlice.actions;
 // export const selectForm = (state: RootState) => state.form;
 export const selectForm = (state: RootState) => {
-  const { _persist, ...formState } = state.form;
+  const { _persist, ...formState } = (state.form as any);
   return formState as FormState;
 };
 

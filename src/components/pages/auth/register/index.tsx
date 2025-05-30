@@ -13,15 +13,6 @@ function RegisterPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const user = useAppSelector((state) => state.form);
-
-  const { isPending, mutate } = useRegister((response) => {
-    if (response?.success) {
-      dispatch(resetForm())
-      router.push('/auth/login');
-    }
-  });
-
   const handleInputChange = (name: string, value: string) => {
     dispatch(updateField({ field: name as any, value }));
   };
@@ -40,7 +31,6 @@ function RegisterPage() {
     }
     const { confirmPassword, ...submissionData } = form;
     router.push('/auth/welcome')
-
   };
 
   const handleLogin = () => {
@@ -65,6 +55,7 @@ function RegisterPage() {
             placeholder="username@email.com"
           />
           <InputField
+            isPhoneInput
             name="phone"
             value={form.phone || ''}
             onChange={handleInputChange}
@@ -130,7 +121,6 @@ function RegisterPage() {
         <div className="flex flex-col items-center justify-center mt-[50px]">
           <Button
             onClick={handleRegister}
-            loading={isPending}
             disabled={!form.email || !form.password || !form.first_name || !form.last_name}
             title="Register Now"
             variant="blue"

@@ -1,28 +1,27 @@
-
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Button from '@/components/reuseables/Button';
 import InputField from '@/components/reuseables/InputField';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { EStepIds, steps } from './constants';
 import SelectField from '@/components/reuseables/SelectField';
-import { COUNTRY_CODE_LIST } from '@/constants';
+// import { COUNTRY_CODE_LIST } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { updateField, selectForm, resetForm } from '@/store/auth/formSlice';
-import { useRegister } from '@/services';
+import { updateField, selectForm } from '@/store/auth/formSlice';
+import { City, Country, CountryResponse, useGetCities, useGetCountries, useRegister } from '@/services';
 import { useRouter } from 'next/navigation';
+import { resetCountry, setCities, setCountries } from '@/store/auth/countrySlice';
 
 function WelcomePage() {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.UserDetails);
   const activeStepIndex = steps.findIndex((step) => step.id === activeStepId);
   const form = useAppSelector(selectForm);
-  const dispatch = useAppDispatch();
+
+  const { countries: COUNTRY_CODE_LIST, cities: CITIES } = useAppSelector((state) => state.country);
 
   const router = useRouter();
 
-
   const { isPending, mutate } = useRegister((response) => {
-
     if (response?.status === 201 || response?.data?.success) {
       router.push('/auth/verify-email');
     }
@@ -30,7 +29,6 @@ function WelcomePage() {
 
   const handleSubmit = () => {
     const { confirmPassword, ...submissionData } = form;
-
     mutate({ payload: submissionData });
   };
 
@@ -53,8 +51,9 @@ function WelcomePage() {
                 </div>
                 {isLast ? null : (
                   <div
-                    className={`flex-1  ${active ? 'bg-[#E51520]' : 'bg-[#E3E3E3]'
-                      } h-[2px] mt-[-25px] mx-[-25px] relative z-[1]`}
+                    className={`flex-1  ${
+                      active ? 'bg-[#E51520]' : 'bg-[#E3E3E3]'
+                    } h-[2px] mt-[-25px] mx-[-25px] relative z-[1]`}
                   />
                 )}
               </Fragment>
@@ -66,7 +65,14 @@ function WelcomePage() {
         {activeStepId === EStepIds.BillingAddress && <BillingAddress setActiveStepId={setActiveStepId} />}
         {activeStepId === EStepIds.OtherPreferences && <OtherPreferences setActiveStepId={setActiveStepId} />}
         {activeStepId === EStepIds.PreviewFinish && (
-          <PreviewFinish setActiveStepId={setActiveStepId} handleSubmit={handleSubmit} isPending={isPending} />
+          <PreviewFinish
+            COUNTRY_CODE_LIST={COUNTRY_CODE_LIST}
+            CITIES={CITIES}
+            form={form}
+            setActiveStepId={setActiveStepId}
+            handleSubmit={handleSubmit}
+            isPending={isPending}
+          />
         )}
       </div>
     </div>
@@ -164,8 +170,13 @@ const UserDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const form = useAppSelector(selectForm);
   const dispatch = useAppDispatch();
+  const { countries: COUNTRY_CODE_LIST, cities: CITIES } = useAppSelector((state) => state.country);
+
+  console.log(CITIES, 'hmmm city');
 
   const handleFieldChange = (field: keyof typeof form, value: any) => {
+    console.log(field, value, 'field and value');
+
     dispatch(updateField({ field, value }));
   };
 
@@ -177,6 +188,38 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     dispatch(updateField({ field, value: checked }));
   };
 
+  const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
+
+  const { data: cities, isLoading: isLoadingCities } = useGetCities();
+
+  useEffect(() => {
+    if (countries?.data) {
+      const transformedCountries = countries.data.map((country) => ({
+        name: country.name,
+        countryCode: country.alpha_2_code,
+        alpha_2_code: country.alpha_2_code,
+        has_postal: country.has_postal,
+        is_active: country.is_active,
+        emoji: country.alpha_2_code
+          .split('')
+          .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+          .join(''),
+      }));
+      dispatch(setCountries(transformedCountries));
+    }
+  }, [countries, dispatch]);
+  useEffect(() => {
+    if (cities?.data) {
+      const transformedCities = cities.data.map((city) => ({
+        name: city.name,
+        code: city.code,
+        is_active: city.is_active,
+        id: city.code,
+      }));
+      dispatch(setCities(transformedCities));
+    }
+  }, [cities, dispatch]);
+
   return (
     <>
       <p className="text-[#272727] text-center text-[18px]">We would like to know your billing address</p>
@@ -185,7 +228,7 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
         <div className="flex flex-row gap-[16px]">
           <SelectField
-            options={COUNTRY_CODE_LIST.map((x) => ({ label: `${x?.emoji} ${x?.name}`, value: x?.code }))}
+            options={COUNTRY_CODE_LIST.map((x) => ({ label: `${x?.emoji} ${x?.name}`, value: x?.name } as any))}
             value={form.country}
             onChange={(value) => handleFieldChange('country', value)}
             label="Country*"
@@ -219,7 +262,7 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
         <div className="flex flex-row gap-[16px] mt-[16px]">
           <SelectField
-            options={COUNTRY_CODE_LIST.map((x) => ({ label: `${x?.emoji} ${x?.name}`, value: x?.code }))}
+            options={CITIES.map((x) => ({ label: `${x?.name} ${x?.name}`, value: x?.name } as any))}
             value={form.state}
             onChange={(value) => handleFieldChange('state', value)}
             label="State*"
@@ -289,6 +332,7 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
 const OtherPreferences = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const form = useAppSelector(selectForm);
+  const { countries: COUNTRY_CODE_LIST } = useAppSelector((state) => state.country);
   const dispatch = useAppDispatch();
 
   const handleFieldChange = (field: keyof typeof form, value: any) => {
@@ -376,13 +420,17 @@ const PreviewFinish = ({
   setActiveStepId,
   handleSubmit,
   isPending,
+  COUNTRY_CODE_LIST,
+  CITIES,
+  form,
 }: {
   setActiveStepId?: any;
   handleSubmit: () => void;
   isPending: boolean;
+  COUNTRY_CODE_LIST: Country[];
+  CITIES: City[];
+  form: any;
 }) => {
-  const form = useAppSelector(selectForm);
-
   return (
     <>
       <p className="text-[#272727] text-center text-[18px]">
@@ -446,16 +494,16 @@ const PreviewFinish = ({
         <div className="flex flex-row gap-[16px]">
           <SelectField
             disabled={true}
-            options={COUNTRY_CODE_LIST.map((x) => ({ label: `${x?.emoji} ${x?.name}`, value: x?.code }))}
+            options={CITIES.map((x) => ({ label: `label`, value: 'label' }))}
             value={form.country}
             label="Country*"
-            placeholder="Select an option here"
+            placeholder={form.country}
           />
           <InputField
             disabled={true}
             value={form.address_line_1}
             label="Address Line*"
-            placeholder="Enter address line here"
+            placeholder={form.address_line_1}
           />
         </div>
 
@@ -464,7 +512,7 @@ const PreviewFinish = ({
             disabled={true}
             value={form.address_line_2}
             label="Address Line 2"
-            placeholder="Enter address line here"
+            placeholder={form.address_line_2}
           />
           <InputField disabled={true} value={form.city} label="City*" placeholder="Enter city here" />
         </div>
@@ -472,12 +520,12 @@ const PreviewFinish = ({
         <div className="flex flex-row gap-[16px] mt-[16px]">
           <SelectField
             disabled={true}
-            options={COUNTRY_CODE_LIST.map((x) => ({ label: `${x?.emoji} ${x?.name}`, value: x?.code }))}
+            options={COUNTRY_CODE_LIST.map((x) => ({ label: `label`, value: 'val' }))}
             value={form.state}
             label="State*"
             placeholder="Select an option here"
           />
-          <InputField disabled={true} value={form.post_code} label="Postcode*" placeholder="Enter postcode here" />
+          <InputField disabled={true} value={form.post_code} label="Postcode*" placeholder={form.post_code} />
         </div>
 
         <div className="flex flex-row gap-[16px] mt-[16px]">
@@ -486,7 +534,7 @@ const PreviewFinish = ({
               disabled={true}
               value={form.eori_number}
               label="EORI Number (Optional)"
-              placeholder="Enter your EORI number here"
+              placeholder={form.eori_number}
             />
           </div>
           <div className="basis-[50%]"></div>
@@ -497,13 +545,13 @@ const PreviewFinish = ({
             disabled={true}
             value={form.is_residential ? 'Yes' : 'No'}
             label="Residential Address *"
-            placeholder="Yes"
+            placeholder={form.is_residential ? 'Yes' : 'No'}
           />
           <InputField
             disabled={true}
             value={form.is_vat_registered ? 'Yes' : 'No'}
             label="VAT Registered *"
-            placeholder="Yes"
+            placeholder={form.is_vat_registered ? 'Yes' : 'No'}
           />
         </div>
 
@@ -524,14 +572,9 @@ const PreviewFinish = ({
             ]}
             value={form.how_you_found_us}
             label="How did you find us? *"
-            placeholder="Select an option here"
+            placeholder={form.how_you_found_us}
           />
-          <InputField
-            disabled={true}
-            value={form.ref_by}
-            label="Referral Code (Optional)"
-            placeholder="Enter your referral code here"
-          />
+          <InputField disabled={true} value={form.ref_by} label="Referral Code (Optional)" placeholder={form.ref_by} />
         </div>
 
         <div className="flex flex-row gap-[16px] mt-[16px]">
@@ -539,13 +582,13 @@ const PreviewFinish = ({
             disabled={true}
             value={form.promotional_emails ? 'Yes' : 'No'}
             label="News & Promotional emails *"
-            placeholder="Yes"
+            placeholder={form.promotional_emails ? 'Yes' : 'No'}
           />
           <InputField
             disabled={true}
             value={form.shipping_emails ? 'Yes' : 'No'}
             label="Shipping & Documentation Emails *"
-            placeholder="Yes"
+            placeholder={form.shipping_emails ? 'Yes' : 'No'}
           />
         </div>
 
@@ -566,7 +609,7 @@ const PreviewFinish = ({
           </Link>{' '}
           and{' '}
           <Link target="_blank" href="/privacy-policy" className="text-[#0088DD]">
-            Privacy Policyppppppp
+            Privacy Policy
           </Link>
         </p>
       </div>
