@@ -46,7 +46,7 @@ function Homepage() {
       }));
       dispatch(setCities(transformedCities));
     }
-  }, [countries, dispatch]);
+  }, [cities, dispatch]);
 
   return (
     <>
