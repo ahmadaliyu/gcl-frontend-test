@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useCreateBooking, useGetAddresses } from '@/services';
 import { resetBooking, updateBookingField } from '@/store/booking/bookingSlice';
 import { clearQuotesData } from '@/store/auth/quoteSlice';
-import { clearQuote } from '@/store/auth/quoteDataSlice';
+import { clearQuote, setPriceDetails } from '@/store/auth/quoteDataSlice';
 
 function WelcomePage() {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.ReceipientDetails);
@@ -388,6 +388,11 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
 const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const booking = useAppSelector((state) => state.booking);
+  const { priceDetails, quote } = useAppSelector((state) => state.quoteData);
+
+  let [netTotal, setNetTotal] = useState(0);
+
+  console.log(priceDetails);
 
   const [form, setForm] = useState({
     package_no: booking?.product_value || '',
@@ -395,14 +400,14 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     product_weight: booking?.product_weight || '',
     product_details: booking?.product_details || '',
     commodity_code: '',
-    quantity: booking?.product_qty || '',
+    quantity: booking.product_qty || '1',
     product_book: booking?.product_book || '',
     product_code: booking?.product_code || '',
     unit_weight: booking?.product_weight || '',
     product_value: booking?.product_value || '',
   });
 
-  console.log(booking, 'booking data from pD');
+  // console.log(priceDetails, 'booking data from pD');
 
   const dispatch = useAppDispatch();
 
@@ -414,7 +419,8 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     const fieldMap = {
       ...form,
       product_qty: form.quantity,
-      amount: 500,
+      amount: Number(priceDetails.handlingFee) + Number(form.quantity) * priceDetails?.totalPrice,
+      // amount: priceDetails?.totalAmount,
     };
 
     Object.entries(fieldMap).forEach(([field, value]) => {
@@ -435,6 +441,17 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       form.quantity.trim()
     );
   };
+
+  // useEffect(() => {
+  //   const quantity = parseInt(form.quantity, 10) || 1;
+  //   const unitPrice = parseFloat(form.product_value) || 0;
+  //   const handlingFee = parseFloat(priceDetails.handlingFee) || 0;
+
+  //   const totalPrice = quantity * unitPrice;
+  //   const totalAmount = totalPrice + handlingFee;
+
+  //   dispatch(setPriceDetails({ totalPrice, totalAmount, handlingFee: priceDetails.handlingFee }));
+  // }, [form.quantity, form.product_value, priceDetails.handlingFee, dispatch]);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6">
@@ -571,19 +588,19 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
               </div>
               <div className="flex justify-between">
                 <span>Shipping/Freight Cost</span>
-                <span>$120</span>
+                <span>{`£${priceDetails?.handlingFee}`}</span>
               </div>
               <div className="flex justify-between">
                 <span>Package Contents Declared</span>
-                <span>$600</span>
+                <span>{`£${Number(form.quantity) * priceDetails?.totalPrice}`}</span>
               </div>
-              <div className="flex justify-between">
+              {/* <div className="flex justify-between">
                 <span>VAT</span>
                 <span>$60</span>
-              </div>
+              </div> */}
               <div className="border-t border-black pt-2 font-semibold flex justify-between text-black">
                 <span>Total Product Value</span>
-                <span>$780</span>
+                <span>{`£${Number(priceDetails.handlingFee) + Number(form.quantity) * priceDetails?.totalPrice}`}</span>
               </div>
             </div>
           </div>
@@ -607,10 +624,8 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const booking = useAppSelector((state) => state.booking);
   const quote = useAppSelector((state) => state.quote);
-  const { quote: quoteData } = useAppSelector((state) => state.quoteData);
+  const { quote: quoteData, priceDetails } = useAppSelector((state) => state.quoteData);
   const dispatch = useAppDispatch();
-
-  console.log(booking, 9998888844445);
 
   const { isPending, mutate } = useCreateBooking((response: any) => {
     if (response?.data?.data.url) {
@@ -681,7 +696,35 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
                     <td className="p-3">{index + 1}</td>
                     <td className="p-3">{parcel.items[0]?.description || 'N/A'}</td>
                     <td className="p-3">${parcel.items[0]?.description || '0'} exc VAT</td>
-                    <td className="p-3">✅</td>
+                    <td className="p-3">
+                      {' '}
+                      <div className="flex justify-center space-x-2">
+                        <button className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
+                        <button className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -692,7 +735,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
           <div className="space-y-6 mb-8">
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-2">Return Detailszz: {booking.sender_address.contact_name}</h2>
+                <h2 className="text-lg font-semibold mb-2">Return Details: {booking.sender_address.contact_name}</h2>
                 <div className="bg-gray-50 p-4 rounded">
                   <p>{booking.sender_address.address_line_1}</p>
                   <p>{booking.sender_address.post_code}</p>
@@ -774,15 +817,15 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span>Base Price</span>
-                <span>${'0.00'}</span>
+                <span>{`£${priceDetails?.totalPrice}`}</span>
               </div>
               <div className="flex justify-between">
                 <span>Parcel Protection</span>
-                <span>${'0.00'}</span>
+                <span>{`£${priceDetails?.handlingFee}`}</span>
               </div>
               <div className="flex justify-between font-medium border-t pt-2">
                 <span>Sub-Total</span>
-                <span>${'0.00'}</span>
+                <span>{`£${priceDetails?.totalAmount}`}</span>
               </div>
               <div className="flex justify-between">
                 <span>VAT</span>
@@ -790,7 +833,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total Due</span>
-                <span>${'0.00'}</span>
+                <span>{`£${booking?.amount}`}</span>
               </div>
             </div>
           </div>

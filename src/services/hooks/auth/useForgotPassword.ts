@@ -15,7 +15,6 @@ export const useForgotPassword = (onSuccess?: (data: any) => void) => {
             return post('auth/password/forgot', payload);
         },
         onSuccess: async (response: { success: boolean; message: string }) => {
-            console.log(response, 'response forgot password');
 
             if (response.success === false) {
                 throw new Error('Error');

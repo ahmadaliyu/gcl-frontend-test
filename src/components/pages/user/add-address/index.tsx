@@ -13,7 +13,6 @@ function AddAddresses() {
   const router = useRouter();
 
   const { mutate, isPending } = useAddAddress((response) => {
-    console.log(response, 8888);
     if (response.status >= 400) {
       return;
     } else {
@@ -60,7 +59,6 @@ function AddAddresses() {
   };
 
   const handleSave = () => {
-    console.log('Saving address:', formData);
     mutate({
       payload: {
         ...formData,

@@ -21,6 +21,7 @@ function LoginPage() {
   let quote = params.get('quote');
 
   const { isPending, mutate } = useSignIn((response: any) => {
+    // console.log(response?.data?.data, 11);
 
     if (response?.data?.success || response?.status === 200) {
       if (quote) {

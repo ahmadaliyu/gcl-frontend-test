@@ -12,7 +12,7 @@ import { setCities, setCountries } from '@/store/auth/countrySlice';
 function Homepage() {
   const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
   const { data: cities, isLoading: isLoadingCities } = useGetCities();
-  
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {

@@ -221,7 +221,7 @@ interface ShippingOption {
   routeType: string;
 }
 
-interface LegDetail {
+export interface LegDetail {
   from: string;
   to: string;
   price: number;

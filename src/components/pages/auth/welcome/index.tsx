@@ -172,10 +172,7 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const dispatch = useAppDispatch();
   const { countries: COUNTRY_CODE_LIST, cities: CITIES } = useAppSelector((state) => state.country);
 
-  console.log(CITIES, 'hmmm city');
-
   const handleFieldChange = (field: keyof typeof form, value: any) => {
-    console.log(field, value, 'field and value');
 
     dispatch(updateField({ field, value }));
   };

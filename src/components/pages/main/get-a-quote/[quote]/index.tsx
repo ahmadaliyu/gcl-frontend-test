@@ -5,6 +5,7 @@ import Button from '@/components/reuseables/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { useRouter } from 'next/navigation';
 import { updateBookingField } from '@/store/booking/bookingSlice';
+import { setPriceDetails } from '@/store/auth/quoteDataSlice';
 
 function GetAQuote() {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.SampleQuote);
@@ -15,16 +16,17 @@ function GetAQuote() {
 
   const dispatch = useAppDispatch();
 
-  console.log(user, 'the user is logged in');
-
   const router = useRouter();
 
-  const handleNext = (serviceId: string) => {
+  const handleNext = (serviceId: string, handlingFee: string, totalAmount: number, totalPrice: number) => {
+    let priceDetails = { handlingFee, totalAmount, totalPrice };
     if (user?.email) {
       dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
+      dispatch(setPriceDetails(priceDetails));
       router.push(`/quote-review`);
     } else {
       dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
+      dispatch(setPriceDetails(priceDetails));
       router.push(`/auth/login?quote=quote`);
     }
   };
@@ -38,7 +40,11 @@ function GetAQuote() {
         transitTime: `${option.estimatedDeliveryTime} hours`,
         weight: quote.data.parcels.reduce((sum, p) => sum + p.items.reduce((s, i) => s + i.weight, 0), 0) + 'kg',
         fees: `£${option.legDetails.reduce((sum, leg) => sum + parseFloat(leg.handlingFee), 0)}`,
-        total: `£${option.totalAmount}`,
+        total: `£${(
+          parseFloat(option.totalPrice.toString()) +
+          option.legDetails.reduce((sum, leg) => sum + parseFloat(leg.handlingFee || '0'), 0)
+        ).toFixed(2)}`,
+        totalPrice: option.totalPrice,
         isExpress: option.isExpress,
       }))
     : [];
@@ -136,7 +142,17 @@ function GetAQuote() {
                     {service.company}
                   </TableCell>
                   <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                    <Button onClick={() => handleNext(service.id)} title="Buy Now" />
+                    <Button
+                      onClick={() =>
+                        handleNext(
+                          service.id,
+                          service.fees.replace('£', ''),
+                          Number(service.total.replace('£', '')),
+                          Number(service.totalPrice)
+                        )
+                      }
+                      title="Buy Now"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
