@@ -3,7 +3,7 @@ import { resetForm, setTempCredentials } from '@/store/auth/formSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { persistor, RootState } from '@/store/store';
 import { resetUser } from '@/store/user/userSlice';
-import { HamburgerMenuIcon } from '@radix-ui/react-icons';
+import { HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -96,9 +96,108 @@ const NavbarTop = () => {
   );
 };
 
+const MobileSidebar = ({
+  isOpen,
+  onClose,
+  pathname,
+  user,
+  handleLogout,
+  setShowLogoutModal,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  pathname: string;
+  user: any;
+  handleLogout: () => void;
+  setShowLogoutModal: (show: boolean) => void;
+}) => {
+  const navItems = [
+    { id: 'home', title: 'Home', link: '/', hideChevron: true },
+    { id: 'services', title: 'Services', link: '/services' },
+    { id: 'solutions', title: 'Solutions', link: '/solutions' },
+    { id: 'resources', title: 'Resources', link: '/resources' },
+    { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
+  ];
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 transform ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+      } transition-transform duration-300 ease-in-out`}
+    >
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
+      <div className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-white shadow-xl">
+        <div className="flex justify-end p-4">
+          <button onClick={onClose} className="p-2">
+            <Cross1Icon className="size-6" />
+          </button>
+        </div>
+
+        <div className="px-4 py-2">
+          <div className="flex flex-col space-y-4">
+            {navItems.map((item) => (
+              <Link
+                key={item?.id}
+                href={item?.link}
+                className="font-poppins text-[16px] leading-[24px] font-medium hover:text-[#DC3545] flex items-center justify-between py-2 text-[#21222D]"
+                onClick={onClose}
+              >
+                <span>{item?.title}</span>
+                {!item?.hideChevron && chevron_down}
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-8 border-t pt-4">
+            {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
+              <div className="flex flex-col gap-4">
+                <Link href="/auth/login" onClick={onClose}>
+                  <Button title="Login" variant="outlined-blue" fullWidth />
+                </Link>
+                <Link href="/auth/register" onClick={onClose}>
+                  <Button title="Get Started" fullWidth />
+                </Link>
+              </div>
+            ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
+              <div className="flex flex-col gap-4">
+                <Link href="/auth/login" onClick={onClose}>
+                  <Button title="Login" variant="outlined-blue" fullWidth />
+                </Link>
+                <Link href="/auth/register" onClick={onClose}>
+                  <Button title="Get Started" fullWidth />
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3 p-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                    <span className="text-xs font-medium">{user?.firstName ? user?.firstName.slice(0, 1) : ''}</span>
+                  </div>
+                  <span className="font-poppins text-sm">Hello, {user?.firstName}</span>
+                </div>
+                <Button
+                  onClick={() => {
+                    setShowLogoutModal(true);
+                    onClose();
+                  }}
+                  title="Logout"
+                  variant="outlined-blue-dark"
+                  fullWidth
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navItems = [
     { id: 'home', title: 'Home', link: '/', hideChevron: true },
@@ -109,12 +208,8 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   ];
 
   const [scroll, setScroll] = useState(false);
-
   const router = useRouter();
-
   const user = useAppSelector((state: RootState) => state.user);
-
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     dispatch(resetUser());
@@ -130,76 +225,79 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
       setScroll(window.scrollY > 0);
     });
   }, []);
-  // console.log('scroll', scroll);
 
   return (
-    <div
-      className={`${
-        fixed ? (scroll ? 'fixed top-0' : '') : ''
-      } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
-    >
-      <div className="max-screen-inner h-[96px] flex items-center justify-between">
-        <a href="/">
-          <img src="/images/logo.png" className="w-[153px] h-[62px]" alt="logo" />
-        </a>
-        <div className="flex flex-1 justify-center gap-[30px] max-[1120px]:hidden">
-          {navItems.map((item) => (
-            <Link
-              key={item?.id}
-              href={item?.link}
-              className="font-poppins text-[16px] leading-[24px] font-medium hover:text-[#DC3545] flex items-center gap-[8px] text-[#21222D]"
-            >
-              <span>{item?.title}</span>
-              {!item?.hideChevron && chevron_down}
-            </Link>
-          ))}
-        </div>
-        {/* <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
-          <Link href="/auth/login">
-            <Button title="Login" variant="outlined-blue" />
-          </Link>
-          <Link href="/auth/register">
-            <Button title="Get Started" />
-          </Link>
-        </div> */}
-        {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
-          <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
-            <Link href="/auth/login">
-              <Button title="Login" variant="outlined-blue" />
-            </Link>
-            <Link href="/auth/register">
-              <Button title="Get Started" />
-            </Link>
+    <>
+      <div
+        className={`${
+          fixed ? (scroll ? 'fixed top-0' : '') : ''
+        } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
+      >
+        <div className="max-screen-inner h-[96px] flex items-center justify-between">
+          <a href="/">
+            <img src="/images/logo.png" className="w-[153px] h-[62px]" alt="logo" />
+          </a>
+          <div className="flex flex-1 justify-center gap-[30px] max-[1120px]:hidden">
+            {navItems.map((item) => (
+              <Link
+                key={item?.id}
+                href={item?.link}
+                className="font-poppins text-[16px] leading-[24px] font-medium hover:text-[#DC3545] flex items-center gap-[8px] text-[#21222D]"
+              >
+                <span>{item?.title}</span>
+                {!item?.hideChevron && chevron_down}
+              </Link>
+            ))}
           </div>
-        ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
-          <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
-            <Link href="/auth/login">
-              <Button title="Login" variant="outlined-blue" />
-            </Link>
-            <Link href="/auth/register">
-              <Button title="Get Started" />
-            </Link>
-          </div>
-        ) : (
-          <div className="flex items-center gap-4 max-[1120px]:hidden">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                <span className="text-xs font-medium">{user?.firstName ? user?.firstName.slice(0, 1) : ''}</span>
-              </div>
-              <span className="font-poppins text-sm">Hello, {user?.firstName}</span>
+          {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
+            <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
+              <Link href="/auth/login">
+                <Button title="Login" variant="outlined-blue" />
+              </Link>
+              <Link href="/auth/register">
+                <Button title="Get Started" />
+              </Link>
             </div>
-            <Button onClick={() => setShowLogoutModal(true)} title="Logout" variant="outlined-blue-dark" />
-            <LogoutModal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
-          </div>
-        )}
+          ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
+            <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
+              <Link href="/auth/login">
+                <Button title="Login" variant="outlined-blue" />
+              </Link>
+              <Link href="/auth/register">
+                <Button title="Get Started" />
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 max-[1120px]:hidden">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                  <span className="text-xs font-medium">{user?.firstName ? user?.firstName.slice(0, 1) : ''}</span>
+                </div>
+                <span className="font-poppins text-sm">Hello, {user?.firstName}</span>
+              </div>
+              <Button onClick={() => setShowLogoutModal(true)} title="Logout" variant="outlined-blue-dark" />
+            </div>
+          )}
 
-        <div className="max-[1120px]:flex hidden">
-          <button>
-            <HamburgerMenuIcon className="size-[40px] sm:size-[35px]" />
-          </button>
+          <div className="max-[1120px]:flex hidden">
+            <button onClick={() => setIsSidebarOpen(true)}>
+              <HamburgerMenuIcon className="size-[40px] sm:size-[35px]" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <MobileSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        pathname={pathname}
+        user={user}
+        handleLogout={handleLogout}
+        setShowLogoutModal={setShowLogoutModal}
+      />
+
+      <LogoutModal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
+    </>
   );
 };
 

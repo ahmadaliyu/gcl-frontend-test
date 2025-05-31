@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import Button from '@/components/reuseables/Button';
 import InputField from '@/components/reuseables/InputField';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useCreateBooking, useGetAddresses } from '@/services';
 import { resetBooking, updateBookingField } from '@/store/booking/bookingSlice';
 import { clearQuotesData } from '@/store/auth/quoteSlice';
-import { clearQuote, setPriceDetails } from '@/store/auth/quoteDataSlice';
+import { clearQuote } from '@/store/auth/quoteDataSlice';
 
 function WelcomePage() {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.ReceipientDetails);
@@ -92,13 +92,10 @@ export default WelcomePage;
 const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const { isFetching, data } = useGetAddresses();
   const dispatch = useAppDispatch();
-  const booking = useAppSelector((state) => state.booking);
   const router = useRouter();
 
   const senderAddresses = data?.data?.filter((addr) => addr.is_sender_address) || [];
   const recipientAddresses = data?.data?.filter((addr) => !addr.is_sender_address) || [];
-
-  // console.log(data?.data, 333);
 
   const senderAddressOptions = senderAddresses.map((address) => ({
     label: address.label || address.address_line_1 || 'Unnamed Address',
@@ -390,10 +387,6 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const booking = useAppSelector((state) => state.booking);
   const { priceDetails, quote } = useAppSelector((state) => state.quoteData);
 
-  let [netTotal, setNetTotal] = useState(0);
-
-  console.log(priceDetails);
-
   const [form, setForm] = useState({
     package_no: booking?.product_value || '',
     product_type: booking?.product_type || '',
@@ -406,8 +399,6 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     unit_weight: booking?.product_weight || '',
     product_value: booking?.product_value || '',
   });
-
-  // console.log(priceDetails, 'booking data from pD');
 
   const dispatch = useAppDispatch();
 

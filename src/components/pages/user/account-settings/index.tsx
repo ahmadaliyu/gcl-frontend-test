@@ -265,10 +265,10 @@ interface User {
   middle_name?: string;
   phone: string;
   email: string;
-  account_type: "personal" | "business";
+  account_type: 'personal' | 'business';
   business_name?: string;
   business_phone?: string;
-  gender: "male" | "female" | "non-binary" | "other";
+  gender: 'male' | 'female' | 'non-binary' | 'other';
   password: string;
   marketing_communications: boolean;
   promotional_emails: boolean;
@@ -296,10 +296,11 @@ function UserAccountSettings() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`w-[235px] py-[12px] text-[16px] font-medium text-[#272727] ${activeTab === tab.id
-              ? 'bg-[#FCE8E9] border-b-[3px] border-[#E51520] font-[600]'
-              : 'bg-transparent border-b-[3px] border-transparent font-[400]'
-              }`}
+            className={`w-[235px] py-[12px] text-[16px] font-medium text-[#272727] ${
+              activeTab === tab.id
+                ? 'bg-[#FCE8E9] border-b-[3px] border-[#E51520] font-[600]'
+                : 'bg-transparent border-b-[3px] border-transparent font-[400]'
+            }`}
           >
             {tab.title}
           </button>
@@ -315,21 +316,17 @@ function UserAccountSettings() {
 }
 
 const Security = () => {
-
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
     enableTwoFA: false,
   });
-  const { isPending, mutate, } = useChangePassword((response: any) => {
-
-
+  const { isPending, mutate } = useChangePassword((response: any) => {
     if (response?.status === 200 || response?.status === 201) {
       alert(`${response?.data.message}`);
     }
   });
-
 
   const handleFieldChange = (name: string, value: string | boolean) => {
     setFormData((prev: any) => ({
@@ -339,7 +336,6 @@ const Security = () => {
   };
 
   const handleSave = () => {
-
     if (formData?.newPassword !== formData.confirmPassword) {
       alert('New password and confirm password do not match');
       return;
@@ -359,14 +355,35 @@ const Security = () => {
     <div className="mt-[32px]">
       <div className="flex flex-row gap-[16px] mt-[24px]">
         <div className="flex-1">
-          <InputField name='currentPassword' onChange={handleFieldChange} value={formData.currentPassword} label="Current Password" placeholder="Enter password here" type="password" />
+          <InputField
+            name="currentPassword"
+            onChange={handleFieldChange}
+            value={formData.currentPassword}
+            label="Current Password"
+            placeholder="Enter password here"
+            type="password"
+          />
         </div>
         <div className="flex-1" />
       </div>
 
       <div className="flex flex-row gap-[16px] mt-[24px]">
-        <InputField name='newPassword' onChange={handleFieldChange} value={formData.newPassword} label="New Password" placeholder="Enter password here" type="password" />
-        <InputField name='confirmPassword' onChange={handleFieldChange} value={formData.confirmPassword} label="Confirm New Password" placeholder="Enter password here" type="password" />
+        <InputField
+          name="newPassword"
+          onChange={handleFieldChange}
+          value={formData.newPassword}
+          label="New Password"
+          placeholder="Enter password here"
+          type="password"
+        />
+        <InputField
+          name="confirmPassword"
+          onChange={handleFieldChange}
+          value={formData.confirmPassword}
+          label="Confirm New Password"
+          placeholder="Enter password here"
+          type="password"
+        />
       </div>
 
       <p className="text-[#E51520] text-[14px] mt-[6px]">
@@ -384,7 +401,13 @@ const Security = () => {
         You can change your mind at any time by turning this off in your profile settings.
       </p>
 
-      <Button onClick={handleSave} loading={isPending} disabled={isPending || !formData.currentPassword || !formData.confirmPassword} title="Save Changes" className="mt-[48px]" />
+      <Button
+        onClick={handleSave}
+        loading={isPending}
+        disabled={isPending || !formData.currentPassword || !formData.confirmPassword}
+        title="Save Changes"
+        className="mt-[48px]"
+      />
     </div>
   );
 };
@@ -418,7 +441,7 @@ export enum EStepIds {
 
 const PersonalInformation = () => {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.UserDetails);
-  const user = useAppSelector(state => state.user);
+  const user = useAppSelector((state) => state.user);
 
   const [formData, setFormData] = useState<any>({
     first_name: user.firstName || '',
@@ -449,14 +472,11 @@ const PersonalInformation = () => {
   // Determine disabled state based on active step
   const isEditing = (step: EStepIds) => activeStepId === step;
 
-
   const { isPending, mutate, isSuccess } = useUpdateProfile((response: any) => {
-
     if (response?.status === 200 || response?.status === 201) {
       alert(`${response?.data.message}`);
     }
   });
-
 
   const handleFieldChange = (name: string, value: string | boolean) => {
     setFormData((prev: any) => ({
@@ -473,7 +493,6 @@ const PersonalInformation = () => {
     });
     setActiveStepId(EStepIds.UserDetails);
   };
-
 
   //   const {data} = useGetProfile()
 
@@ -499,7 +518,7 @@ const PersonalInformation = () => {
       <div className="flex flex-row gap-[16px]">
         <InputField
           disabled={!isEditing(EStepIds.UserDetails)}
-          name='first_name'
+          name="first_name"
           value={formData.first_name}
           onChange={handleFieldChange}
           label="First Name *"
@@ -509,7 +528,7 @@ const PersonalInformation = () => {
           disabled={!isEditing(EStepIds.UserDetails)}
           onChange={handleFieldChange}
           label="Last Name *"
-          name='last_name'
+          name="last_name"
           value={formData.last_name}
           placeholder={formData.last_name}
         />
@@ -520,7 +539,7 @@ const PersonalInformation = () => {
           disabled={!isEditing(EStepIds.UserDetails)}
           onChange={handleFieldChange}
           label="Middle Name"
-          name='middle_name'
+          name="middle_name"
           value={formData.middle_name}
           placeholder={formData.middle_name}
         />
@@ -622,7 +641,7 @@ const PersonalInformation = () => {
           disabled={!isEditing(EStepIds.BillingAddress)}
           value={formData.city || ''}
           onChange={handleFieldChange}
-          name='city'
+          name="city"
           label="City *"
           placeholder="Enter city"
         />
@@ -633,7 +652,7 @@ const PersonalInformation = () => {
           disabled={!isEditing(EStepIds.BillingAddress)}
           value={formData.state || ''}
           onChange={handleFieldChange}
-          name='state'
+          name="state"
           label="State/Province"
           placeholder="Enter state/province"
         />
@@ -641,7 +660,7 @@ const PersonalInformation = () => {
           disabled={!isEditing(EStepIds.BillingAddress)}
           value={formData.post_code}
           onChange={handleFieldChange}
-          name='post_code'
+          name="post_code"
           label="Postal Code *"
           placeholder="Enter postal code"
         />
@@ -652,7 +671,7 @@ const PersonalInformation = () => {
           disabled={!isEditing(EStepIds.BillingAddress)}
           value={formData.eori_number || ''}
           onChange={handleFieldChange}
-          name='eori_number'
+          name="eori_number"
           label="EORI Number"
           placeholder="Enter EORI number"
         />
@@ -755,4 +774,3 @@ const PersonalInformation = () => {
 };
 
 export default UserAccountSettings;
-

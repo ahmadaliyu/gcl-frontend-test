@@ -19,7 +19,6 @@ const GuestDropdown = () => {
 
   // const handleToggle = () => {
   //   setIsOpen(!isOpen);
-  //   console.log(isOpen);
 
   // onOpenChange={handleToggle}
   // };

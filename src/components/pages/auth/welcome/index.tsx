@@ -173,7 +173,6 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const { countries: COUNTRY_CODE_LIST, cities: CITIES } = useAppSelector((state) => state.country);
 
   const handleFieldChange = (field: keyof typeof form, value: any) => {
-
     dispatch(updateField({ field, value }));
   };
 
@@ -343,8 +342,6 @@ const OtherPreferences = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const handleCheckboxChange = (field: keyof typeof form, checked: boolean) => {
     dispatch(updateField({ field, value: checked }));
   };
-
-  // console.log(form, 'hmmmmm');
 
   return (
     <>

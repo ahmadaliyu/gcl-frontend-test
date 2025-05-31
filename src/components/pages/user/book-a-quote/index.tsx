@@ -113,7 +113,6 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
   };
 
   const handleModalSubmit = () => {
-  
     setShowModal(false);
   };
 

@@ -109,9 +109,6 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
   };
 
   const handleModalSubmit = () => {
-    // console.log('Guest Name:', guestName);
-    // console.log('Guest Email:', guestEmail);
-
     setShowModal(false);
   };
 

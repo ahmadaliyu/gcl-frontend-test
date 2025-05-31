@@ -574,8 +574,6 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
     );
   }, [quantity, weight, unit, weightUnit, description, parcelIndex, itemIndex, dispatch]);
 
-  // console.log(shipment, 99999);
-
   return (
     <>
       <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex h-[61px] py-[8px] px-[16px] items-center">
