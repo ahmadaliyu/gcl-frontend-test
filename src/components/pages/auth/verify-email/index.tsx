@@ -26,7 +26,7 @@ function VerifyEmail() {
     } else {
       if (response?.data?.success || response?.status === 200) {
         dispatch(setUser(response?.data?.user));
-        router.replace('/login');
+        router.replace('auth/login');
         dispatch(resetForm());
       }
     }

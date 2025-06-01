@@ -414,17 +414,23 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
       </div>
 
       <div className="flex-1">
-        <p className="text-[#0088DD] text-[12px]">{country === 'NG' ? 'City' : 'Postcode'}</p>
         {country === 'NG' ? (
           <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
-            <SelectTrigger className="w-full text-[12px] p-0 border-0 outline-none focus:ring-0">
-              <SelectValue
-                placeholder="Select City"
-                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-              />
-              <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+              <p className="text-[#0088DD] text-[12px]">{'City'}</p>
+              <div className="flex w-full text-[12px] items-center">
+                <SelectValue
+                  placeholder="Select City"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
+                />
+                <img
+                  src="/icons/chevron-down.png"
+                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
+                  alt="dropdown"
+                />
+              </div>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="w-[var(--radix-select-trigger-width)]">
               <SelectGroup>
                 <SelectLabel>Select A City</SelectLabel>
                 {CITIES_LIST.map((city) => (
@@ -554,17 +560,23 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
       </div>
 
       <div className="flex-1">
-        <p className="text-[#0088DD] text-[12px]">{country === 'NG' ? 'City' : 'Postcode'}</p>
         {country === 'NG' ? (
           <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
-            <SelectTrigger className="w-full text-[12px] p-0 border-0 outline-none focus:ring-0">
-              <SelectValue
-                placeholder="Select City"
-                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-              />
-              <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+              <p className="text-[#0088DD] text-[12px]">{'City'}</p>
+              <div className="flex w-full text-[12px] items-center">
+                <SelectValue
+                  placeholder="Select City"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
+                />
+                <img
+                  src="/icons/chevron-down.png"
+                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
+                  alt="dropdown"
+                />
+              </div>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="w-[var(--radix-select-trigger-width)]">
               <SelectGroup>
                 <SelectLabel>Select A City</SelectLabel>
                 {CITIES_LIST.map((city) => (
