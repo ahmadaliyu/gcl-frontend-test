@@ -125,11 +125,6 @@ const MobileSidebar = ({
     { id: 'resources', title: 'Resources', link: '/resources' },
   ];
 
-  const NAVITEMS = useMemo(() => {
-    if (!!user?.email) {
-      return navItemsUser;
-    } else return navItems;
-  }, []);
   return (
     <div
       className={`fixed inset-0 z-50 transform ${
@@ -145,19 +140,37 @@ const MobileSidebar = ({
         </div>
 
         <div className="px-4 py-2">
-          <div className="flex flex-col space-y-4">
-            {NAVITEMS.map((item) => (
-              <Link
-                key={item?.id}
-                href={item?.link}
-                className="font-poppins text-[16px] leading-[24px] font-medium hover:text-[#DC3545] flex items-center justify-between py-2 text-[#21222D]"
-                onClick={onClose}
-              >
-                <span>{item?.title}</span>
-                {!item?.hideChevron && chevron_down}
-              </Link>
-            ))}
-          </div>
+          {!user?.email && (
+            <div className="flex flex-col space-y-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item?.id}
+                  href={item?.link}
+                  className="font-poppins text-[16px] leading-[24px] font-medium hover:text-[#DC3545] flex items-center justify-between py-2 text-[#21222D]"
+                  onClick={onClose}
+                >
+                  <span>{item?.title}</span>
+                  {!item?.hideChevron && chevron_down}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {user?.email && (
+            <div className="flex flex-col space-y-4">
+              {navItemsUser.map((item) => (
+                <Link
+                  key={item?.id}
+                  href={item?.link}
+                  className="font-poppins text-[16px] leading-[24px] font-medium hover:text-[#DC3545] flex items-center justify-between py-2 text-[#21222D]"
+                  onClick={onClose}
+                >
+                  <span>{item?.title}</span>
+                  {!item?.hideChevron && chevron_down}
+                </Link>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 border-t pt-4">
             {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
@@ -229,6 +242,10 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
 
   const isAuthenticated = user?.role === 'user';
 
+  const NAVITEMS = useMemo(() => {
+    return user?.role === 'user' ? navItemsUser : navItems;
+  }, [user?.role]);
+
   const handleLogout = () => {
     dispatch(resetUser());
     dispatch(resetBooking());
@@ -243,12 +260,6 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
       setScroll(window.scrollY > 0);
     });
   }, []);
-
-  const NAVITEMS = useMemo(() => {
-    if (isAuthenticated) {
-      return navItemsUser;
-    } else return navItems;
-  }, [isAuthenticated, isSidebarOpen, user]);
 
   return (
     <>
