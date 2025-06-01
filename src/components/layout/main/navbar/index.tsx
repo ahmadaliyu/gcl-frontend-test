@@ -6,7 +6,7 @@ import { resetUser } from '@/store/user/userSlice';
 import { HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import LogoutModal from '../modal/LogoutModal';
 import { resetBooking } from '@/store/booking/bookingSlice';
 import { clearQuote } from '@/store/auth/quoteDataSlice';
@@ -119,6 +119,17 @@ const MobileSidebar = ({
     { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
 
+  const navItemsUser = [
+    { id: 'Dashboard', title: 'Dashboard', link: '/user/overview', hideChevron: true },
+    { id: 'solutions', title: 'Solutions', link: '/solutions' },
+    { id: 'resources', title: 'Resources', link: '/resources' },
+  ];
+
+  const NAVITEMS = useMemo(() => {
+    if (!!user?.email) {
+      return navItemsUser;
+    } else return navItems;
+  }, []);
   return (
     <div
       className={`fixed inset-0 z-50 transform ${
@@ -135,7 +146,7 @@ const MobileSidebar = ({
 
         <div className="px-4 py-2">
           <div className="flex flex-col space-y-4">
-            {navItems.map((item) => (
+            {NAVITEMS.map((item) => (
               <Link
                 key={item?.id}
                 href={item?.link}
@@ -206,6 +217,11 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     { id: 'resources', title: 'Resources', link: '/resources' },
     { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
+  const navItemsUser = [
+    { id: 'Dashboard', title: 'Dashboard', link: '/user/overview', hideChevron: true },
+    { id: 'solutions', title: 'Solutions', link: '/solutions' },
+    { id: 'resources', title: 'Resources', link: '/resources' },
+  ];
 
   const [scroll, setScroll] = useState(false);
   const router = useRouter();
@@ -226,6 +242,12 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     });
   }, []);
 
+  const NAVITEMS = useMemo(() => {
+    if (!!user?.email) {
+      return navItemsUser;
+    } else return navItems;
+  }, []);
+
   return (
     <>
       <div
@@ -234,11 +256,11 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
         } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
       >
         <div className="max-screen-inner h-[96px] flex items-center justify-between">
-          <a href="/">
+          <a href={user?.email ? '#' : '/'}>
             <img src="/images/logo.png" className="w-[153px] h-[62px]" alt="logo" />
           </a>
           <div className="flex flex-1 justify-center gap-[30px] max-[1120px]:hidden">
-            {navItems.map((item) => (
+            {NAVITEMS.map((item) => (
               <Link
                 key={item?.id}
                 href={item?.link}

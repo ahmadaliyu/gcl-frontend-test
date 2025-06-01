@@ -60,3 +60,38 @@ export interface ShipmentPayload {
   amount: number;
   parcel: Parcel[];
 }
+
+export interface Shipment {
+  id: string;
+  user_id: string;
+  service_id: string;
+  sender_address_id: string;
+  recipient_address_id: string;
+  code: string;
+  product_book: string;
+  product_code: string;
+  product_type: string;
+  product_details: string;
+  product_weight: string;
+  product_value: string;
+  product_qty: string;
+  origin: string;
+  origin_postcode: string;
+  destination: string;
+  destination_postcode: string;
+  is_insured: boolean;
+  has_protection: boolean;
+  is_sign_required: boolean;
+  print_type: string;
+  amount: number;
+  parcel: ParcelItem[]; // parsed from JSON string
+  status: string;
+  comment: string | null;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+}
+
+export interface ShipmentResponse {
+  success: boolean;
+  data: Shipment[];
+}

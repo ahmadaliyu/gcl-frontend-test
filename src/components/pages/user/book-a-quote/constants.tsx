@@ -533,8 +533,8 @@ export const OuterPackagingType = () => {
           <SelectContent>
             <SelectGroup>
               <SelectItem value={'Parcel/Large Letter'}>Parcel/Large Letter</SelectItem>
-              <SelectItem value={'Option 1'}>Option 1</SelectItem>
-              <SelectItem value={'Option 2'}>Option 2</SelectItem>
+              {/* <SelectItem value={'Option 1'}>Option 1</SelectItem>
+              <SelectItem value={'Option 2'}>Option 2</SelectItem> */}
             </SelectGroup>
           </SelectContent>
         </Select>

@@ -1,5 +1,5 @@
 import UserDashboardWrapper from '@/components/layout/user/user-dashboard-wrapper';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Button from '@/components/reuseables/Button';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useGetBooking } from '@/services';
 
 enum TabIds {
   SentPackages = 'sent-packages',
@@ -102,31 +103,55 @@ const services = [
 ];
 
 const tabs = [
-  { id: TabIds.RecievedPackages, title: 'Recieved Packages' },
+  { id: TabIds.RecievedPackages, title: 'Received Packages' },
   { id: TabIds.SentPackages, title: 'Sent Packages' },
 ];
 
 function MyBookings() {
   const [activeTab, setActiveTab] = useState<TabIds>(TabIds.RecievedPackages);
+  const { data, isLoading } = useGetBooking();
+
+  // Filter bookings based on active tab
+  const filteredBookings = useMemo(() => {
+    if (!data?.data) return [];
+
+    // For now, all packages are considered "Sent" - adjust this if your data structure changes
+    const isSentPackage = true; // All packages are sent packages in current implementation
+
+    return data.data.filter((booking) => {
+      if (activeTab === TabIds.SentPackages) {
+        return isSentPackage; // Show all packages in Sent tab
+      } else {
+        return !isSentPackage; // This would filter for received packages if implemented
+      }
+    });
+  }, [data, activeTab]);
 
   return (
     <UserDashboardWrapper>
+      {isLoading && (
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-gray-600 text-lg animate-pulse">Loading...</div>
+        </div>
+      )}
       <h1 className="text-[#272727] font-[600] text-[24px] mb-[56px]">My Bookings</h1>
       <div className="flex justify-start mb-[24px] border-b-[#E3E3E3] border-b">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`w-[185px] py-[12px] text-[16px] font-medium text-[#272727] ${activeTab === tab.id
-              ? 'bg-[#FCE8E9] border-b-[3px] border-[#E51520] font-[600]'
-              : 'bg-transparent border-b-[3px] border-transparent font-[400]'
-              }`}
+            className={`w-[185px] py-[12px] text-[16px] font-medium text-[#272727] ${
+              activeTab === tab.id
+                ? 'bg-[#FCE8E9] border-b-[3px] border-[#E51520] font-[600]'
+                : 'bg-transparent border-b-[3px] border-transparent font-[400]'
+            }`}
           >
             {tab.title}
           </button>
         ))}
       </div>
       <div className="w-full flex gap-[16px]">
+        {/* Date filter dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex border gap-[10px] border-[#CCCCCC] bg-[#F7F7F7] rounded-[8px] h-[40px] items-center justify-center px-[24px]">
@@ -162,6 +187,7 @@ function MyBookings() {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Status filter dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex border gap-[10px] border-[#CCCCCC] bg-[#F7F7F7] rounded-[8px] h-[40px] items-center justify-center px-[24px]">
@@ -174,7 +200,6 @@ function MyBookings() {
                   strokeLinejoin="round"
                 />
               </svg>
-
               <span>Filter by Status</span>
             </button>
           </DropdownMenuTrigger>
@@ -183,22 +208,22 @@ function MyBookings() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <span>Option 1</span>
+                <span>All Statuses</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <span>Option 2</span>
+                <span>In Transit</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <span>Option 3</span>
+                <span>Delivered</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <span>Cancelled</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       <div>
-        {/* {activeTab === TabIds.SentPackages && <div>Sent Packages Content</div>}
-        {activeTab === TabIds.RecievedPackages && <div>Recieved Packages Content</div>} */}
-
         <Table className="mb-[100px] mt-[16px]">
           <TableHeader>
             <TableRow className="bg-[#FCE8E9] hover:bg-[#FCE8E9]">
@@ -214,37 +239,51 @@ function MyBookings() {
           </TableHeader>
 
           <TableBody>
-            {services.map((service) => (
-              <TableRow key={service.id}>
-                <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px] flex items-center gap-2">
-                  <img src="/images/outer (2).png" className="w-[40px]" /> {service.recipient}
-                </TableCell>
-                <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                  {service.transitTime}
-                </TableCell>
-                <TableCell>
-                  <div
-                    className={`border h-[41px] flex items-center justify-center border-[#E3E3E3] font-medium w-[106px] px-[8px] ${service.status === 'In Transit'
-                      ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
-                      : service.status === 'Delivered'
-                        ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
-                        : ''
+            {filteredBookings.length > 0 ? (
+              filteredBookings.map((service) => (
+                <TableRow key={service.id}>
+                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px] flex items-center gap-2">
+                    <img src="/images/outer (2).png" className="w-[40px]" />
+                    {/* {service.recipientName || 'Recipient'} */}
+                    {'N/A'}
+                  </TableCell>
+                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
+                    {/* {service.transitTime || 'N/A'} */}
+                    {'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <div
+                      className={`border h-[41px] flex items-center justify-center border-[#E3E3E3] font-medium w-[106px] px-[8px] ${
+                        service.status === 'In Transit'
+                          ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
+                          : service.status === 'Delivered'
+                          ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
+                          : service.status === 'Cancelled'
+                          ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
+                          : ''
                       } rounded-[32px] h-[41px]`}
-                  >
-                    {service.status}
-                  </div>
-                </TableCell>
-                <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                  {service.totalPaid}
-                </TableCell>
-                <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                  {service.created}
-                </TableCell>
-                <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                  <TableActions />
+                    >
+                      {service.status}
+                    </div>
+                  </TableCell>
+                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
+                    {`£${service.amount}`}
+                  </TableCell>
+                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
+                    {new Date(service.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
+                    <TableActions bookingId={service.id} status={service.status} />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8">
+                  No bookings found
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>
@@ -254,7 +293,12 @@ function MyBookings() {
 
 export default MyBookings;
 
-const TableActions = () => {
+interface TableActionsProps {
+  bookingId: string;
+  status: string;
+}
+
+const TableActions: React.FC<TableActionsProps> = ({ bookingId, status }) => {
   return (
     <div className="flex items-center justify-start gap-[4px]">
       <button>

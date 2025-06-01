@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { RootState } from '@/store/store';
 import { setUser } from '@/store/user/userSlice';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 const pending = (
@@ -29,19 +30,15 @@ const datex = (
 );
 
 function DashboardOverview() {
-
   const dispatch = useAppDispatch();
 
-  const { data, isLoading } = useGetProfile()
+  const { data, isLoading } = useGetProfile();
 
   const user = useAppSelector((state: RootState) => state);
 
+  const router = useRouter();
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setUser(data));
-    }
-  }, [data, dispatch]);
+  const handleBookNew = () => router.push('/user/book-a-quote');
 
   // if (isLoading) {
   //   return (
@@ -68,7 +65,10 @@ function DashboardOverview() {
       <div>
         <h1 className="text-[#272727] font-[600] text-[24px] mb-[56px]">My Overview</h1>
         <div className="flex gap-[32px] ">
-          <button className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md bg-[#02044A]">
+          <button
+            onClick={handleBookNew}
+            className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md bg-[#02044A]"
+          >
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M20.0349 4.84961C14.5183 4.84961 10.0349 9.33294 10.0349 14.8496V19.6663C10.0349 20.6829 9.60161 22.2329 9.08494 23.0996L7.16828 26.2829C5.98494 28.2496 6.80161 30.4329 8.96828 31.1663C16.1516 33.5663 23.9016 33.5663 31.0849 31.1663C33.1016 30.4996 33.9849 28.1163 32.8849 26.2829L30.9683 23.0996C30.4683 22.2329 30.0349 20.6829 30.0349 19.6663V14.8496C30.0349 9.34961 25.5349 4.84961 20.0349 4.84961Z"

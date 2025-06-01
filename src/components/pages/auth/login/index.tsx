@@ -20,15 +20,39 @@ function LoginPage() {
   const params = useSearchParams();
   let quote = params.get('quote');
 
+  // const { isPending, mutate } = useSignIn((response: any) => {
+  //   if (response?.data?.success || response?.status === 200) {
+  //     if (quote) {
+  //       dispatch(setUser(response?.data?.data?.user));
+  //       router.push('/quote-review');
+  //       return;
+  //     }
+  //     router.push('/user/book-a-quote');
+  //     dispatch(setUser(response?.data?.data?.user));
+  //   }
+  // });
+
   const { isPending, mutate } = useSignIn((response: any) => {
     if (response?.data?.success || response?.status === 200) {
-      if (quote) {
-        dispatch(setUser(response?.data?.data?.user));
-        router.push('/quote-review');
-        return;
+      const user = response?.data?.data?.user;
+      dispatch(setUser(user));
+
+      // Check if this is first login
+      const isFirstLogin = !localStorage.getItem(`user_${user.id}_logged_in`);
+
+      if (isFirstLogin) {
+        // Mark as logged in for future visits
+        localStorage.setItem(`user_${user.id}_logged_in`, 'true');
+        // Redirect to book-a-quote for first login
+        if (quote) {
+          router.push('/quote-review');
+        } else {
+          router.push('/user/book-a-quote');
+        }
+      } else {
+        // Redirect to overview for subsequent logins
+        router.push('/user/overview');
       }
-      router.push('/user/book-a-quote');
-      dispatch(setUser(response?.data?.data?.user));
     }
   });
 
