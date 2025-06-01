@@ -227,6 +227,8 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user);
 
+  const isAuthenticated = user?.role === 'user';
+
   const handleLogout = () => {
     dispatch(resetUser());
     dispatch(resetBooking());
@@ -243,10 +245,10 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   }, []);
 
   const NAVITEMS = useMemo(() => {
-    if (!!user?.email) {
+    if (isAuthenticated) {
       return navItemsUser;
     } else return navItems;
-  }, []);
+  }, [isAuthenticated, isSidebarOpen, user]);
 
   return (
     <>
@@ -271,7 +273,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
               </Link>
             ))}
           </div>
-          {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
+          {pathname === '/' || (pathname?.startsWith('/auth') && !isAuthenticated) ? (
             <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
               <Link href="/auth/login">
                 <Button title="Login" variant="outlined-blue" />
@@ -280,7 +282,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
                 <Button title="Get Started" />
               </Link>
             </div>
-          ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
+          ) : pathname.startsWith('/get-a-quote') && !isAuthenticated ? (
             <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
               <Link href="/auth/login">
                 <Button title="Login" variant="outlined-blue" />

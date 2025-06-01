@@ -43,32 +43,34 @@ function GetAQuote() {
         {tabs.map((tab) => (
           <div
             key={tab.id}
-            className={`flex flex-col items-center cursor-pointer text-[14px] flex-1 font-medium gap-[8px] pb-[16px] border-b-[4px] mb-[-1px] ${
+            className={`flex flex-col items-center justify-center cursor-pointer text-[14px] flex-1 font-medium gap-[8px] pb-[16px] border-b-[4px] mb-[-1px] ${
               activeTab?.id === tab.id ? 'text-[#E51520] border-b-[#E51520]' : 'text-white border-b-transparent'
             }`}
             onClick={() => setActiveTab(tab)}
           >
             {activeTab?.id === tab.id ? tab.icon_active : tab.icon_inactive}
-            <span>{tab.title}</span>
+            <span className="text-center">{tab.title}</span>
           </div>
         ))}
       </div>
+
       <div className="flex-1 flex justify-between gap-[16px] w-full rounded-t-[16px] mt-[24px]">
         {channels.map((channel) => {
           if (!activeTab.channels?.includes(channel?.key)) return null;
           return (
             <div
               key={channel.key}
-              className={`flex-1 flex items-center justify-center w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
+              className={`flex-1 flex items-center justify-center text-center w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
                 activeChannel !== channel.key ? 'bg-[#02044A] text-white' : 'bg-white text-[#02044A]'
               } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
               onClick={() => setActiveChannel(channel.key)}
             >
-              <span>{channel.title}</span>
+              <span className="text-center w-full">{channel.title}</span>
             </div>
           );
         })}
       </div>
+
       {activeTab.id === TTabIds.RoadFreight && <RoadFreightAndAirFreightForm activeChannel={activeChannel} />}
       {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
       {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
@@ -87,7 +89,7 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
 
   const { mutate, isPending } = useGetQuotes((response: any) => {
     if (response?.data?.data?.options && response.data.data.options.length === 0) {
-      setShowModal(true); // Show the modal instead of alert
+      setShowModal(true);
       return;
     }
     if (response?.status === 200) {
@@ -113,26 +115,30 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
   };
 
   return (
-    <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
-      <div className="flex gap-[16px]">
+    <div className="flex-1 bg-white min-h-[100px] rounded-b-[16px] w-full p-4 sm:p-6 md:p-8">
+      {/* Row 1: Send From / Send To */}
+      <div className="flex flex-col md:flex-row gap-4">
         <SendFrom sendFrom={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
         <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
-      <div className="flex gap-[16px] mt-[16px]">
+      {/* Row 2: What Are You Sending / Packaging */}
+      <div className="flex flex-col md:flex-row gap-4 mt-4">
         <WhatAreYouSending />
         <OuterPackagingType />
       </div>
 
-      <div className="flex gap-[16px] mt-[16px]">
-        <div className="flex-1">
+      {/* Row 3: Dimensions */}
+      <div className="flex flex-col md:flex-row gap-4 mt-4">
+        <div className="w-full">
           <WeightLengthWidthHeight />
         </div>
-        <div className="flex-1"></div>
+        <div className="w-full" />
       </div>
 
-      <div className="flex gap-[16px] mt-[16px]">
-        <div className="flex-1">
+      {/* Row 4: Submit Button */}
+      <div className="flex flex-col md:flex-row gap-4 mt-4">
+        <div className="w-full">
           <Button
             loading={isPending}
             disabled={isPending}
@@ -142,10 +148,10 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
             className="w-full"
           />
         </div>
-        <div className="flex-1" />
+        <div className="w-full" />
       </div>
 
-      {/* MODAL */}
+      {/* Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>

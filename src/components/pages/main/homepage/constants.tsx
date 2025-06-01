@@ -548,26 +548,32 @@ export const WhatAreYouSending = () => {
 
 export const OuterPackagingType = () => {
   const [area, setArea] = React.useState('');
-  return (
-    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
-      <div className="flex-1">
-        <Select value={area} onValueChange={(value) => setArea(value)}>
-          <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none   focus:ring-0 border-none shadow-none">
-            <p className="text-[#0088DD] text-[12px]">Outer Packaging Type</p>
 
-            <div className="flex w-full text-[12px]">
+  return (
+    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-4 h-auto min-h-[61px] py-2 px-4 items-center sm:gap-[16px] sm:py-[8px] sm:px-[16px]">
+      <div className="flex-1 w-full">
+        <Select value={area} onValueChange={(value) => setArea(value)}>
+          <SelectTrigger className="w-full flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0 border-none shadow-none h-auto">
+            <p className="text-[#0088DD] text-xs sm:text-[12px]">Outer Packaging Type</p>
+
+            <div className="flex w-full text-xs sm:text-[12px] items-center">
               <SelectValue
                 placeholder={'Parcel/Large Letter'}
-                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none  "
+                className="placeholder:text-[#757575] placeholder:text-xs sm:placeholder:text-[12px] text-xs sm:text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
               />
-              <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+              <img
+                src="/icons/chevron-down.png"
+                className="h-4 w-4 sm:h-[24px] sm:w-[24px] ml-auto"
+                alt="dropdown arrow"
+              />
             </div>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="w-[var(--radix-select-trigger-width)]">
             <SelectGroup>
-              <SelectItem value={'Parcel/Large Letter'}>Parcel/Large Letter</SelectItem>
-              {/* <SelectItem value={'Option 1'}>Option 1</SelectItem>
-              <SelectItem value={'Option 2'}>Option 2</SelectItem> */}
+              <SelectItem value={'Parcel/Large Letter'} className="text-xs sm:text-[14px]">
+                Parcel/Large Letter
+              </SelectItem>
+              {/* Add other options as needed */}
             </SelectGroup>
           </SelectContent>
         </Select>

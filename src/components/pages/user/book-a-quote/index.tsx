@@ -57,19 +57,23 @@ function BookAQuote() {
         <div className="flex-1 flex justify-between gap-[16px] w-full rounded-t-[16px] mt-[24px]">
           {channels.map((channel) => {
             if (!activeTab.channels?.includes(channel?.key)) return null;
+
+            const isActiveChannel = activeChannel === channel.key;
             return (
               <div
                 key={channel.key}
-                className={`flex-1 flex items-center justify-center w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
-                  activeChannel !== channel.key ? 'bg-[#02044A] text-white' : 'bg-white text-[#02044A]'
+                className={`flex-1 flex items-center justify-center gap-[8px] w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
+                  !isActiveChannel ? 'bg-[#02044A] text-white' : 'bg-white text-[#02044A]'
                 } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
                 onClick={() => setActiveChannel(channel.key)}
               >
                 <span>{channel.title}</span>
+                {isActiveChannel ? channel.icon_active : channel.icon_inactive}
               </div>
             );
           })}
         </div>
+
         {activeTab.id === TTabIds.RoadFreightAndAirFreight && (
           <RoadFreightAndAirFreightForm activeChannel={activeChannel} />
         )}
@@ -118,12 +122,12 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
 
   return (
     <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
-      <div className="flex gap-[16px]">
+      <div className="flex flex-col md:flex-row gap-4">
         <SendFrom sendFrom={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
         <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
-      <div className="flex gap-[16px] mt-[16px]">
+      <div className="flex flex-col md:flex-row gap-4 mt-4">
         <WhatAreYouSending />
         <OuterPackagingType />
       </div>

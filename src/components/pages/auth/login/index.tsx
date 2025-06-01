@@ -20,18 +20,6 @@ function LoginPage() {
   const params = useSearchParams();
   let quote = params.get('quote');
 
-  // const { isPending, mutate } = useSignIn((response: any) => {
-  //   if (response?.data?.success || response?.status === 200) {
-  //     if (quote) {
-  //       dispatch(setUser(response?.data?.data?.user));
-  //       router.push('/quote-review');
-  //       return;
-  //     }
-  //     router.push('/user/book-a-quote');
-  //     dispatch(setUser(response?.data?.data?.user));
-  //   }
-  // });
-
   const { isPending, mutate } = useSignIn((response: any) => {
     if (response?.data?.success || response?.status === 200) {
       const user = response?.data?.data?.user;
@@ -79,7 +67,7 @@ function LoginPage() {
   };
   return (
     <div>
-      <div className="max-[930px] mx-auto mt-[56px]">
+      <div className="max-[930px] mx-auto mt-[56px] px-4 md:px-6 sm:px-6">
         <h1 className="text-[#02044A] text-center text-[36px] font-medium">Log In to Your Account</h1>
         <p className="text-[#272727] text-center  text-[18px] mt-[16px]">
           Welcome back, enter your login information below to get started with processing your orders.
