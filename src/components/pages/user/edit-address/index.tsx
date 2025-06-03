@@ -4,15 +4,17 @@ import InputField from '@/components/reuseables/InputField';
 import SelectField from '@/components/reuseables/SelectField';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAppSelector } from '@/store/hook';
-import { useAddAddress } from '@/services/hooks/user';
+import { useAddAddress, useUpdateAddress } from '@/services/hooks/user';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 
-function AddAddresses() {
+function EditAddress() {
   const COUNTRY_CODE_LIST = useAppSelector((state) => state?.country.countries);
+  const savedAddress = useAppSelector((state) => state?.address);
+
   const router = useRouter();
 
-  const { mutate, isPending } = useAddAddress((response) => {
+  const { mutate, isPending } = useUpdateAddress((response) => {
     if (response.status >= 400) {
       return;
     } else {
@@ -21,19 +23,19 @@ function AddAddresses() {
   });
 
   const [formData, setFormData] = useState({
-    label: '',
-    address_line_1: '',
-    address_line_2: '',
-    city: '',
-    state: '',
-    country: '',
-    contact_email: '',
-    post_code: '',
-    contact_name: '',
-    contact_phone: '',
-    notes: '',
-    is_default: false,
-    is_sender_address: false,
+    label: savedAddress.label || '',
+    address_line_1: savedAddress.address_line_1 || '',
+    address_line_2: savedAddress.address_line_2 || '',
+    city: savedAddress.city || '',
+    state: savedAddress.state || '',
+    country: savedAddress.country || '',
+    contact_email: savedAddress.contact_email || '',
+    post_code: savedAddress.post_code || '',
+    contact_name: savedAddress.contact_name || '',
+    contact_phone: savedAddress.contact_phone || '',
+    notes: savedAddress.notes || '',
+    is_default: savedAddress.is_default || false,
+    is_sender_address: savedAddress.is_sender_address || false,
   });
 
   const handleFieldChange = (field: string, value: string | boolean) => {
@@ -43,23 +45,13 @@ function AddAddresses() {
     }));
   };
 
-  const isFormValid = () => {
-    return (
-      formData.label.trim() &&
-      formData.address_line_1.trim() &&
-      formData.address_line_2.trim() &&
-      formData.city.trim() &&
-      formData.state.trim() &&
-      formData.country.trim() &&
-      formData.contact_email.trim() &&
-      formData.post_code.trim() &&
-      formData.contact_name.trim() &&
-      formData.contact_phone.trim()
-    );
-  };
-
   const handleSave = () => {
+    if (!savedAddress.id) {
+      // Optionally, show an error or prevent mutation if id is missing
+      return;
+    }
     mutate({
+      id: savedAddress.id,
       payload: {
         ...formData,
         country_iso: formData.country,
@@ -191,25 +183,18 @@ function AddAddresses() {
 
       {/* <p className="text-[12px] text-[#0088DD] mt-[18px]">Is this a sender address</p> */}
 
-      <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
+      {/* <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
         <Checkbox
           checked={formData.is_sender_address}
           onCheckedChange={(val) => handleFieldChange('is_sender_address', Boolean(val))}
         />
         <p>Save as Sender address</p>
-      </div>
+      </div> */}
       <div className="flex flex-col items-center justify-center mt-[50px]">
-        <Button
-          loading={isPending}
-          onClick={handleSave}
-          title="Save"
-          variant="blue"
-          className="w-[274px]"
-          disabled={!isFormValid()}
-        />
+        <Button loading={isPending} onClick={handleSave} title="Update" variant="blue" className="w-[274px]" />
       </div>
     </div>
   );
 }
 
-export default AddAddresses;
+export default EditAddress;

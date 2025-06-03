@@ -7,6 +7,7 @@ import countrySlice from './auth/countrySlice';
 import quoteSlice from './auth/quoteSlice';
 import quoteDataSlice from './auth/quoteDataSlice';
 import bookingSlice from './booking/bookingSlice';
+import addressSlice from './user/addressSlice';
 const persistConfig = {
   key: 'root',
   storage,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   quote: quoteSlice,
   quoteData: quoteDataSlice,
   booking: bookingSlice,
+  address: addressSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

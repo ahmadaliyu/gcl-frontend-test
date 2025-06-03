@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { clearQuotesData } from '@/store/auth/quoteSlice';
 import { Input } from '@/components/ui/input';
+import { storage } from '@/lib/storage/localstorage';
 
 function BookAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
@@ -50,7 +51,7 @@ function BookAQuote() {
               onClick={() => setActiveTab(tab)}
             >
               {activeTab?.id === tab.id ? tab.icon_active : tab.icon_inactive}
-              <span>{tab.title}</span>
+              <span className="text-center">{tab.title}</span>
             </div>
           ))}
         </div>
@@ -67,7 +68,7 @@ function BookAQuote() {
                 } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
                 onClick={() => setActiveChannel(channel.key)}
               >
-<span className="block text-center sm:text-left">{channel.title}</span>
+                <span className="block text-center sm:text-left">{channel.title}</span>
                 {isActiveChannel ? channel.icon_active : channel.icon_inactive}
               </div>
             );

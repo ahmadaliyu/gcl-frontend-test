@@ -1,10 +1,10 @@
 import UserDashboardWrapper from '@/components/layout/user/user-dashboard-wrapper';
-import Button from '@/components/reuseables/Button';
-import InputField from '@/components/reuseables/InputField';
-import SelectField from '@/components/reuseables/SelectField';
-import { Checkbox } from '@/components/ui/checkbox';
-import { COUNTRY_CODE_LIST } from '@/constants';
-import Link from 'next/link';
+import Spinner from '@/components/reuseables/Spinner';
+import { useGetAddresses } from '@/services';
+import { useDeleteAddress } from '@/services/hooks/user';
+import { useAppDispatch } from '@/store/hook';
+import { saveAddress } from '@/store/user/addressSlice';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 enum TabIds {
@@ -16,81 +16,70 @@ const tabs = [
   { id: TabIds.ContactAddresses, title: 'Contact Addresses' },
   { id: TabIds.MyAddresses, title: 'My Addresses' },
 ];
+
 function MySavedAddresses() {
   const [activeTab, setActiveTab] = useState<TabIds>(TabIds.ContactAddresses);
-  const [step, setstep] = useState<'show' | 'add'>('show');
+  const [step, setstep] = useState<'show' | 'edit'>('show');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<any>(null);
+
+  interface Address {
+    id?: string;
+    label: string;
+    address_line_1: string;
+    address_line_2: string;
+    city: string;
+    state: string;
+    country: string;
+    contact_email: string;
+    post_code: string;
+    contact_name: string;
+    contact_phone: string;
+    notes?: string;
+    is_default: boolean;
+    is_sender_address: boolean;
+  }
+
+  const { mutate, isPending } = useDeleteAddress((response) => {
+    if (response) {
+      setShowDeleteModal(false);
+      setAddressToDelete(null);
+    }
+  });
+
+  const router = useRouter();
+  const { data: addresses, isLoading } = useGetAddresses();
+
+  const dispatch = useAppDispatch();
+
+  const handleDeleteClick = (address: any) => {
+    setAddressToDelete(address);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = (id: string) => {
+    mutate(id);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setAddressToDelete(null);
+  };
+
+  const handleEditClick = (data: Address) => {
+    router.push('/user/edit-address');
+    dispatch(
+      saveAddress({
+        ...data,
+        notes: data.notes ?? '',
+      })
+    );
+  };
 
   return (
     <UserDashboardWrapper>
-      {step === 'add' ? (
-        <>
-          <h1 className="text-[#272727] font-[600] text-[24px] mb-[32px]">Add New Address</h1>
-
-          <h1 className="text-[#272727] font-[700] text-[16px] mb-3">Recipient Details</h1>
-
-          <div className="flex flex-row gap-[16px]">
-            <InputField label="Label Name *" placeholder="Type something here" />
-
-            <InputField label="Address Line*" placeholder="Type something here" />
-          </div>
-
-          <div className="flex flex-row gap-[16px] mt-[16px]">
-            <InputField label="Address Line 2*" placeholder="Type something here" />
-            <InputField label="City/towm*" placeholder="Type something here" />
-          </div>
-
-          <div className="flex flex-row gap-[16px] mt-[16px]">
-            <InputField label="State*" placeholder="Type something here" />
-            <SelectField
-              options={COUNTRY_CODE_LIST.map((x) => ({ label: `${x?.emoji} ${x?.name}`, value: x?.code }))}
-              label="Country*"
-              placeholder="Select an option here"
-            />
-          </div>
-
-          <div className="flex flex-row gap-[16px] mt-[16px]">
-            <InputField label="Contact Email*" placeholder="Type something here" />
-            <InputField label="Postcode*" placeholder="Type something here" />
-          </div>
-
-          <div className="flex flex-row gap-[16px] mt-[16px]">
-            <InputField label="Contact Name*" placeholder="Type something here" />
-            <InputField label="Telephone*" isPhoneInput placeholder="Type something here" />
-          </div>
-
-          <div className="flex flex-row gap-[16px] mt-[16px]">
-            <InputField textarea label="Delivery Driver notes" isPhoneInput placeholder="Enter more information here" />
-          </div>
-
-          <p className="text-[12px] text-[#0088DD] mt-[18px]">Save Address for future use</p>
-
-          <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
-            <Checkbox />
-            <p>Opt-In/Opt-Out</p>
-          </div>
-
-          <div className="flex flex-col items-center justify-center mt-[50px]">
-            <Button
-              onClick={() => {
-                setstep('show');
-              }}
-              title="Save"
-              variant="blue"
-              className="w-[274px]"
-            />
-
-            <p className="text-[16px] text-[#21222D] font-normal max-w-[630px] mt-[24px] mx-auto text-center">
-              Your information is safe with us. Read more about our{' '}
-              <Link target="_blank" href="/terms-and-conditions" className="text-[#0088DD]">
-                Terms & Conditions
-              </Link>{' '}
-              and{' '}
-              <Link target="_blank" href="/privacy-policy" className="text-[#0088DD]">
-                Privacy Policy
-              </Link>
-            </p>
-          </div>
-        </>
+      {step === 'edit' ? (
+        <></>
       ) : (
         <>
           <h1 className="text-[#272727] font-[600] text-[24px] mb-[56px]">My Saved Addresses</h1>
@@ -109,30 +98,127 @@ function MySavedAddresses() {
               </button>
             ))}
           </div>
+
           <div>
             {activeTab === TabIds.ContactAddresses && (
-              <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AddNew setstep={setstep} />
+
+                {/* Mapped Address Items */}
+                {addresses?.data.map((address, index) => (
+                  <div key={index} className="bg-[#F5F5F5] w-full h-[209px] rounded-[12px] p-6 border border-[#E0E0E0]">
+                    <div className="flex justify-between items-start h-full">
+                      <div>
+                        <h3 className="text-[18px] font-bold text-[#333333]">{address.contact_name}</h3>
+                        <p className="text-[14px] text-[#666666] mt-1">{address.state}</p>
+                        <p className="text-[14px] text-[#666666]">{address.city}</p>
+                        <p className="text-[14px] text-[#666666]">{address.post_code}</p>
+                        <p className="text-[14px] text-[#666666]">{address.country}</p>
+                        <p className="text-[14px] text-[#666666] mt-2">{address.contact_phone}</p>
+                      </div>
+
+                      <div className="flex flex-col items-end justify-between h-full">
+                        <div className="flex space-x-4">
+                          <div
+                            onClick={() => handleEditClick(address)}
+                            className="flex items-center gap-1 px-3 py-2 bg-[#000] text-[#FFFFFF] rounded-full cursor-pointer hover:bg-[#666666] transition-colors"
+                          >
+                            <svg
+                              width="19"
+                              height="19"
+                              viewBox="0 0 19 19"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M4 5H3C2.46957 5 1.96086 5.21071 1.58579 5.58579C1.21071 5.96086 1 6.46957 1 7V16C1 16.5304 1.21071 17.0391 1.58579 17.4142C1.96086 17.7893 2.46957 18 3 18H12C12.5304 18 13.0391 17.7893 13.4142 17.4142C13.7893 17.0391 14 16.5304 14 16V15"
+                                stroke="white"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                              <path
+                                d="M13 3.00011L16 6.00011M17.385 4.58511C17.7788 4.19126 18.0001 3.65709 18.0001 3.10011C18.0001 2.54312 17.7788 2.00895 17.385 1.61511C16.9912 1.22126 16.457 1 15.9 1C15.343 1 14.8088 1.22126 14.415 1.61511L6 10.0001V13.0001H9L17.385 4.58511Z"
+                                stroke="white"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+
+                            <span className="text-xs font-medium">Edit</span>
+                          </div>
+
+                          <div
+                            onClick={() => handleDeleteClick(address)}
+                            className="flex items-center gap-1 px-3 py-2 bg-[#E51520] text-[#FFFFFF] rounded-full cursor-pointer hover:bg-[#E51520] transition-colors"
+                          >
+                            <svg
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M7 21C6.45 21 5.97934 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6C4.71667 6 4.47934 5.904 4.288 5.712C4.09667 5.52 4.00067 5.28267 4 5C3.99934 4.71733 4.09534 4.48 4.288 4.288C4.48067 4.096 4.718 4 5 4H9C9 3.71667 9.096 3.47933 9.288 3.288C9.48 3.09667 9.71734 3.00067 10 3H14C14.2833 3 14.521 3.096 14.713 3.288C14.905 3.48 15.0007 3.71733 15 4H19C19.2833 4 19.521 4.096 19.713 4.288C19.905 4.48 20.0007 4.71733 20 5C19.9993 5.28267 19.9033 5.52033 19.712 5.713C19.5207 5.90567 19.2833 6.00133 19 6V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM10 17C10.2833 17 10.521 16.904 10.713 16.712C10.905 16.52 11.0007 16.2827 11 16V9C11 8.71667 10.904 8.47933 10.712 8.288C10.52 8.09667 10.2827 8.00067 10 8C9.71734 7.99933 9.48 8.09533 9.288 8.288C9.096 8.48067 9 8.718 9 9V16C9 16.2833 9.096 16.521 9.288 16.713C9.48 16.905 9.71734 17.0007 10 17ZM14 17C14.2833 17 14.521 16.904 14.713 16.712C14.905 16.52 15.0007 16.2827 15 16V9C15 8.71667 14.904 8.47933 14.712 8.288C14.52 8.09667 14.2827 8.00067 14 8C13.7173 7.99933 13.48 8.09533 13.288 8.288C13.096 8.48067 13 8.718 13 9V16C13 16.2833 13.096 16.521 13.288 16.713C13.48 16.905 13.7173 17.0007 14 17Z"
+                                fill="white"
+                              />
+                            </svg>
+
+                            <span className="text-xs font-medium">Delete</span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-[12px] text-[#666666]">Last Used: {address.createdAt}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
-            {activeTab === TabIds.MyAddresses && (
-              <div>
-                <AddNew setstep={setstep} />
-              </div>
-            )}
+            {activeTab === TabIds.MyAddresses && <div>{/* <AddNew setstep={setstep} /> */}</div>}
 
             <div className="flex flex-col gap-[8px]"></div>
           </div>
+
+          {/* Delete Confirmation Modal */}
+          {showDeleteModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <h3 className="text-xl font-bold mb-4">Confirm Deletion</h3>
+                <p className="mb-6">Are you sure you want to delete the address for {addressToDelete?.contact_name}?</p>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={handleCancelDelete}
+                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleConfirmDelete(addressToDelete.id)}
+                    className="px-4 py-2 bg-[#E51520] text-white rounded-md hover:bg-[#C0111A] transition-colors"
+                  >
+                    {isPending ? <Spinner /> : `Delete`}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </UserDashboardWrapper>
   );
 }
+
 const AddNew = ({ setstep }: { setstep?: any }) => {
+  const router = useRouter();
   return (
     <button
-      onClick={() => setstep('add')}
-      className="bg-[#FCE8E9] w-[520px] h-[209px] rounded-[12px] flex items-center justify-center flex-col"
+      onClick={() => router.push('/user/add-address')}
+      className="bg-[#FCE8E9] w-full h-[209px] rounded-[12px] p-6 border h-[209px] rounded-[12px] flex items-center justify-center flex-col"
     >
       <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -146,4 +232,5 @@ const AddNew = ({ setstep }: { setstep?: any }) => {
     </button>
   );
 };
+
 export default MySavedAddresses;

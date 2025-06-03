@@ -17,6 +17,7 @@ export interface Address {
   createdAt: string;
   updatedAt: string;
   is_sender_address: boolean;
+  notes?: any;
 }
 
 export interface AddressResponse {

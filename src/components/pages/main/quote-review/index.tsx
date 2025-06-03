@@ -487,7 +487,6 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
               onChange={handleFieldChange}
               placeholder="Enter quantity"
             />
-            <Button onClick={() => {}} title="Add to Cart" variant="blue" className="w-full sm:w-[274px]" />
           </div>
 
           {/* Middle Column */}
@@ -599,6 +598,7 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       </div>
 
       {/* Continue Button */}
+      <Button onClick={() => {}} title="Add to Cart" variant="blue" className="w-full sm:w-[274px] mt-4" />
       <div className="flex flex-col items-center justify-center mt-8 sm:mt-[50px]">
         <Button
           onClick={handleContinue}
@@ -836,7 +836,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
           onClick={handleSubmit}
           disabled={isPending}
           loading={isPending}
-          variant="blue"
+          variant="yellow"
           className="w-full md:w-auto"
         />
       </div>

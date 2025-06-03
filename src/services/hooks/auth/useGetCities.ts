@@ -17,7 +17,6 @@ export const useGetCities = (onSuccess?: (data: any) => void) => {
       if (onSuccess) {
         onSuccess(response.data);
       }
-
       return response;
     },
   });

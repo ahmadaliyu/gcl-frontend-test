@@ -15,7 +15,7 @@ function Button({
   height,
 }: {
   title?: string;
-  variant?: 'red' | 'outlined-blue' | 'outlined-blue-dark' | 'white' | 'outlined-red' | 'black' | 'blue';
+  variant?: 'red' | 'outlined-blue' | 'outlined-blue-dark' | 'white' | 'outlined-red' | 'black' | 'blue' | 'yellow';
   fullWidth?: boolean;
   type?: 'reset' | 'submit' | 'button';
   disabled?: boolean;
@@ -33,6 +33,7 @@ function Button({
   const variant_outlined_blue_dark_cn = 'bg-transparent text-[#02044A] border-[#02044A]';
   const variant_outlined_red_cn = 'bg-transparent text-[#DC3545] border-[#DC3545]';
   const variant_white_cn = 'bg-white text-[#21222D] border-white';
+  const variant_yellow_cn = 'bg-[#FACC15] text-black border-[#FACC15]';
   const disabled_cn = 'cursor-not-allowed opacity-50';
 
   return (
@@ -51,6 +52,7 @@ function Button({
         variant === 'outlined-blue-dark' && variant_outlined_blue_dark_cn,
         variant === 'outlined-red' && variant_outlined_red_cn,
         variant === 'white' && variant_white_cn,
+        variant === 'yellow' && variant_yellow_cn,
 
         disabled && disabled_cn,
         className

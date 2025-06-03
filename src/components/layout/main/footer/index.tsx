@@ -8,14 +8,14 @@ function Footer() {
       <div className="max-screen-wrapper bg-[#272727] py-[30px] md:py-[30px] pt-[60px] md:pt-[100px] mt-[60px] md:mt-[100px] px-4 md:px-0">
         <div className="max-screen-inner">
           {/* Red Banner */}
-          <div className="bg-[#DC3545] h-[120px] md:h-[163px] mt-[-100px] md:mt-[-160px] rounded-[8px] md:rounded-[10px] mb-[40px] md:mb-[70px] flex flex-col md:flex-row items-center justify-between p-4 md:px-[30px] gap-4 md:gap-0">
-            <div>
+          <div className="bg-[#DC3545] h-auto md:h-[163px] mt-[-100px] md:mt-[-160px] rounded-[8px] md:rounded-[10px] mb-[40px] md:mb-[70px] flex flex-col md:flex-row items-center justify-between p-4 md:px-[30px] gap-6 md:gap-0">
+            <div className="w-full md:w-auto flex justify-center md:block">
               <a href="/">
                 <img src="/images/logo.png" className="w-[120px] md:w-[153px] h-[48px] md:h-[62px]" alt="logo" />
               </a>
             </div>
 
-            <div className="flex flex-col items-center md:items-start">
+            <div className="w-full md:w-auto flex flex-col items-center md:items-start">
               <p className="text-white mb-2 md:mb-[16px] text-[14px] md:text-[18px] font-[600]">Connect With Us:</p>
               <div className="flex gap-3 md:gap-[20px]">
                 {/* Facebook Icon */}
@@ -60,7 +60,7 @@ function Footer() {
             </div>
 
             <div className="w-full md:w-[500px]">
-              <p className="text-white mb-2 md:mb-[16px] text-[14px] md:text-[18px] font-[600]">
+              <p className="text-white mb-2 md:mb-[16px] text-[14px] md:text-[18px] font-[600] text-center md:text-left">
                 Get Update Notification:
               </p>
               <div className="flex flex-col md:flex-row gap-3 md:gap-[20px]">
@@ -75,7 +75,7 @@ function Footer() {
 
           {/* Footer Links */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            <div className="max-w-[350px] flex flex-col gap-[5px]">
+            <div className="max-w-[350px] w-full flex flex-col gap-[5px]">
               <p className="text-[16px] md:text-[18px] text-[#DC3545] mb-3 md:mb-[20px] font-[600]">Contact Us</p>
               <p className="text-white text-sm md:text-base">
                 34 Brindley Road, City Park, Old Trafford, M16 9HQ Manchester, United Kingdom.
@@ -123,7 +123,7 @@ function Footer() {
               </div>
             </div>
 
-            <div className="max-w-[237px] flex flex-col gap-[5px]">
+            <div className="max-w-[237px] w-full flex flex-col gap-[5px]">
               <p className="text-[16px] md:text-[18px] text-[#DC3545] mb-3 md:mb-[20px] font-[600]">Services</p>
               <p className="text-white text-sm md:text-base">Services</p>
               <p className="text-white text-sm md:text-base">Express Delivery Worldwide</p>
@@ -134,7 +134,7 @@ function Footer() {
               <p className="text-white text-sm md:text-base">Procurement</p>
             </div>
 
-            <div className="max-w-[237px] flex flex-col gap-[5px]">
+            <div className="max-w-[237px] w-full flex flex-col gap-[5px]">
               <p className="text-[16px] md:text-[18px] text-[#DC3545] mb-3 md:mb-[20px] font-[600]">Quick Links</p>
               <p className="text-white text-sm md:text-base">Home</p>
               <p className="text-white text-sm md:text-base">About Us</p>
@@ -144,7 +144,7 @@ function Footer() {
               <p className="text-white text-sm md:text-base">Help</p>
             </div>
 
-            <div className="max-w-[237px] flex flex-col gap-[5px]">
+            <div className="max-w-[237px] w-full flex flex-col gap-[5px]">
               <p className="text-[16px] md:text-[18px] text-[#DC3545] mb-3 md:mb-[20px] font-[600]">
                 Terms & Condition
               </p>
@@ -158,9 +158,11 @@ function Footer() {
           <p className="text-white text-center mt-8 md:mt-[60px] text-sm md:text-base">
             For smart shipping integration email cs@GlobalCorporatelogistic
           </p>
-          <p className="text-white text-center flex items-center justify-center gap-2 md:gap-[10px] mt-2 md:mt-[10px] text-sm md:text-base">
-            <img src="/icons/caution.svg" className="w-4 h-4" />
-            <span>Service to/from China and other high risk countries not available.</span>
+          <p className="text-white text-center flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-[10px] mt-2 md:mt-[10px] text-sm md:text-base">
+            <span className="flex items-center gap-2">
+              <img src="/icons/caution.svg" className="w-4 h-4" />
+              <span>Service to/from China and other high risk countries not available.</span>
+            </span>
           </p>
         </div>
       </div>

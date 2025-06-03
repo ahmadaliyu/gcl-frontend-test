@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Config from './Config';
 import { storage } from '@/lib/storage/localstorage';
+import { jwtDecode } from 'jwt-decode';
 
 const service = axios.create({
   baseURL: Config.apiUrl,
@@ -13,8 +14,13 @@ const service = axios.create({
 // Add a request interceptor
 service.interceptors.request.use(
   async function (config) {
-    const token: any = await storage.getValueFor('token');
+    let token: any = await storage.getValueFor('token');
 
+    // console.log(token, 'hmmmmmmmm');
+
+    // if (isAccessTokenExpired(token)) {
+    //   window.location.href = 'auth/login';
+    // }
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -51,7 +57,9 @@ service.interceptors.response.use(
         await storage.save('refresh_token', refreshToken);
       }
     }
+
     if (response.status === 401) {
+      window.location.href = '/auth/login';
       //   deleteKey('token
       storage.remove('token');
       storage.remove('refresh_token');
@@ -71,6 +79,15 @@ service.interceptors.response.use(
     }
   }
 );
+
+function isAccessTokenExpired(accessToken: any): any {
+  if (!accessToken) return true;
+  const decodedToken = jwtDecode<{ exp?: any }>(accessToken);
+  const currentTime = Date.now() / 1000;
+  // console.log(currentTime > decodedToken.exp, 'token expiry');
+
+  return currentTime > decodedToken.exp;
+}
 
 export const post = async (url: any, payload?: any) => {
   try {
