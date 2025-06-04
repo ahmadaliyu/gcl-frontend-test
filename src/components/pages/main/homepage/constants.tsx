@@ -719,6 +719,7 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
           weight: Number(weight),
           unit_weight: unit.toString(),
           description: description,
+          weight_unit: 'Kg',
         },
         description: '',
       })
@@ -737,6 +738,7 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
           weight: Number(modalWeight),
           unit_weight: modalUnit.toString(),
           description: modalDescription,
+          weight_unit: 'Kg',
         },
         description: '',
       })

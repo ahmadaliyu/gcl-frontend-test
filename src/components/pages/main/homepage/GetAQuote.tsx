@@ -110,6 +110,8 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
           shipment.despatch_date instanceof Date ? shipment.despatch_date.toISOString() : shipment.despatch_date,
       },
     };
+    // console.log(payload, 'payload data');
+
     mutate({ payload });
   };
 
