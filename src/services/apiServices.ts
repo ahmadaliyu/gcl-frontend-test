@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 
 const service = axios.create({
   baseURL: Config.apiUrl,
+  withCredentials: true,
   headers: {
     // 'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',

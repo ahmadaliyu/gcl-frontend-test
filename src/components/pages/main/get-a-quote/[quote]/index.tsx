@@ -1,10 +1,12 @@
+'use client';
+
 import React, { Fragment, useState } from 'react';
 import { steps, EStepIds, inActiveStep, activeStep } from '../constants';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Button from '@/components/reuseables/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { useRouter } from 'next/navigation';
-import { updateBookingField } from '@/store/booking/bookingSlice';
+import { setLegDetails, updateBookingField } from '@/store/booking/bookingSlice';
 import { setPriceDetails } from '@/store/auth/quoteDataSlice';
 
 function GetAQuote() {
@@ -13,19 +15,24 @@ function GetAQuote() {
 
   const { quote } = useAppSelector((state) => state.quoteData);
   const user = useAppSelector((state) => state.user);
-
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const handleNext = (serviceId: string, handlingFee: string, totalAmount: number, totalPrice: number) => {
-    let priceDetails = { handlingFee, totalAmount, totalPrice };
+  const handleNext = (
+    serviceId: string,
+    handlingFee: string,
+    totalAmount: number,
+    totalPrice: number,
+    legDetails: any[]
+  ) => {
+    const priceDetails = { handlingFee, totalAmount, totalPrice };
+    dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
+    dispatch(setPriceDetails(priceDetails));
+    dispatch(setLegDetails(legDetails));
+
     if (user?.email) {
-      dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
-      dispatch(setPriceDetails(priceDetails));
       router.push(`/quote-review`);
     } else {
-      dispatch(updateBookingField({ field: 'service_id', value: serviceId }));
-      dispatch(setPriceDetails(priceDetails));
       router.push(`/auth/login?quote=quote`);
     }
   };
@@ -45,6 +52,7 @@ function GetAQuote() {
         ).toFixed(2)}`,
         totalPrice: option.totalPrice,
         isExpress: option.isExpress,
+        legDetails: option.legDetails,
       }))
     : [];
 
@@ -52,12 +60,10 @@ function GetAQuote() {
     <div className="py-[40px] md:py-[80px] px-4 md:px-0">
       <div className="max-screen-wrapper bg-[#fff]">
         <div className="max-screen-inner">
-          {/* Stepper */}
           <div className="flex justify-between items-center overflow-x-auto pb-4">
             {steps.map((item, index) => {
               const isLast = steps?.length - 1 === index;
               const active = activeStepId === item.id || !(activeStepIndex < index);
-
               return (
                 <Fragment key={item.id}>
                   <div
@@ -69,7 +75,7 @@ function GetAQuote() {
                       {item.title}
                     </h2>
                   </div>
-                  {isLast ? null : (
+                  {!isLast && (
                     <div
                       className={`flex-1 ${
                         active ? 'bg-[#0088DD]' : 'bg-[#E3E3E3]'
@@ -81,7 +87,6 @@ function GetAQuote() {
             })}
           </div>
 
-          {/* Destination Info */}
           <div className="flex flex-col md:flex-row items-center justify-center pt-[40px] md:pt-[80px] gap-[20px] md:gap-[40px]">
             <p className="text-[#232526] text-[18px] md:text-[24px] font-[600] font-poppins text-center">
               Destination:
@@ -104,7 +109,6 @@ function GetAQuote() {
             <p className="text-[#0088DD] text-[10px] md:text-[12px] font-[400] font-poppins text-center">contact us</p>
           </div>
 
-          {/* Services Table - Mobile Cards */}
           <div className="md:hidden space-y-4 mb-[60px] mt-[20px]">
             {SERVICES.map((service) => (
               <div key={service.id} className="border border-[#E3E3E3] rounded-lg p-4">
@@ -115,7 +119,6 @@ function GetAQuote() {
                     <p className="text-[#757575] text-[12px]">{service.type}</p>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   <div>
                     <p className="text-[12px] text-[#757575]">Transit Time</p>
@@ -134,14 +137,14 @@ function GetAQuote() {
                     <p className="font-medium">{service.total}</p>
                   </div>
                 </div>
-
                 <Button
                   onClick={() =>
                     handleNext(
                       service.id,
-                      service.fees.replace('£', ''),
-                      Number(service.total.replace('£', '')),
-                      Number(service.totalPrice)
+                      service.fees.replace('\u00a3', ''),
+                      Number(service.total.replace('\u00a3', '')),
+                      Number(service.totalPrice),
+                      service.legDetails
                     )
                   }
                   title="Buy Now"
@@ -151,37 +154,27 @@ function GetAQuote() {
             ))}
           </div>
 
-          {/* Services Table - Desktop */}
           <div className="hidden md:block mb-[60px] md:mb-[100px] mt-[20px] md:mt-[40px]">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-[#FCE8E9] hover:bg-[#FCE8E9]">
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px] min-w-[180px]">
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px] min-w-[180px]">
                       Services (hover for more info)
                     </TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">
-                      Est Transit Time
-                    </TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">Weight</TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">
-                      Surcharge
-                    </TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">Total</TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">
-                      Collection
-                    </TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">
-                      Insurance Cover
-                    </TableHead>
-                    <TableHead className="text-[#272727] text-[14px] py-[24px] md:py-[31px] px-[8px]">Action</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Est Transit Time</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Weight</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Surcharge</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Total</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Collection</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Insurance Cover</TableHead>
+                    <TableHead className="text-[#272727] text-[14px] py-[24px] px-[8px]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
-
                 <TableBody>
                   {SERVICES.map((service) => (
-                    <TableRow key={service?.id}>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px] flex items-center gap-[10px]">
+                    <TableRow key={service.id}>
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px] flex items-center gap-[10px]">
                         <img
                           src="/icons/outer.png"
                           className="w-[60px] md:w-[80px] h-[42px] md:h-[56px]"
@@ -189,32 +182,33 @@ function GetAQuote() {
                         />
                         <span>{service.company}</span>
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.transitTime}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.weight}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.fees}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.total}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.type}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.company}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] md:py-[30px] px-[8px]">
+                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         <Button
                           onClick={() =>
                             handleNext(
                               service.id,
-                              service.fees.replace('£', ''),
-                              Number(service.total.replace('£', '')),
-                              Number(service.totalPrice)
+                              service.fees.replace('\u00a3', ''),
+                              Number(service.total.replace('\u00a3', '')),
+                              Number(service.totalPrice),
+                              service.legDetails
                             )
                           }
                           title="Buy Now"

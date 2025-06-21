@@ -55,40 +55,6 @@ function WelcomePage() {
 
 export default WelcomePage;
 
-// const QuoteReview = ({ setActiveStepId }: { setActiveStepId?: any }) => {
-//   return (
-//     <>
-//       <h1 className="text-[#02044A] text-center text-[36px] font-medium">Quote Review</h1>
-
-//       <div className="mt-[32px]">
-//         <h2 className="text-[#272727] font-bold text-[16px] mb-[16px]">Quote Review Summary</h2>
-
-//         {/* Continue Button */}
-//         <div className="flex flex-col items-center justify-center mt-[50px]">
-//           <Button
-//             onClick={() => setActiveStepId?.(EStepIds.ReceipientDetails)}
-//             title="Continue"
-//             variant="blue"
-//             className="w-[274px]"
-//           />
-//         </div>
-
-//         {/* Disclaimer */}
-//         <p className="text-[16px] text-[#21222D] font-normal max-w-[630px] mt-[24px] mx-auto text-center">
-//           Your information is safe with us. Read more about our{' '}
-//           <Link target="_blank" href="/terms-and-conditions" className="text-[#0088DD]">
-//             Terms & Conditions
-//           </Link>{' '}
-//           and{' '}
-//           <Link target="_blank" href="/privacy-policy" className="text-[#0088DD]">
-//             Privacy Policy
-//           </Link>
-//         </p>
-//       </div>
-//     </>
-//   );
-// };
-
 const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const { isFetching, data } = useGetAddresses();
   const dispatch = useAppDispatch();
@@ -630,13 +596,38 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   });
 
   const handleSubmit = async () => {
+    console.log(
+      {
+        ...booking,
+        origin: {
+          country: quoteData?.data?.origin?.name,
+          country_iso: quoteData?.data?.origin?.country_iso,
+          postcode: quoteData?.data?.origin?.postcode,
+        },
+        destination: {
+          country: quoteData?.data?.destination?.name,
+          country_iso: quoteData?.data?.destination?.country_iso,
+          postcode: quoteData?.data?.destination?.postcode,
+        },
+        amount: booking?.amount,
+        parcel: quote?.shipment.parcels,
+      },
+      'booking payload all'
+    );
+
     mutate({
       payload: {
         ...booking,
-        origin: quoteData?.data?.origin?.country_iso,
-        origin_postcode: quoteData?.data?.origin?.postcode,
-        destination: quoteData?.data?.destination?.country_iso,
-        destination_postcode: quoteData?.data?.destination?.postcode,
+        origin: {
+          country: quoteData?.data?.origin?.country_iso,
+          country_iso: quoteData?.data?.origin?.country_iso,
+          postcode: quoteData?.data?.origin?.postcode,
+        },
+        destination: {
+          country: quoteData?.data?.destination?.country_iso,
+          country_iso: quoteData?.data?.destination?.country_iso,
+          postcode: quoteData?.data?.destination?.postcode,
+        },
         amount: booking?.amount,
         parcel: quote?.shipment.parcels,
       } as any,

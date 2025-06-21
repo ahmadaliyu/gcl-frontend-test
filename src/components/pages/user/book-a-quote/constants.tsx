@@ -354,27 +354,58 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
-    if (postCode && country) {
-      dispatch(updateShipFrom({ country_iso: country, name: '', postcode: postCode }));
+    if (country && postCode) {
+      const selected = INTERNATIONAL.find((c) => c.alpha_2_code === country);
+      if (selected) {
+        dispatch(
+          updateShipFrom({
+            country_iso: selected.alpha_2_code,
+            name: selected.name,
+            postcode: postCode,
+          })
+        );
+      }
     }
   }, [postCode, country]);
 
   return (
-    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
-      <div className="flex-1 overflow-hidden">
+    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex flex-col sm:flex-row gap-4 sm:gap-[16px] p-4 sm:py-[8px] sm:px-[16px] sm:h-[61px] items-start sm:items-center">
+      {/* Country/Area Select */}
+      <div className="w-full sm:flex-1">
         {sendFrom === 'uk' ? (
-          <Select value={area} onValueChange={(value) => setArea(value)}>
-            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0 border-none shadow-none">
+          <Select
+            value={area}
+            onValueChange={(value) => {
+              setArea(value);
+              const selected = INTERNATIONAL.find((c) => c.name === value);
+              if (selected) {
+                setCountry(selected.alpha_2_code);
+                setPostCode('');
+                dispatch(
+                  updateShipFrom({
+                    country_iso: selected.alpha_2_code,
+                    name: selected.name,
+                    postcode: '',
+                  })
+                );
+              }
+            }}
+          >
+            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
               <p className="text-[#0088DD] text-[12px]">Send From</p>
-              <div className="flex w-full text-[12px]">
+              <div className="flex w-full text-[12px] items-center">
                 <SelectValue
                   placeholder="UK Mainland"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
                 />
-                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+                <img
+                  src="/icons/chevron-down.png"
+                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
+                  alt="dropdown"
+                />
               </div>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="w-[var(--radix-select-trigger-width)]">
               <SelectGroup>
                 <SelectLabel>Select area</SelectLabel>
                 <SelectItem value="UK Mainland">UK Mainland</SelectItem>
@@ -385,24 +416,184 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
           <Select
             value={country}
             onValueChange={(value) => {
+              const selected = INTERNATIONAL.find((c) => c.alpha_2_code === value);
+              if (selected) {
+                setCountry(selected.alpha_2_code);
+                setPostCode('');
+                dispatch(
+                  updateShipFrom({
+                    country_iso: selected.alpha_2_code,
+                    name: selected.name,
+                    postcode: '',
+                  })
+                );
+              }
+            }}
+          >
+            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+              <p className="text-[#0088DD] text-[12px]">Send From</p>
+              <div className="flex w-full text-[12px] items-center">
+                <SelectValue
+                  placeholder="Select Country"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
+                />
+                <img
+                  src="/icons/chevron-down.png"
+                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
+                  alt="dropdown"
+                />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="w-[var(--radix-select-trigger-width)]">
+              <SelectGroup>
+                <SelectLabel>Select A Country</SelectLabel>
+                {INTERNATIONAL.map((c) => (
+                  <SelectItem key={c.alpha_2_code} value={c.alpha_2_code}>
+                    {c.emoji} {c.name.length > 10 ? `${c.name.slice(0, 10)}...` : c.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+
+      {/* Postcode/City Input */}
+      <div className="w-full sm:flex-1">
+        {country === 'NG' ? (
+          <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
+            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+              <p className="text-[#0088DD] text-[12px]">{'City'}</p>
+              <div className="flex w-full text-[12px] items-center">
+                <SelectValue
+                  placeholder="Select City"
+                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
+                />
+                <img
+                  src="/icons/chevron-down.png"
+                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
+                  alt="dropdown"
+                />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="w-[var(--radix-select-trigger-width)]">
+              <SelectGroup>
+                <SelectLabel>Select A City</SelectLabel>
+                {CITIES_LIST.map((city) => (
+                  <SelectItem key={city.code} value={city.code}>
+                    {city.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        ) : (
+          <div>
+            <p className="text-[#0088DD] text-[12px]">{'Postcode'}</p>
+            <input
+              className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full border-b border-[#CCD6DF] focus:border-[#0088DD] focus:outline-none py-1"
+              placeholder="Enter Postcode"
+              value={postCode}
+              onChange={(e) => setPostCode(e.target.value)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
+  const COUNTRY_CODE_LIST = useAppSelector((state) => state.country.countries);
+  const CITIES_LIST = useAppSelector((state) => state.country.cities);
+
+  const WITHINUKLIST = [
+    { name: 'UK Mainland', alpha_2_code: 'GB', emoji: '' },
+    { name: 'Scotish Highlands', alpha_2_code: 'SC', emoji: '' },
+    { name: 'Northern Island', alpha_2_code: 'NT', emoji: '' },
+    { name: 'Channel Island', alpha_2_code: 'CH', emoji: '' },
+  ];
+
+  const [country, setCountry] = React.useState('');
+  const [area, setArea] = React.useState('');
+  const [postCode, setPostCode] = React.useState('');
+
+  const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    if (postCode && country) {
+      let selected: { alpha_2_code: string; name: string } | undefined;
+
+      if (sendTo === 'uk') {
+        selected = WITHINUKLIST.find((c) => c.alpha_2_code === country);
+      } else {
+        selected = COUNTRY_CODE_LIST.find((c) => c.alpha_2_code === country);
+      }
+
+      if (selected) {
+        dispatch(
+          updateShipTo({
+            country_iso: selected.alpha_2_code,
+            name: selected.name,
+            postcode: postCode,
+          })
+        );
+      }
+    }
+  }, [postCode, country]);
+
+  return (
+    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
+      <div className="flex-1 overflow-hidden">
+        {sendTo === 'uk' ? (
+          <Select
+            value={area}
+            onValueChange={(value) => {
+              setArea(value);
+              setPostCode('');
+              const selected = WITHINUKLIST.find((c) => c.alpha_2_code === value);
+              if (selected) {
+                setCountry(selected.alpha_2_code);
+              }
+            }}
+          >
+            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0 border-none shadow-none">
+              <p className="text-[#0088DD] text-[12px]">Send To</p>
+              <div className="flex w-full text-[12px]">
+                <SelectValue placeholder="UK Mainland" className="placeholder:text-[#757575] text-[12px] flex-1" />
+                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select area</SelectLabel>
+                {WITHINUKLIST.map((c) => (
+                  <SelectItem key={c.alpha_2_code} value={c.alpha_2_code}>
+                    {c.emoji} {c.name.length > 10 ? `${c.name.slice(0, 15)}...` : c.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        ) : (
+          <Select
+            value={country}
+            onValueChange={(value) => {
               setCountry(value);
-              setPostCode(''); // Reset postcode when changing country
+              setPostCode('');
             }}
           >
             <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
-              <p className="text-[#0088DD] text-[12px]">Send From</p>
+              <p className="text-[#0088DD] text-[12px]">Send To</p>
               <div className="flex w-full">
-                <SelectValue
-                  placeholder="Select Country"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
-                />
+                <SelectValue placeholder="Select Country" className="placeholder:text-[#757575] text-[12px] flex-1" />
                 <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
               </div>
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Select A Country</SelectLabel>
-                {INTERNATIONAL.map((c) => (
+                {COUNTRY_CODE_LIST.map((c) => (
                   <SelectItem key={c.alpha_2_code} value={c.alpha_2_code}>
                     {c.emoji} {c.name.length > 10 ? `${c.name.slice(0, 10)}...` : c.name}
                   </SelectItem>
@@ -419,10 +610,7 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
             <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
               <p className="text-[#0088DD] text-[12px]">{'City'}</p>
               <div className="flex w-full text-[12px] items-center">
-                <SelectValue
-                  placeholder="Select City"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-                />
+                <SelectValue placeholder="Select City" className="placeholder:text-[#757575] text-[12px] w-full" />
                 <img
                   src="/icons/chevron-down.png"
                   className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
@@ -443,153 +631,7 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
           </Select>
         ) : (
           <input
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:border-[#CCD6DF] focus:outline-none"
-            placeholder="Enter Postcode"
-            value={postCode}
-            onChange={(e) => setPostCode(e.target.value)}
-          />
-        )}
-      </div>
-    </div>
-  );
-};
-
-export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
-  const COUNTRY_CODE_LIST = useAppSelector((state) => state.country.countries);
-  const CITIES_LIST = useAppSelector((state) => state.country.cities);
-
-  const WITHINUKLIST = [
-    {
-      name: 'UK Mainland',
-      alpha_2_code: 'GB',
-      emoji: '',
-    },
-    {
-      name: 'Scotish Highlands',
-      alpha_2_code: 'SC',
-      emoji: '',
-    },
-    {
-      name: 'Northern Island',
-      alpha_2_code: 'NT',
-      emoji: '',
-    },
-    {
-      name: 'Channel Island',
-      alpha_2_code: 'CH',
-      emoji: '',
-    },
-  ];
-
-  const [country, setCountry] = React.useState('');
-  const [area, setArea] = React.useState('');
-  const [postCode, setPostCode] = React.useState('');
-
-  const dispatch = useAppDispatch();
-
-  React.useEffect(() => {
-    if (postCode && country) {
-      dispatch(updateShipTo({ country_iso: country, name: '', postcode: postCode }));
-    }
-  }, [postCode, country]);
-
-  return (
-    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
-      <div className="flex-1 overflow-hidden">
-        {sendTo === 'uk' ? (
-          <Select value={area} onValueChange={(value) => setArea(value)}>
-            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none   focus:ring-0 border-none shadow-none">
-              <p className="text-[#0088DD] text-[12px]">Send To</p>
-
-              <div className="flex w-full text-[12px]">
-                <SelectValue
-                  placeholder={'UK Mainland'}
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none  "
-                />
-                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Select area</SelectLabel>
-
-                {WITHINUKLIST.map((c) => {
-                  return (
-                    <SelectItem value={c?.alpha_2_code}>
-                      {c?.emoji} {c?.name.length > 10 ? `${c?.name.slice(0, 15)}...` : c?.name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        ) : (
-          <Select
-            value={country}
-            onValueChange={(value) => {
-              setCountry(value);
-              setPostCode(''); // Reset postcode when changing country
-            }}
-          >
-            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none   focus:ring-0">
-              <p className="text-[#0088DD] text-[12px]">Send To</p>
-
-              <div className="flex w-full ">
-                <SelectValue
-                  placeholder={'Select Country'}
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF]  focus:outline-none  "
-                />
-                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Select A Country</SelectLabel>
-
-                {COUNTRY_CODE_LIST.map((c) => {
-                  return (
-                    <SelectItem value={c?.alpha_2_code}>
-                      {c?.emoji} {c?.name.length > 10 ? `${c?.name.slice(0, 10)}...` : c?.name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-
-      <div className="flex-1">
-        {country === 'NG' ? (
-          <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
-            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
-              <p className="text-[#0088DD] text-[12px]">{'City'}</p>
-              <div className="flex w-full text-[12px] items-center">
-                <SelectValue
-                  placeholder="Select City"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-                />
-                <img
-                  src="/icons/chevron-down.png"
-                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
-                  alt="dropdown"
-                />
-              </div>
-            </SelectTrigger>
-            <SelectContent className="w-[var(--radix-select-trigger-width)]">
-              <SelectGroup>
-                <SelectLabel>Select A City</SelectLabel>
-                {CITIES_LIST.map((city) => (
-                  <SelectItem key={city.code} value={city.code}>
-                    {city.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        ) : (
-          <input
-            className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:border-[#CCD6DF] focus:outline-none"
+            className="placeholder:text-[#757575] text-[12px] w-full border-b border-[#CCD6DF] focus:border-[#0088DD] focus:outline-none py-1"
             placeholder="Enter Postcode"
             value={postCode}
             onChange={(e) => setPostCode(e.target.value)}

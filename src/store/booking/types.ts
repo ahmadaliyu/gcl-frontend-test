@@ -26,6 +26,17 @@ interface Parcel {
   items: ParcelItem[];
 }
 
+export interface LegDetail {
+  from: string;
+  to: string;
+  price: number;
+  amount: number;
+  handlingFee: string;
+  estimatedTime: number;
+  legId: string;
+  courier: string;
+}
+
 export interface BookingState {
   service_id: string;
   sender_address: Address;
@@ -37,16 +48,23 @@ export interface BookingState {
   product_weight: string;
   product_value: string;
   product_qty: string;
-  origin: string;
-  origin_postcode: string;
-  destination: string;
-  destination_postcode: string;
+  // origin: {
+  //   country: string;
+  //   postcode: string;
+  //   country_iso: string;
+  // };
+  // destination: {
+  //   country: string;
+  //   postcode: string;
+  //   country_iso: string;
+  // };
   is_insured: boolean;
   has_protection: boolean;
   is_sign_required: boolean;
   print_type: string;
   amount: number;
   parcel: Parcel[];
+  leg_details: LegDetail[];
 }
 
 export type BookingFieldPayload = {
@@ -60,3 +78,8 @@ export type ParcelItemFieldPayload = {
   field: keyof ParcelItem;
   value: any;
 };
+
+// export interface LocationUpdatePayload {
+//   target: 'origin' | 'destination';
+//   data: Partial<BookingState['origin']>;
+// }

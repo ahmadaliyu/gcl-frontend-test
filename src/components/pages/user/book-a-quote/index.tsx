@@ -96,11 +96,11 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
 
   const { mutate, isPending } = useGetQuotes((response: any) => {
     if (response?.data?.data?.options && response.data.data.options.length === 0) {
-      setShowModal(true); // Show the modal instead of alert
+      setShowModal(true);
       return;
     }
     if (response?.status === 200) {
-      dispatch(clearQuotesData());
+      // dispatch(clearQuotesData());
       dispatch(loadQuotes(response.data));
       router.push('/get-a-quote');
     }
@@ -114,6 +114,7 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
           shipment.despatch_date instanceof Date ? shipment.despatch_date.toISOString() : shipment.despatch_date,
       },
     };
+
     mutate({ payload });
   };
 

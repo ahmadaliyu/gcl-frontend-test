@@ -1,4 +1,4 @@
-import * as localStorage from "local-storage";
+import * as localStorage from 'local-storage';
 
 export const storage = {
   async save(key: string, value: string) {

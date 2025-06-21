@@ -113,16 +113,17 @@ function MyBookings() {
 
   // Filter bookings based on active tab
   const filteredBookings = useMemo(() => {
-    if (!data?.data) return [];
+    const bookings = data?.data;
 
-    // For now, all packages are considered "Sent" - adjust this if your data structure changes
-    const isSentPackage = true; // All packages are sent packages in current implementation
+    if (!Array.isArray(bookings)) return [];
 
-    return data.data.filter((booking) => {
+    const isSentPackage = true;
+
+    return bookings.filter(() => {
       if (activeTab === TabIds.SentPackages) {
-        return isSentPackage; // Show all packages in Sent tab
+        return isSentPackage;
       } else {
-        return !isSentPackage; // This would filter for received packages if implemented
+        return !isSentPackage;
       }
     });
   }, [data, activeTab]);
