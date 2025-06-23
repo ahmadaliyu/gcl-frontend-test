@@ -193,7 +193,12 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     <>
       <h1 className="text-[#02044A] text-center text-[36px] font-medium">Recipient Details</h1>
       <p className="text-[#272727] text-center text-[18px] mt-[16px]">We would like to know your address</p>
-
+      <button
+        className="w-[200px] text-sm border border-gray-400 text-gray-700 px-4 py-2 rounded"
+        onClick={handleAddAddress}
+      >
+        Add address
+      </button>
       <div className="mt-[32px]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[32px]">
           {/* SENDER DETAILS */}
@@ -207,15 +212,6 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
               value={senderFormData.address_id}
               onChange={(val: string) => handleAddressSelect('sender', val)}
             />
-            <button
-              className="w-[200px] text-sm border border-gray-400 text-gray-700 px-4 py-2 rounded"
-              onClick={handleAddAddress}
-            >
-              Add address
-            </button>
-            {/* {senderAddresses.length === 0 && (
-             
-            )} */}
 
             {[
               { name: 'address_line_1', label: 'Address Line 1 *' },
@@ -270,15 +266,6 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
               value={recipientFormData.address_id}
               onChange={(val: string) => handleAddressSelect('recipient', val)}
             />
-            <button
-              className="w-[200px] text-sm border border-gray-400 text-gray-700 px-4 py-2 rounded"
-              onClick={handleAddAddress}
-            >
-              Add address
-            </button>
-            {/* {recipientAddresses.length === 0 && (
-             
-            )} */}
 
             {[
               { name: 'address_line_1', label: 'Address Line 1 *' },
@@ -596,24 +583,24 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   });
 
   const handleSubmit = async () => {
-    console.log(
-      {
-        ...booking,
-        origin: {
-          country: quoteData?.data?.origin?.name,
-          country_iso: quoteData?.data?.origin?.country_iso,
-          postcode: quoteData?.data?.origin?.postcode,
-        },
-        destination: {
-          country: quoteData?.data?.destination?.name,
-          country_iso: quoteData?.data?.destination?.country_iso,
-          postcode: quoteData?.data?.destination?.postcode,
-        },
-        amount: booking?.amount,
-        parcel: quote?.shipment.parcels,
-      },
-      'booking payload all'
-    );
+    // console.log(
+    //   {
+    //     ...booking,
+    //     origin: {
+    //       country: quoteData?.data?.origin?.name,
+    //       country_iso: quoteData?.data?.origin?.country_iso,
+    //       postcode: quoteData?.data?.origin?.postcode,
+    //     },
+    //     destination: {
+    //       country: quoteData?.data?.destination?.name,
+    //       country_iso: quoteData?.data?.destination?.country_iso,
+    //       postcode: quoteData?.data?.destination?.postcode,
+    //     },
+    //     amount: booking?.amount,
+    //     parcel: quote?.shipment.parcels,
+    //   },
+    //   'booking payload all'
+    // );
 
     mutate({
       payload: {
