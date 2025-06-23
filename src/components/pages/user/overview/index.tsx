@@ -43,9 +43,9 @@ function DashboardOverview() {
   return (
     <UserDashboardWrapper>
       <div>
-        <h1 className="text-[#272727] font-[600] text-[24px] mb-[56px]">My Overview</h1>
+        <h1 className="text-[#272727] font-[600] text-[24px]">My Overview</h1>
         <div className="flex gap-[32px] ">
-          <button
+          {/* <button
             onClick={handleBookNew}
             className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md bg-[#02044A]"
           >
@@ -74,9 +74,9 @@ function DashboardOverview() {
             </svg>
 
             <span className="text-[16px] font-medium text-white">Book New</span>
-          </button>
+          </button> */}
           <Link href="/user/shipment-tracking">
-            <button className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md">
+            {/* <button className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md">
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M5.28516 12.4004L20.0018 20.917L34.6185 12.4503"
@@ -116,10 +116,10 @@ function DashboardOverview() {
               </svg>
 
               <span className="text-[16px] font-medium text-[#E51520]">Track a shipment</span>
-            </button>
+            </button> */}
           </Link>
 
-          <Link href="/user/notifications">
+          {/* <Link href="/user/notifications">
             <button className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md">
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -147,9 +147,9 @@ function DashboardOverview() {
 
               <span className="text-[16px] font-medium text-[#E51520]">Notification Panel</span>
             </button>
-          </Link>
+          </Link> */}
 
-          <Link href="/user/support-and-help-center">
+          {/* <Link href="/user/support-and-help-center">
             <button className="shrink-0 w-[240px] h-[104px] flex flex-col gap-[8px] hover:border hover:border-[#E51520] items-center justify-center rounded-[4px] shadow-md">
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -178,7 +178,7 @@ function DashboardOverview() {
 
               <span className="text-[16px] font-medium text-[#E51520]">Contact Support</span>
             </button>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="flex w-full gap-[24px] mt-[40px] max-h-[520px] overflow-y-aut">

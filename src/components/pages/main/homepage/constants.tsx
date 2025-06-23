@@ -825,7 +825,7 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
             setModalUnit(1);
             setModalDescription('');
           }}
-          className="h-[48px] sm:h-[61px] px-4 bg-blue-500 text-white rounded-[10px] hover:bg-blue-600 transition-colors whitespace-nowrap"
+          className="h-[48px] sm:h-[61px] px-2 bg-blue-500 text-xs text-white rounded-[10px] hover:bg-blue-600 transition-colors whitespace-nowrap"
         >
           Add Item
         </button>

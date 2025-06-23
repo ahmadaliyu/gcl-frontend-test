@@ -21,7 +21,8 @@ export enum EChannels {
 }
 
 export enum TTabIds {
-  RoadFreightAndAirFreight = 'road-freight-air-freight',
+  RoadFreight = 'road-freight',
+  AirFreight = 'air-freight',
   SeaFreight = 'sea-freight',
   CustomsClearance = 'customs-clearance',
 }
@@ -164,8 +165,8 @@ export const channels = [
 export const tabs: TTab[] = [
   {
     channels: [EChannels.WithinUK, EChannels.SendInternational],
-    id: TTabIds.RoadFreightAndAirFreight,
-    title: 'Road & Air Freight',
+    id: TTabIds.RoadFreight,
+    title: 'Road Freight',
     icon_active: (
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {/* Truck icon */}
@@ -200,22 +201,6 @@ export const tabs: TTab[] = [
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-        </svg>
-        {/* Flight Icon */}
-        <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
-          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
-          <g clipPath="url(#clip0_0_11552)">
-            <path
-              d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
-              fill="#E51520"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_0_11552">
-              <rect width="31.25" height="30" fill="white" transform="translate(9.15625 9)" />
-            </clipPath>
-          </defs>
         </svg>
       </div>
     ),
@@ -254,7 +239,35 @@ export const tabs: TTab[] = [
             strokeLinejoin="round"
           />
         </svg>
-
+      </div>
+    ),
+  },
+  {
+    channels: [EChannels.WithinUK, EChannels.SendInternational],
+    id: TTabIds.AirFreight,
+    title: 'Air Freight',
+    icon_active: (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Flight icon */}
+        <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
+          <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
+          <g clipPath="url(#clip0_0_11552)">
+            <path
+              d="M32.9503 39.9628L35.2765 37.1067L30.5054 22.6595C30.5054 22.6595 32.2337 21.1028 34.5693 18.5956C35.9953 16.9788 36.8269 14.9238 36.9266 12.7703L36.9256 12.7807L36.754 12.6091C34.6131 12.7076 32.5694 13.5316 30.9589 14.9456L30.9382 14.9645C28.4319 17.2991 26.8742 19.0284 26.8742 19.0284L12.4279 14.2582L9.57188 16.5844L18.0232 21.1245L21.8636 23.8674C19.4773 26.0157 17.4384 28.5208 15.8196 31.2937L15.9384 31.107L12.3337 29.5673L10.6383 31.2626L14.7117 33.8273C14.5636 34.2676 14.4609 34.6439 14.376 35.0229L14.3892 34.9701L14.1233 35.236C14.1968 35.2216 14.271 35.2058 14.3458 35.1889L14.2996 35.4123L14.5655 35.1464C14.8908 35.0757 15.267 34.9729 15.6385 34.8504L15.7083 34.824L18.273 38.8973L19.9684 37.202L18.4286 33.5972C20.4992 32.3997 22.6255 30.7732 24.5594 28.8393C24.9598 28.4389 25.347 28.0303 25.7211 27.6136L25.6692 27.6711L28.4131 31.5125L32.9522 39.9628L32.9503 39.9628Z"
+              fill="#E51520"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_0_11552">
+              <rect width="31.25" height="30" fill="white" transform="translate(9.15625 9)" />
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
+    ),
+    icon_inactive: (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {/* Flight Icon */}
         <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="white" fillOpacity="0.14" />
@@ -816,7 +829,7 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
             setModalUnit(1);
             setModalDescription('');
           }}
-          className="h-[48px] sm:h-[61px] px-4 bg-blue-500 text-white rounded-[10px] hover:bg-blue-600 transition-colors whitespace-nowrap"
+          className="h-[48px] sm:h-[61px] px-2 bg-blue-500 text-xs text-white rounded-[10px] hover:bg-blue-600 transition-colors whitespace-nowrap"
         >
           Add Item
         </button>

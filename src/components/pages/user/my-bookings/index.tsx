@@ -13,120 +13,65 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useGetBooking } from '@/services';
+import { useRouter } from 'next/navigation';
+import LoadingSkeleton from './my-booking-skeleton';
 
 enum TabIds {
   SentPackages = 'sent-packages',
   RecievedPackages = 'recieved-packages',
 }
 
-const services = [
-  {
-    id: '1',
-    recipient: 'John Doe',
-    transitTime: '3 days',
-    status: 'Delivered',
-    totalPaid: '$45.00',
-    created: '2025-03-01',
-  },
-  {
-    id: '2',
-    recipient: 'Jane Smith',
-    transitTime: '5 days',
-    status: 'In Transit',
-    totalPaid: '$60.00',
-    created: '2025-03-02',
-  },
-  {
-    id: '3',
-    recipient: 'Alice Johnson',
-    transitTime: '2 days',
-    status: 'Pending',
-    totalPaid: '$30.00',
-    created: '2025-03-03',
-  },
-  {
-    id: '4',
-    recipient: 'Bob Brown',
-    transitTime: '4 days',
-    status: 'Delivered',
-    totalPaid: '$50.00',
-    created: '2025-03-04',
-  },
-  {
-    id: '5',
-    recipient: 'Charlie Davis',
-    transitTime: '6 days',
-    status: 'In Transit',
-    totalPaid: '$70.00',
-    created: '2025-03-05',
-  },
-  {
-    id: '6',
-    recipient: 'Diana Evans',
-    transitTime: '1 day',
-    status: 'Pending',
-    totalPaid: '$20.00',
-    created: '2025-03-06',
-  },
-  {
-    id: '7',
-    recipient: 'Ethan Foster',
-    transitTime: '3 days',
-    status: 'Delivered',
-    totalPaid: '$45.00',
-    created: '2025-03-07',
-  },
-  {
-    id: '8',
-    recipient: 'Fiona Green',
-    transitTime: '5 days',
-    status: 'In Transit',
-    totalPaid: '$60.00',
-    created: '2025-03-08',
-  },
-  {
-    id: '9',
-    recipient: 'George Harris',
-    transitTime: '2 days',
-    status: 'Pending',
-    totalPaid: '$30.00',
-    created: '2025-03-09',
-  },
-  {
-    id: '10',
-    recipient: 'Hannah White',
-    transitTime: '4 days',
-    status: 'Delivered',
-    totalPaid: '$50.00',
-    created: '2025-03-10',
-  },
-];
+enum StatusFilter {
+  All = 'all',
+  Paid = 'Paid',
+  InTransit = 'In Transit',
+  Delivered = 'Delivered',
+  Cancelled = 'Cancelled',
+}
 
 const tabs = [
   { id: TabIds.RecievedPackages, title: 'Received Packages' },
   { id: TabIds.SentPackages, title: 'Sent Packages' },
 ];
 
+const statusOptions = [
+  { id: StatusFilter.All, label: 'All Statuses' },
+  { id: StatusFilter.Paid, label: 'Paid' },
+  { id: StatusFilter.InTransit, label: 'In Transit' },
+  { id: StatusFilter.Delivered, label: 'Delivered' },
+  { id: StatusFilter.Cancelled, label: 'Cancelled' },
+];
+
 function MyBookings() {
   const [activeTab, setActiveTab] = useState<TabIds>(TabIds.RecievedPackages);
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(StatusFilter.All);
   const { data, isLoading } = useGetBooking();
-
-  // Filter bookings based on active tab
   const filteredBookings = useMemo(() => {
-    const bookings = data?.data;
+    const bookings = data?.data || [];
 
     if (!Array.isArray(bookings)) return [];
 
-    const isSentPackage = true;
+    return bookings.filter((booking) => {
+      // First apply tab filter if needed
+      // const isSentPackage = true;
+      // if (activeTab === TabIds.SentPackages && !isSentPackage) return false;
+      // if (activeTab === TabIds.RecievedPackages && isSentPackage) return false;
 
-    return bookings.filter(() => {
-      if (activeTab === TabIds.SentPackages) {
-        return isSentPackage;
-      } else {
-        return !isSentPackage;
+      // Then apply status filter
+      if (selectedStatus !== StatusFilter.All) {
+        // Handle case-insensitive comparison if needed
+        return booking.status?.toLowerCase() === selectedStatus.toLowerCase();
       }
+      return true;
     });
-  }, [data, activeTab]);
+  }, [data, activeTab, selectedStatus]);
+
+  const router = useRouter();
+  const handleBookNew = () => router.push('/user/book-a-quote');
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <UserDashboardWrapper>
@@ -135,22 +80,16 @@ function MyBookings() {
           <div className="text-gray-600 text-lg animate-pulse">Loading...</div>
         </div>
       )}
-      <h1 className="text-[#272727] font-[600] text-[24px] mb-[56px]">My Bookings</h1>
-      <div className="flex justify-start mb-[24px] border-b-[#E3E3E3] border-b">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`w-[185px] py-[12px] text-[16px] font-medium text-[#272727] ${
-              activeTab === tab.id
-                ? 'bg-[#FCE8E9] border-b-[3px] border-[#E51520] font-[600]'
-                : 'bg-transparent border-b-[3px] border-transparent font-[400]'
-            }`}
-          >
-            {tab.title}
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-[56px]">
+        <h1 className="text-[#272727] font-[600] text-[24px]">My Bookings</h1>
+        <button
+          onClick={handleBookNew}
+          className="bg-[#2E7D32] text-white px-4 py-2 rounded-md font-medium hover:bg-[#256b2b] transition"
+        >
+          Book New
+        </button>
       </div>
+
       <div className="w-full flex gap-[16px]">
         {/* Date filter dropdown */}
         <DropdownMenu>
@@ -201,37 +140,39 @@ function MyBookings() {
                   strokeLinejoin="round"
                 />
               </svg>
-              <span>Filter by Status</span>
+              <span>
+                {selectedStatus === StatusFilter.All
+                  ? 'Filter by Status'
+                  : `Status: ${statusOptions.find((o) => o.id === selectedStatus)?.label}`}
+              </span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[148px] rounded-[16px] p-2">
             <DropdownMenuLabel>Select status</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <span>All Statuses</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>In Transit</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Delivered</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Cancelled</span>
-              </DropdownMenuItem>
+              {statusOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.id}
+                  onClick={() => setSelectedStatus(option.id as StatusFilter)}
+                  className={selectedStatus === option.id ? 'bg-gray-100' : ''}
+                >
+                  <span>{option.label}</span>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
       <div>
         <Table className="mb-[100px] mt-[16px]">
           <TableHeader>
             <TableRow className="bg-[#FCE8E9] hover:bg-[#FCE8E9]">
               <TableHead className="text-[#272727] font-medium text-[14px] py-[16px] px-[8px]">Recipient</TableHead>
-              <TableHead className="text-[#272727] font-medium text-[14px] py-[16px] px-[8px]">
+              {/* <TableHead className="text-[#272727] font-medium text-[14px] py-[16px] px-[8px]">
                 Est Transit Time
-              </TableHead>
+              </TableHead> */}
               <TableHead className="text-[#272727] font-medium text-[14px] py-[16px] px-[8px]">Status</TableHead>
               <TableHead className="text-[#272727] font-medium text-[14px] py-[16px] px-[8px]">Total Paid</TableHead>
               <TableHead className="text-[#272727] font-medium text-[14px] py-[16px] px-[8px]">Created</TableHead>
@@ -243,15 +184,12 @@ function MyBookings() {
             {filteredBookings.length > 0 ? (
               filteredBookings.map((service) => (
                 <TableRow key={service.id}>
-                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px] flex items-center gap-2">
-                    <img src="/images/outer (2).png" className="w-[40px]" />
-                    {/* {service.recipientName || 'Recipient'} */}
-                    {'N/A'}
+                  <TableCell className=" font-medium py-[30px] px-[8px] flex items-center gap-2">
+                    {service.code || 'Recipient'}
                   </TableCell>
-                  <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                    {/* {service.transitTime || 'N/A'} */}
-                    {'N/A'}
-                  </TableCell>
+                  {/* <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
+                    {service.transitTime || 'N/A'}
+                  </TableCell> */}
                   <TableCell>
                     <div
                       className={`border h-[41px] flex items-center justify-center border-[#E3E3E3] font-medium w-[106px] px-[8px] ${
@@ -261,7 +199,7 @@ function MyBookings() {
                           ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
                           : service.status === 'Cancelled'
                           ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
-                          : ''
+                          : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
                       } rounded-[32px] h-[41px]`}
                     >
                       {service.status}
@@ -291,8 +229,6 @@ function MyBookings() {
     </UserDashboardWrapper>
   );
 }
-
-export default MyBookings;
 
 interface TableActionsProps {
   bookingId: string;
@@ -336,3 +272,5 @@ const TableActions: React.FC<TableActionsProps> = ({ bookingId, status }) => {
     </div>
   );
 };
+
+export default MyBookings;

@@ -27,6 +27,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { clearQuotesData } from '@/store/auth/quoteSlice';
 import { Input } from '@/components/ui/input';
 import { storage } from '@/lib/storage/localstorage';
+import Footer from '@/components/layout/main/footer';
 
 function BookAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
@@ -39,7 +40,7 @@ function BookAQuote() {
   const numberOfActiveChannels = activeTab?.channels?.length || 0;
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-[#02044A] p-[16px]">
+    <div className="flex flex-col items-center justify-center w-full h-full bg-[#ffffff] p-[16px]">
       <div className="flex flex-col items-center w-full max-w-[690px]">
         <div className="flex w-full border-b-[#7C98B6] border-b divide-x-[1px] divide-[#7C98B6] divide-y-[0px]">
           {tabs.map((tab) => (
@@ -75,17 +76,18 @@ function BookAQuote() {
           })}
         </div>
 
-        {activeTab.id === TTabIds.RoadFreightAndAirFreight && (
-          <RoadFreightAndAirFreightForm activeChannel={activeChannel} />
-        )}
+        {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
+        {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
         {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
         {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
       </div>
+      <Footer />
     </div>
   );
 }
 
-const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
+// Road Freight Form (similar to the original combined form)
+const RoadFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   const { shipment } = useAppSelector((state: RootState) => state.quote);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -100,7 +102,6 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
       return;
     }
     if (response?.status === 200) {
-      // dispatch(clearQuotesData());
       dispatch(loadQuotes(response.data));
       router.push('/get-a-quote');
     }
@@ -155,7 +156,98 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
         <div className="flex-1" />
       </div>
 
-      {/* MODAL */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>No services available for this quote</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            <Input placeholder="Enter your name" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
+            <Input
+              placeholder="Enter your email"
+              type="email"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+            />
+            <Button title="Submit" onClick={handleModalSubmit} className="w-full" variant="blue" />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+// Air Freight Form (similar to Road Freight but with potential air-specific fields)
+const AirFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
+  const { shipment } = useAppSelector((state: RootState) => state.quote);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const [showModal, setShowModal] = React.useState(false);
+  const [guestEmail, setGuestEmail] = React.useState('');
+  const [guestName, setGuestName] = React.useState('');
+
+  const { mutate, isPending } = useGetQuotes((response: any) => {
+    if (response?.data?.data?.options && response.data.data.options.length === 0) {
+      setShowModal(true);
+      return;
+    }
+    if (response?.status === 200) {
+      dispatch(loadQuotes(response.data));
+      router.push('/get-a-quote');
+    }
+  });
+
+  const handleGetQuote = () => {
+    const payload = {
+      shipment: {
+        ...shipment,
+        despatch_date:
+          shipment.despatch_date instanceof Date ? shipment.despatch_date.toISOString() : shipment.despatch_date,
+      },
+    };
+
+    mutate({ payload });
+  };
+
+  const handleModalSubmit = () => {
+    setShowModal(false);
+  };
+
+  return (
+    <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
+      <div className="flex flex-col md:flex-row gap-4">
+        <SendFrom sendFrom={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
+        <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 mt-4">
+        <WhatAreYouSending />
+        <OuterPackagingType />
+      </div>
+
+      <div className="flex gap-[16px] mt-[16px]">
+        <div className="flex-1">
+          <WeightLengthWidthHeight />
+        </div>
+        <div className="flex-1"></div>
+      </div>
+
+      {/* Air-specific fields could be added here */}
+      <div className="flex gap-[16px] mt-[16px]">
+        <div className="flex-1">
+          <Button
+            loading={isPending}
+            disabled={isPending}
+            onClick={handleGetQuote}
+            title="Get a Quote"
+            variant="red"
+            className="w-full"
+          />
+        </div>
+        <div className="flex-1" />
+      </div>
+
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
