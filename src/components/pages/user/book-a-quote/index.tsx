@@ -28,6 +28,7 @@ import { clearQuotesData } from '@/store/auth/quoteSlice';
 import { Input } from '@/components/ui/input';
 import { storage } from '@/lib/storage/localstorage';
 import Footer from '@/components/layout/main/footer';
+import NavBarIndex from '@/components/layout/main/navbar';
 
 function BookAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
@@ -40,62 +41,64 @@ function BookAQuote() {
   const numberOfActiveChannels = activeTab?.channels?.length || 0;
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#ffffff]">
-      {/* Banner image with fixed positioning and controlled height */}
-      <div className="fixed inset-0 overflow-hidden z-10">
-        <img src="/images/homepage-banner-1.webp" alt="frame" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/30"></div> {/* Optional overlay */}
-      </div>
-
-      {/* Main content with proper spacing */}
-      <main className="flex-1 flex flex-col items-center pt-[40px] pb-[80px] px-[16px] z-10">
-        <div className="flex flex-col items-center w-full max-w-[690px]">
-          <div className="flex w-full border-b-[#7C98B6] border-b divide-x-[1px] divide-[#7C98B6] divide-y-[0px]">
-            {tabs.map((tab) => (
-              <div
-                key={tab.id}
-                className={`flex flex-col items-center cursor-pointer text-[14px] flex-1 font-medium gap-[8px] pb-[16px] border-b-[4px] mb-[-1px] ${
-                  activeTab?.id === tab.id ? 'text-[#E51520] border-b-[#E51520]' : 'text-white border-b-transparent'
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {activeTab?.id === tab.id ? tab.icon_active : tab.icon_inactive}
-                <span className="text-center">{tab.title}</span>
-              </div>
-            ))}
-          </div>
-          <div className="flex-1 flex justify-between gap-[16px] w-full rounded-t-[16px] mt-[24px]">
-            {channels.map((channel) => {
-              if (!activeTab.channels?.includes(channel?.key)) return null;
-
-              const isActiveChannel = activeChannel === channel.key;
-              return (
-                <div
-                  key={channel.key}
-                  className={`flex-1 flex items-center justify-center gap-[8px] w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
-                    !isActiveChannel ? 'bg-[#02044A] text-white' : 'bg-white text-[#02044A]'
-                  } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
-                  onClick={() => setActiveChannel(channel.key)}
-                >
-                  <span className="block text-center sm:text-left">{channel.title}</span>
-                  {isActiveChannel ? channel.icon_active : channel.icon_inactive}
-                </div>
-              );
-            })}
-          </div>
-
-          {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
-          {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
-          {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
-          {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
+    <>
+      <div className="relative min-h-screen flex flex-col bg-[#ffffff]">
+        {/* Banner image with fixed positioning and controlled height */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <img src="/images/homepage-banner-1.webp" alt="frame" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-      </main>
 
-      {/* Footer positioned at the bottom */}
-      <footer className="relative z-20 bg-white/90 backdrop-blur-sm py-4">
-        <Footer />
-      </footer>
-    </div>
+        {/* Main content with proper spacing */}
+        <main className="flex-1 flex flex-col items-center pt-[40px] pb-[80px] px-[16px] z-10">
+          <div className="flex flex-col items-center w-full max-w-[690px]">
+            <div className="flex w-full border-b-[#7C98B6] border-b divide-x-[1px] divide-[#7C98B6] divide-y-[0px]">
+              {tabs.map((tab) => (
+                <div
+                  key={tab.id}
+                  className={`flex flex-col items-center cursor-pointer text-[14px] flex-1 font-medium gap-[8px] pb-[16px] border-b-[4px] mb-[-1px] ${
+                    activeTab?.id === tab.id ? 'text-[#E51520] border-b-[#E51520]' : 'text-white border-b-transparent'
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {activeTab?.id === tab.id ? tab.icon_active : tab.icon_inactive}
+                  <span className="text-center">{tab.title}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex-1 flex justify-between gap-[16px] w-full rounded-t-[16px] mt-[24px]">
+              {channels.map((channel) => {
+                if (!activeTab.channels?.includes(channel?.key)) return null;
+
+                const isActiveChannel = activeChannel === channel.key;
+                return (
+                  <div
+                    key={channel.key}
+                    className={`flex-1 flex items-center justify-center gap-[8px] w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
+                      !isActiveChannel ? 'bg-[#02044A] text-white' : 'bg-white text-[#02044A]'
+                    } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
+                    onClick={() => setActiveChannel(channel.key)}
+                  >
+                    <span className="block text-center sm:text-left">{channel.title}</span>
+                    {isActiveChannel ? channel.icon_active : channel.icon_inactive}
+                  </div>
+                );
+              })}
+            </div>
+
+            {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
+            {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
+            {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
+            {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
+          </div>
+        </main>
+
+        {/* Footer positioned at the bottom */}
+        <footer className="relative z-20 bg-white/90 backdrop-blur-sm py-4">
+          <Footer />
+        </footer>
+      </div>
+    </>
   );
 }
 
@@ -143,10 +146,10 @@ const RoadFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
         <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mt-4">
+      {/* <div className="flex flex-col md:flex-row gap-4 mt-4">
         <WhatAreYouSending />
         <OuterPackagingType />
-      </div>
+      </div> */}
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
@@ -234,10 +237,10 @@ const AirFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
         <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mt-4">
+      {/* <div className="flex flex-col md:flex-row gap-4 mt-4">
         <WhatAreYouSending />
         <OuterPackagingType />
-      </div>
+      </div> */}
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">

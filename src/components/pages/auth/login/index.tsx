@@ -39,7 +39,7 @@ function LoginPage() {
       } else if (isFirstLogin) {
         router.push('/user/book-a-quote'); // First login, no quote
       } else {
-        router.push('/user/overview'); // Subsequent login, no quote
+        router.push('/user/my-bookings'); // Subsequent login, no quote
       }
     }
   });

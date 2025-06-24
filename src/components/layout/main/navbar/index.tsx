@@ -113,16 +113,16 @@ const MobileSidebar = ({
 }) => {
   const navItems = [
     { id: 'home', title: 'Home', link: '/', hideChevron: true },
-    { id: 'services', title: 'Services', link: '/services' },
-    { id: 'solutions', title: 'Solutions', link: '/solutions' },
-    { id: 'resources', title: 'Resources', link: '/resources' },
+    { id: 'services', title: 'Services', link: '#' },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
     { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
 
   const navItemsUser = [
-    { id: 'Dashboard', title: 'Dashboard', link: '/user/overview', hideChevron: true },
-    { id: 'solutions', title: 'Solutions', link: '/solutions' },
-    { id: 'resources', title: 'Resources', link: '/resources' },
+    { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
   ];
 
   return (
@@ -231,7 +231,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
   const navItemsUser = [
-    { id: 'Dashboard', title: 'Dashboard', link: '/user/overview', hideChevron: true },
+    { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
   ];
@@ -336,7 +336,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   );
 };
 
-function Index({ fixed }: { fixed?: boolean }) {
+function NavBarIndex({ fixed }: { fixed?: boolean }) {
   return (
     <>
       <NavbarTop />
@@ -345,4 +345,4 @@ function Index({ fixed }: { fixed?: boolean }) {
   );
 }
 
-export default Index;
+export default NavBarIndex;

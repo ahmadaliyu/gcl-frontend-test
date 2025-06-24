@@ -831,7 +831,7 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
         </button>
       </div>
 
-      <div className="flex-1 mt-4">
+      {/* <div className="flex-1 mt-4">
         <p className="text-[#0088DD] text-[12px]">Description</p>
         <input
           value={description}
@@ -839,7 +839,7 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
           className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
           placeholder="Enter description"
         />
-      </div>
+      </div> */}
 
       {/* Display Items */}
       <div className="mt-6 space-y-2">

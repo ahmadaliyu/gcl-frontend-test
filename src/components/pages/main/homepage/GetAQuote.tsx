@@ -126,10 +126,10 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
       </div>
 
       {/* Row 2: What Are You Sending / Packaging */}
-      <div className="flex flex-col md:flex-row gap-4 mt-4">
+      {/* <div className="flex flex-col md:flex-row gap-4 mt-4">
         <WhatAreYouSending />
         <OuterPackagingType />
-      </div>
+      </div> */}
 
       {/* Row 3: Dimensions */}
       <div className="flex flex-col md:flex-row gap-4 mt-4">
