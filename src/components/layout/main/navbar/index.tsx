@@ -225,15 +225,15 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
 
   const navItems = [
     { id: 'home', title: 'Home', link: '/', hideChevron: true },
-    { id: 'services', title: 'Services', link: '/services' },
-    { id: 'solutions', title: 'Solutions', link: '/solutions' },
-    { id: 'resources', title: 'Resources', link: '/resources' },
+    { id: 'services', title: 'Services', link: '#' },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
     { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
   const navItemsUser = [
     { id: 'Dashboard', title: 'Dashboard', link: '/user/overview', hideChevron: true },
-    { id: 'solutions', title: 'Solutions', link: '/solutions' },
-    { id: 'resources', title: 'Resources', link: '/resources' },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
   ];
 
   const [scroll, setScroll] = useState(false);

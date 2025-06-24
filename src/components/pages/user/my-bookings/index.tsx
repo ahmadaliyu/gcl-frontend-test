@@ -1,8 +1,7 @@
 import UserDashboardWrapper from '@/components/layout/user/user-dashboard-wrapper';
 import React, { useMemo, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import Button from '@/components/reuseables/Button';
-import Link from 'next/link';
+import dayjs from 'dayjs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +44,7 @@ const statusOptions = [
 function MyBookings() {
   const [activeTab, setActiveTab] = useState<TabIds>(TabIds.RecievedPackages);
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(StatusFilter.All);
+  const [selectedDateFilter, setSelectedDateFilter] = useState<'all' | 'today' | 'last7days' | 'thisMonth'>('all');
   const { data, isLoading } = useGetBooking();
   const filteredBookings = useMemo(() => {
     const bookings = data?.data || [];
@@ -52,19 +52,25 @@ function MyBookings() {
     if (!Array.isArray(bookings)) return [];
 
     return bookings.filter((booking) => {
-      // First apply tab filter if needed
-      // const isSentPackage = true;
-      // if (activeTab === TabIds.SentPackages && !isSentPackage) return false;
-      // if (activeTab === TabIds.RecievedPackages && isSentPackage) return false;
+      const bookingDate = dayjs(booking.createdAt);
 
-      // Then apply status filter
-      if (selectedStatus !== StatusFilter.All) {
-        // Handle case-insensitive comparison if needed
-        return booking.status?.toLowerCase() === selectedStatus.toLowerCase();
+      // Status Filter
+      const statusMatch =
+        selectedStatus === StatusFilter.All || booking.status?.toLowerCase() === selectedStatus.toLowerCase();
+
+      // Date Filter
+      let dateMatch = true;
+      if (selectedDateFilter === 'today') {
+        dateMatch = bookingDate.isSame(dayjs(), 'day');
+      } else if (selectedDateFilter === 'last7days') {
+        dateMatch = bookingDate.isAfter(dayjs().subtract(7, 'day'));
+      } else if (selectedDateFilter === 'thisMonth') {
+        dateMatch = bookingDate.isSame(dayjs(), 'month');
       }
-      return true;
+
+      return statusMatch && dateMatch;
     });
-  }, [data, activeTab, selectedStatus]);
+  }, [data, selectedStatus, selectedDateFilter]);
 
   const router = useRouter();
   const handleBookNew = () => router.push('/user/book-a-quote');
@@ -95,7 +101,18 @@ function MyBookings() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex border gap-[10px] border-[#CCCCCC] bg-[#F7F7F7] rounded-[8px] h-[40px] items-center justify-center px-[24px]">
-              <span>Filter by Date</span>
+              <span>
+                {selectedDateFilter === 'all'
+                  ? 'Filter by Date'
+                  : `Date: ${
+                      selectedDateFilter === 'today'
+                        ? 'Today'
+                        : selectedDateFilter === 'last7days'
+                        ? 'Last 7 Days'
+                        : 'This Month'
+                    }`}
+              </span>
+
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M10.5 7.25C10.3674 7.25 10.2402 7.30268 10.1464 7.39645C10.0527 7.49021 10 7.61739 10 7.75C10 7.88261 10.0527 8.00979 10.1464 8.10355C10.2402 8.19732 10.3674 8.25 10.5 8.25H13.5C13.6326 8.25 13.7598 8.19732 13.8536 8.10355C13.9473 8.00979 14 7.88261 14 7.75C14 7.61739 13.9473 7.49021 13.8536 7.39645C13.7598 7.30268 13.6326 7.25 13.5 7.25H10.5ZM9.5 12.75C9.5 13.0152 9.39464 13.2696 9.20711 13.4571C9.01957 13.6446 8.76522 13.75 8.5 13.75C8.23478 13.75 7.98043 13.6446 7.79289 13.4571C7.60536 13.2696 7.5 13.0152 7.5 12.75C7.5 12.4848 7.60536 12.2304 7.79289 12.0429C7.98043 11.8554 8.23478 11.75 8.5 11.75C8.76522 11.75 9.01957 11.8554 9.20711 12.0429C9.39464 12.2304 9.5 12.4848 9.5 12.75ZM9.5 16.25C9.5 16.5152 9.39464 16.7696 9.20711 16.9571C9.01957 17.1446 8.76522 17.25 8.5 17.25C8.23478 17.25 7.98043 17.1446 7.79289 16.9571C7.60536 16.7696 7.5 16.5152 7.5 16.25C7.5 15.9848 7.60536 15.7304 7.79289 15.5429C7.98043 15.3554 8.23478 15.25 8.5 15.25C8.76522 15.25 9.01957 15.3554 9.20711 15.5429C9.39464 15.7304 9.5 15.9848 9.5 16.25ZM12 13.75C12.2652 13.75 12.5196 13.6446 12.7071 13.4571C12.8946 13.2696 13 13.0152 13 12.75C13 12.4848 12.8946 12.2304 12.7071 12.0429C12.5196 11.8554 12.2652 11.75 12 11.75C11.7348 11.75 11.4804 11.8554 11.2929 12.0429C11.1054 12.2304 11 12.4848 11 12.75C11 13.0152 11.1054 13.2696 11.2929 13.4571C11.4804 13.6446 11.7348 13.75 12 13.75ZM13 16.25C13 16.5152 12.8946 16.7696 12.7071 16.9571C12.5196 17.1446 12.2652 17.25 12 17.25C11.7348 17.25 11.4804 17.1446 11.2929 16.9571C11.1054 16.7696 11 16.5152 11 16.25C11 15.9848 11.1054 15.7304 11.2929 15.5429C11.4804 15.3554 11.7348 15.25 12 15.25C12.2652 15.25 12.5196 15.3554 12.7071 15.5429C12.8946 15.7304 13 15.9848 13 16.25ZM15.5 13.75C15.7652 13.75 16.0196 13.6446 16.2071 13.4571C16.3946 13.2696 16.5 13.0152 16.5 12.75C16.5 12.4848 16.3946 12.2304 16.2071 12.0429C16.0196 11.8554 15.7652 11.75 15.5 11.75C15.2348 11.75 14.9804 11.8554 14.7929 12.0429C14.6054 12.2304 14.5 12.4848 14.5 12.75C14.5 13.0152 14.6054 13.2696 14.7929 13.4571C14.9804 13.6446 15.2348 13.75 15.5 13.75Z"
@@ -114,15 +131,20 @@ function MyBookings() {
             <DropdownMenuLabel>Filter</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <span>Option 1</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Option 2</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Option 3</span>
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => setSelectedDateFilter('all')}>
+                  <span>All</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedDateFilter('today')}>
+                  <span>Today</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedDateFilter('last7days')}>
+                  <span>Last 7 Days</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedDateFilter('thisMonth')}>
+                  <span>This Month</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
