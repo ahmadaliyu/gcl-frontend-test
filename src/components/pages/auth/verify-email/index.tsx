@@ -21,14 +21,10 @@ function VerifyEmail() {
   const router = useRouter();
 
   const { isPending, mutate } = useVerifyEmail((response: { status: number; data: any; message: string }) => {
-    if (response?.status >= 400) {
-      return;
-    } else {
-      if (response?.data?.success || response?.status === 200) {
-        dispatch(setUser(response?.data?.user));
-        router.replace('auth/login');
-        dispatch(resetForm());
-      }
+    if (response.status === 200) {
+      router.replace('/user/my-bookings');
+      dispatch(setUser(response?.data?.data?.user));
+      // dispatch(resetForm());
     }
   });
   const { isPending: resending, mutate: mutateResend } = useResendCode(

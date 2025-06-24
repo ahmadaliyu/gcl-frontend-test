@@ -5,7 +5,7 @@ import { CountryResponse } from './types';
 export const useGetCountries = (onSuccess?: (data: any) => void) => {
   return useQuery<CountryResponse, Error>({
     queryKey: ['countries'],
-    refetchInterval: 5000,
+    // refetchInterval: 5000,
     queryFn: async (): Promise<CountryResponse> => {
       const response: CountryResponse = await get('auth/countries');
       console.log(response, 'countries');

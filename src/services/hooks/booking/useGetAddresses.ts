@@ -5,7 +5,6 @@ import { AddressResponse } from './types';
 export const useGetAddresses = (onSuccess?: (data: any) => void) => {
   return useQuery<AddressResponse, Error>({
     queryKey: ['addresses'],
-    refetchInterval: 2000,
     queryFn: async (): Promise<AddressResponse> => {
       const response: AddressResponse = await get('users/addresses');
 

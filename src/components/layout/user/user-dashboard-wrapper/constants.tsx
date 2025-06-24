@@ -112,7 +112,7 @@ export const menus = [
         />
       </svg>
     ),
-    link: '/user/shipment-tracking',
+    link: `/user/track-a-parcel`,
   },
   {
     title: 'My Saved Addresses',

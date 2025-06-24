@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import Button from "@/components/reuseables/Button";
-import InputField from "@/components/reuseables/InputField";
-import SelectField from "@/components/reuseables/SelectField";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useAppSelector } from "@/store/hook";
-import { useAddAddress, useUpdateAddress } from "@/services/hooks/user";
-import { useRouter } from "next/navigation";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import React, { useState } from 'react';
+import Button from '@/components/reuseables/Button';
+import InputField from '@/components/reuseables/InputField';
+import SelectField from '@/components/reuseables/SelectField';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useAppSelector } from '@/store/hook';
+import { useAddAddress, useUpdateAddress } from '@/services/hooks/user';
+import { useRouter } from 'next/navigation';
+import { ArrowLeftIcon } from '@radix-ui/react-icons';
 
 function EditAddress() {
   const COUNTRY_CODE_LIST = useAppSelector((state) => state?.country.countries);
@@ -23,17 +23,17 @@ function EditAddress() {
   });
 
   const [formData, setFormData] = useState({
-    label: savedAddress.label || "",
-    address_line_1: savedAddress.address_line_1 || "",
-    address_line_2: savedAddress.address_line_2 || "",
-    city: savedAddress.city || "",
-    state: savedAddress.state || "",
-    country: savedAddress.country || "",
-    contact_email: savedAddress.contact_email || "",
-    post_code: savedAddress.post_code || "",
-    contact_name: savedAddress.contact_name || "",
-    contact_phone: savedAddress.contact_phone || "",
-    notes: savedAddress.notes || "",
+    label: savedAddress.label || '',
+    address_line_1: savedAddress.address_line_1 || '',
+    address_line_2: savedAddress.address_line_2 || '',
+    city: savedAddress.city || '',
+    state: savedAddress.state || '',
+    country: savedAddress.country || '',
+    contact_email: savedAddress.contact_email || '',
+    post_code: savedAddress.post_code || '',
+    contact_name: savedAddress.contact_name || '',
+    contact_phone: savedAddress.contact_phone || '',
+    notes: savedAddress.notes || '',
     is_default: savedAddress.is_default || false,
     is_sender_address: savedAddress.is_sender_address || false,
   });
@@ -77,16 +77,11 @@ function EditAddress() {
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-[800px] p-4">
-        <div
-          className="block lg:hidden mb-4 cursor-pointer"
-          onClick={() => router.back()}
-        >
+        <div className="block lg:hidden mb-4 cursor-pointer" onClick={() => router.back()}>
           <ArrowLeftIcon className="w-6 h-6 text-black" />
         </div>
 
-        <h1 className="text-[#272727] font-[600] text-[24px] mb-[32px] text-center">
-          Add New Address
-        </h1>
+        <h1 className="text-[#272727] font-[600] text-[24px] mb-[32px] text-center">Add New Address</h1>
 
         <div className="flex flex-col md:flex-row gap-[16px]">
           <InputField
@@ -146,7 +141,7 @@ function EditAddress() {
             label="Country*"
             placeholder="Select an option here"
             value={formData.country}
-            onChange={(val) => handleFieldChange("country", val)}
+            onChange={(val) => handleFieldChange('country', val)}
             className="w-full md:w-[380px]"
           />
         </div>
@@ -204,16 +199,12 @@ function EditAddress() {
           />
         </div>
 
-        <p className="text-[12px] text-[#0088DD] mt-[18px]">
-          Save Address as default
-        </p>
+        <p className="text-[12px] text-[#0088DD] mt-[18px]">Save Address as default</p>
 
         <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
           <Checkbox
             checked={formData.is_default}
-            onCheckedChange={(val) =>
-              handleFieldChange("is_default", Boolean(val))
-            }
+            onCheckedChange={(val) => handleFieldChange('is_default', Boolean(val))}
           />
           <p>Save as default</p>
         </div>
@@ -221,9 +212,7 @@ function EditAddress() {
         <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
           <Checkbox
             checked={formData.is_sender_address}
-            onCheckedChange={(val) =>
-              handleFieldChange("is_sender_address", Boolean(val))
-            }
+            onCheckedChange={(val) => handleFieldChange('is_sender_address', Boolean(val))}
           />
           <p>Save as Sender address</p>
         </div>

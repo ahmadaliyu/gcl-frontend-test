@@ -109,7 +109,7 @@ function MySavedAddresses() {
                   <div key={index} className="bg-[#F5F5F5] w-full h-[209px] rounded-[12px] p-6 border border-[#E0E0E0]">
                     <div className="flex justify-between items-start h-full">
                       <div>
-                        <h3 className="text-[18px] font-bold text-[#333333]">{address.contact_name}</h3>
+                        <h3 className="text-[18px] font-bold text-[#333333]">{address.label}</h3>
                         <p className="text-[14px] text-[#666666] mt-1">{address.state}</p>
                         <p className="text-[14px] text-[#666666]">{address.city}</p>
                         <p className="text-[14px] text-[#666666]">{address.post_code}</p>

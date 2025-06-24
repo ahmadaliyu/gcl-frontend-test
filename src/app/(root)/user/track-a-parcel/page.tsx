@@ -1,12 +1,12 @@
 'use client';
 import { Suspense } from 'react';
 import React from 'react';
-import ShipmentTracking from '@/components/pages/user/shipment-tracking';
+import TrackAParcel from '@/components/pages/user/track-a-parcel';
 
 function page() {
   return (
     <Suspense>
-      <ShipmentTracking />
+      <TrackAParcel />
     </Suspense>
   );
 }

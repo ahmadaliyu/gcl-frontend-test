@@ -156,6 +156,8 @@ export interface CountryResponse {
 }
 
 export interface Country {
+  label: any;
+  value: any;
   name: string;
   alpha_2_code: string;
   has_postal: boolean;
@@ -163,6 +165,7 @@ export interface Country {
 }
 
 export interface City {
+  label: any;
   name: string;
   code: string;
   is_active: boolean;

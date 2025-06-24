@@ -85,14 +85,48 @@ export interface Shipment {
   is_sign_required: boolean;
   print_type: string;
   amount: number;
-  parcel: ParcelItem[]; // parsed from JSON string
+  parcel: ParcelItem[];
   status: string;
   comment: string | null;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ShipmentResponse {
   success: boolean;
   data: Shipment[];
+}
+
+export interface BookingStatus {
+  status: string;
+  slug: string;
+  comment: string;
+  action: string | null;
+  createdAt: string;
+}
+
+export interface BookingStatusResponse {
+  success: boolean;
+  resp: BookingStatus[];
+}
+
+export interface PaymentResData {
+  success: boolean;
+  resp: Payment[];
+}
+
+export interface Payment {
+  id: string;
+  user_id: string;
+  booking_id: string;
+  amount: string;
+  payment_type: 'booking' | string;
+  status: 'paid' | 'unpaid' | 'pending' | string;
+  session_id: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  Booking: {
+    id: string;
+    code: string;
+  };
 }

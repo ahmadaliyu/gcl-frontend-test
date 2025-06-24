@@ -34,6 +34,7 @@ function Homepage() {
   useEffect(() => {
     if (cities?.data) {
       const transformedCities = cities.data.map((city) => ({
+        label: city.name,
         name: city.name,
         code: city.code,
         is_active: city.is_active,
