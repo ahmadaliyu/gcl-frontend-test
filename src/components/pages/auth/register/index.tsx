@@ -12,6 +12,14 @@ function RegisterPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
+  const [passwordError, setPasswordError] = React.useState('');
+
+  const isPasswordValid = (password: string) => {
+    // At least 8 characters, one uppercase, one lowercase, one special character
+    const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+    return pattern.test(password);
+  };
+
   const handleInputChange = (name: string, value: string) => {
     dispatch(updateField({ field: name as any, value }));
   };
@@ -21,15 +29,24 @@ function RegisterPage() {
   };
 
   const handleRegister = () => {
-    const { email, password } = form;
-    dispatch(clearTempCredentials());
-    dispatch(setTempCredentials({ email, password }));
-    if (form.password !== form.confirmPassword) {
+    const { email, password, confirmPassword } = form;
+
+    setPasswordError('');
+
+    if (!isPasswordValid(password)) {
+      setPasswordError(
+        'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, and a special character.'
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
 
-    // Simulate registration success
+    dispatch(clearTempCredentials());
+    dispatch(setTempCredentials({ email, password }));
     router.push('/auth/welcome');
   };
 
@@ -100,6 +117,7 @@ function RegisterPage() {
             type="password"
           />
         </div>
+        {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
 
         <p className="text-[#E51520] text-[14px]">
           At least 8 characters, 1 upper case, 1 lower case and a special character e.g. #@%!$&*()

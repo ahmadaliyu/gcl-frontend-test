@@ -1,25 +1,19 @@
-import Button from "@/components/reuseables/Button";
-import { resetForm, setTempCredentials } from "@/store/auth/formSlice";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { persistor, RootState } from "@/store/store";
-import { resetUser } from "@/store/user/userSlice";
-import { HamburgerMenuIcon, Cross1Icon } from "@radix-ui/react-icons";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
-import LogoutModal from "../modal/LogoutModal";
-import { resetBooking } from "@/store/booking/bookingSlice";
-import { clearQuote } from "@/store/auth/quoteDataSlice";
-import { clearQuotesData } from "@/store/auth/quoteSlice";
+import Button from '@/components/reuseables/Button';
+import { resetForm, setTempCredentials } from '@/store/auth/formSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { persistor, RootState } from '@/store/store';
+import { resetUser } from '@/store/user/userSlice';
+import { HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from 'react';
+import LogoutModal from '../modal/LogoutModal';
+import { resetBooking } from '@/store/booking/bookingSlice';
+import { clearQuote } from '@/store/auth/quoteDataSlice';
+import { clearQuotesData } from '@/store/auth/quoteSlice';
 
 const chevron_down = (
-  <svg
-    width="11"
-    height="6"
-    viewBox="0 0 11 6"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M1.36831 0H9.40894C9.96519 0 10.2433 0.671875 9.84956 1.06563L5.83081 5.0875C5.58706 5.33125 5.19019 5.33125 4.94644 5.0875L0.927689 1.06563C0.533939 0.671875 0.812064 0 1.36831 0Z"
       fill="#21222D"
@@ -34,13 +28,7 @@ const NavbarTop = () => {
         <div className="flex justify-between items-center h-full">
           <div className="flex items-center gap-[20px]">
             <a href="#">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M7.69679 19.3644V10.278H5.29419V7.00651H7.69679V4.21222C7.69679 2.01645 9.11603 0 12.3862 0C13.7103 0 14.6894 0.126933 14.6894 0.126933L14.6122 3.18196C14.6122 3.18196 13.6137 3.17224 12.5241 3.17224C11.3448 3.17224 11.1559 3.71569 11.1559 4.61771V7.00651H14.706L14.5515 10.278H11.1559V19.3644H7.69679Z"
                   fill="white"
@@ -49,13 +37,7 @@ const NavbarTop = () => {
             </a>
 
             <a href="#">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M20 4.09315C19.2645 4.41043 18.4641 4.63877 17.6397 4.72769C18.4956 4.21919 19.1366 3.41583 19.4424 2.46835C18.6391 2.94615 17.7593 3.28119 16.8418 3.45862C16.4583 3.04863 15.9944 2.72202 15.4791 2.49913C14.9639 2.27624 14.4083 2.16186 13.8469 2.1631C11.5755 2.1631 9.74883 4.00422 9.74883 6.26357C9.74883 6.58084 9.78729 6.8981 9.84978 7.20335C6.44875 7.02549 3.41545 5.40069 1.39887 2.913C1.03143 3.54062 0.838874 4.25522 0.841245 4.98247C0.841245 6.40538 1.56471 7.66003 2.66795 8.39793C2.0178 8.37232 1.38287 8.19362 0.814806 7.87635V7.92683C0.814806 9.91938 2.22329 11.5706 4.10047 11.9504C3.74801 12.0419 3.38543 12.0888 3.02128 12.0898C2.75448 12.0898 2.5021 12.0634 2.24732 12.0273C2.7665 13.6521 4.27834 14.8322 6.0786 14.8707C4.67011 15.974 2.9059 16.623 0.990266 16.623C0.646558 16.623 0.329287 16.6108 0 16.5725C1.81709 17.7382 3.97308 18.4112 6.29491 18.4112C13.8325 18.4112 17.957 12.1667 17.957 6.74668C17.957 6.56882 17.957 6.39095 17.945 6.21309C18.743 5.62903 19.4424 4.90555 20 4.09315Z"
                   fill="white"
@@ -64,13 +46,7 @@ const NavbarTop = () => {
             </a>
 
             <a href="#">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M9.99737 6.54357C8.26917 6.54357 6.85884 7.95391 6.85884 9.6821C6.85884 11.4103 8.26917 12.8206 9.99737 12.8206C11.7256 12.8206 13.1359 11.4103 13.1359 9.6821C13.1359 7.95391 11.7256 6.54357 9.99737 6.54357ZM19.4106 9.6821C19.4106 8.38241 19.4224 7.09452 19.3494 5.79719C19.2764 4.29032 18.9326 2.95297 17.8307 1.85107C16.7265 0.746814 15.3915 0.405414 13.8846 0.332425C12.585 0.259435 11.2971 0.271208 9.99972 0.271208C8.70004 0.271208 7.41215 0.259435 6.11482 0.332425C4.60795 0.405414 3.27059 0.749168 2.1687 1.85107C1.06444 2.95532 0.723041 4.29032 0.650052 5.79719C0.577063 7.09687 0.588835 8.38478 0.588835 9.6821C0.588835 10.9794 0.577063 12.2697 0.650052 13.567C0.723041 15.0738 1.0668 16.4112 2.1687 17.5131C3.27295 18.6174 4.60795 18.9588 6.11482 19.0317C7.4145 19.1048 8.7024 19.093 9.99972 19.093C11.2994 19.093 12.5873 19.1048 13.8846 19.0317C15.3915 18.9588 16.7288 18.615 17.8307 17.5131C18.935 16.4089 19.2764 15.0738 19.3494 13.567C19.4247 12.2697 19.4106 10.9818 19.4106 9.6821ZM9.99737 14.5111C7.32503 14.5111 5.16831 12.3544 5.16831 9.6821C5.16831 7.00975 7.32503 4.85304 9.99737 4.85304C12.6697 4.85304 14.8264 7.00975 14.8264 9.6821C14.8264 12.3544 12.6697 14.5111 9.99737 14.5111ZM15.0243 5.78306C14.4003 5.78306 13.8964 5.2792 13.8964 4.65526C13.8964 4.03133 14.4003 3.52746 15.0243 3.52746C15.6481 3.52746 16.152 4.03133 16.152 4.65526C16.1521 4.80342 16.1232 4.95015 16.0665 5.08707C16.0099 5.22399 15.9268 5.34839 15.8221 5.45315C15.7173 5.55792 15.593 5.64098 15.456 5.69759C15.3191 5.7542 15.1724 5.78325 15.0243 5.78306Z"
                   fill="white"
@@ -84,43 +60,19 @@ const NavbarTop = () => {
             </p>
 
             <a href="tel:+01617061220" className="flex items-center gap-[10px]">
-              <svg
-                width="17"
-                height="16"
-                viewBox="0 0 17 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M6.6377 1.31617L7.2867 2.4791C7.8724 3.52858 7.6373 4.90532 6.7148 5.8278C6.7148 5.8278 5.59598 6.9468 7.6246 8.9755C9.6526 11.0035 10.7723 9.8853 10.7723 9.8853C11.6948 8.9628 13.0715 8.7277 14.121 9.3134L15.2839 9.9624C16.8687 10.8468 17.0558 13.0692 15.6629 14.4622C14.8259 15.2992 13.8005 15.9505 12.667 15.9934C10.7589 16.0658 7.5184 15.5829 4.2678 12.3323C1.01723 9.0817 0.53431 5.84122 0.60665 3.93309C0.64962 2.7996 1.3009 1.77423 2.13791 0.93723C3.53086 -0.45572 5.75327 -0.26856 6.6377 1.31617Z"
                   fill="white"
                 />
               </svg>
 
-              <span className="font-poppins text-white text-[14px] hidden md:inline">
-                0161 706 1220
-              </span>
+              <span className="font-poppins text-white text-[14px] hidden md:inline">0161 706 1220</span>
             </a>
 
-            <a
-              href="malito:admin@globalcorporatelogistics.com"
-              className="flex items-center gap-[10px]"
-            >
-              <svg
-                width="25"
-                height="24"
-                viewBox="0 0 25 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <mask
-                  id="mask0_47_1752"
-                  maskUnits="userSpaceOnUse"
-                  x="0"
-                  y="0"
-                  width="25"
-                  height="24"
-                >
+            <a href="malito:admin@globalcorporatelogistics.com" className="flex items-center gap-[10px]">
+              <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <mask id="mask0_47_1752" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="24">
                   <path d="M24.6001 0H0.600098V24H24.6001V0Z" fill="white" />
                 </mask>
                 <g mask="url(#mask0_47_1752)">
@@ -160,39 +112,26 @@ const MobileSidebar = ({
   setShowLogoutModal: (show: boolean) => void;
 }) => {
   const navItems = [
-    { id: "home", title: "Home", link: "/", hideChevron: true },
-    { id: "services", title: "Services", link: "#" },
-    { id: "solutions", title: "Solutions", link: "#" },
-    { id: "resources", title: "Resources", link: "#" },
-    {
-      id: "track-trace",
-      title: "Track & Trace",
-      link: "/track-a-parcel",
-      hideChevron: true,
-    },
+    { id: 'home', title: 'Home', link: '/', hideChevron: true },
+    { id: 'services', title: 'Services', link: '#' },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
+    { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
 
   const navItemsUser = [
-    {
-      id: "Dashboard",
-      title: "Dashboard",
-      link: "/user/my-bookings",
-      hideChevron: true,
-    },
-    { id: "solutions", title: "Solutions", link: "#" },
-    { id: "resources", title: "Resources", link: "#" },
+    { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
   ];
 
   return (
     <div
       className={`fixed inset-0 z-50 transform ${
-        isOpen ? "translate-x-0" : "translate-x-full"
+        isOpen ? 'translate-x-0' : 'translate-x-full'
       } transition-transform duration-300 ease-in-out`}
     >
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
       <div className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-white shadow-xl">
         <div className="flex justify-end p-4">
           <button onClick={onClose} className="p-2">
@@ -234,8 +173,7 @@ const MobileSidebar = ({
           )}
 
           <div className="mt-8 border-t pt-4">
-            {pathname === "/" ||
-            (pathname?.startsWith("/auth") && !user?.email) ? (
+            {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
               <div className="flex flex-col gap-4">
                 <Link href="/auth/login" onClick={onClose}>
                   <Button title="Login" variant="outlined-blue" fullWidth />
@@ -244,7 +182,7 @@ const MobileSidebar = ({
                   <Button title="Get Started" fullWidth />
                 </Link>
               </div>
-            ) : pathname.startsWith("/get-a-quote") && !user?.email ? (
+            ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
               <div className="flex flex-col gap-4">
                 <Link href="/auth/login" onClick={onClose}>
                   <Button title="Login" variant="outlined-blue" fullWidth />
@@ -257,13 +195,9 @@ const MobileSidebar = ({
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3 p-2">
                   <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                    <span className="text-xs font-medium">
-                      {user?.firstName ? user?.firstName.slice(0, 1) : ""}
-                    </span>
+                    <span className="text-xs font-medium">{user?.firstName ? user?.firstName.slice(0, 1) : ''}</span>
                   </div>
-                  <span className="font-poppins text-sm">
-                    Hello, {user?.firstName}
-                  </span>
+                  <span className="font-poppins text-sm">Hello, {user?.firstName}</span>
                 </div>
                 <Button
                   onClick={() => {
@@ -290,36 +224,26 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navItems = [
-    { id: "home", title: "Home", link: "/", hideChevron: true },
-    { id: "services", title: "Services", link: "#" },
-    { id: "solutions", title: "Solutions", link: "#" },
-    { id: "resources", title: "Resources", link: "#" },
-    {
-      id: "track-trace",
-      title: "Track & Trace",
-      link: "/track-a-parcel",
-      hideChevron: true,
-    },
+    { id: 'home', title: 'Home', link: '/', hideChevron: true },
+    { id: 'services', title: 'Services', link: '#' },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
+    { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
   ];
   const navItemsUser = [
-    {
-      id: "Dashboard",
-      title: "Dashboard",
-      link: "/user/my-bookings",
-      hideChevron: true,
-    },
-    { id: "solutions", title: "Solutions", link: "#" },
-    { id: "resources", title: "Resources", link: "#" },
+    { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
+    { id: 'solutions', title: 'Solutions', link: '#' },
+    { id: 'resources', title: 'Resources', link: '#' },
   ];
 
   const [scroll, setScroll] = useState(false);
   const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user);
 
-  const isAuthenticated = user?.role === "user";
+  const isAuthenticated = user?.role === 'user';
 
   const NAVITEMS = useMemo(() => {
-    return user?.role === "user" ? navItemsUser : navItems;
+    return user?.role === 'user' ? navItemsUser : navItems;
   }, [user?.role]);
 
   const handleLogout = () => {
@@ -328,11 +252,11 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     dispatch(clearQuote());
     dispatch(clearQuotesData());
     setShowLogoutModal(false);
-    router.replace("/auth/login");
+    router.replace('/auth/login');
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", () => {
+    window.addEventListener('scroll', () => {
       setScroll(window.scrollY > 0);
     });
   }, []);
@@ -341,16 +265,12 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     <>
       <div
         className={`${
-          fixed ? (scroll ? "fixed top-0" : "") : ""
+          fixed ? (scroll ? 'fixed top-0' : '') : ''
         } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
       >
         <div className="max-screen-inner h-[96px] flex items-center justify-between">
-          <a href={user?.email ? "#" : "/"}>
-            <img
-              src="/images/logo.png"
-              className="w-[153px] h-[62px]"
-              alt="logo"
-            />
+          <a href={user?.email ? '#' : '/'}>
+            <img src="/images/logo.png" className="w-[153px] h-[62px]" alt="logo" />
           </a>
           <div className="flex flex-1 justify-center gap-[30px] max-[1120px]:hidden">
             {NAVITEMS.map((item) => (
@@ -364,8 +284,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
               </Link>
             ))}
           </div>
-          {pathname === "/" ||
-          (pathname?.startsWith("/auth") && !isAuthenticated) ? (
+          {pathname === '/' || (pathname?.startsWith('/auth') && !isAuthenticated) ? (
             <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
               <Link href="/auth/login">
                 <Button title="Login" variant="outlined-blue" />
@@ -374,7 +293,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
                 <Button title="Get Started" />
               </Link>
             </div>
-          ) : pathname.startsWith("/get-a-quote") && !isAuthenticated ? (
+          ) : pathname.startsWith('/get-a-quote') && !isAuthenticated ? (
             <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
               <Link href="/auth/login">
                 <Button title="Login" variant="outlined-blue" />
@@ -385,24 +304,13 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
             </div>
           ) : (
             <div className="flex items-center gap-4 max-[1120px]:hidden">
-              <button
-                onClick={() => router.push("/user/account-settings")}
-                className="flex items-center gap-2"
-              >
+              <button onClick={() => router.push('/user/account-settings')} className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-xs font-medium">
-                    {user?.firstName ? user?.firstName.slice(0, 1) : ""}
-                  </span>
+                  <span className="text-xs font-medium">{user?.firstName ? user?.firstName.slice(0, 1) : ''}</span>
                 </div>
-                <span className="font-poppins text-sm">
-                  Hello, {user?.firstName}
-                </span>
+                <span className="font-poppins text-sm">Hello, {user?.firstName}</span>
               </button>
-              <Button
-                onClick={() => setShowLogoutModal(true)}
-                title="Logout"
-                variant="outlined-blue-dark"
-              />
+              <Button onClick={() => setShowLogoutModal(true)} title="Logout" variant="outlined-blue-dark" />
             </div>
           )}
 
@@ -423,11 +331,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
         setShowLogoutModal={setShowLogoutModal}
       />
 
-      <LogoutModal
-        show={showLogoutModal}
-        onClose={() => setShowLogoutModal(false)}
-        onConfirm={handleLogout}
-      />
+      <LogoutModal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogout} />
     </>
   );
 };
