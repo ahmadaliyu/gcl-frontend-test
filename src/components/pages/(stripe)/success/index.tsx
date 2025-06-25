@@ -16,7 +16,7 @@ export default function SuccessPage() {
       </p>
       <Button
         title="Go to Dashboard"
-        onClick={() => router.push('/user/overview')}
+        onClick={() => router.push('/user/my-bookings')}
         variant="blue"
         className="rounded-lg"
       />

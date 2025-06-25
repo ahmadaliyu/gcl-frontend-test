@@ -1,4 +1,5 @@
 export interface Address {
+  type: string;
   label: string;
   address_line_1: string;
   address_line_2: string;
@@ -48,16 +49,6 @@ export interface BookingState {
   product_weight: string;
   product_value: string;
   product_qty: string;
-  // origin: {
-  //   country: string;
-  //   postcode: string;
-  //   country_iso: string;
-  // };
-  // destination: {
-  //   country: string;
-  //   postcode: string;
-  //   country_iso: string;
-  // };
   is_insured: boolean;
   has_protection: boolean;
   is_sign_required: boolean;

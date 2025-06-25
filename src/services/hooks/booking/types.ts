@@ -1,7 +1,9 @@
 export interface Address {
+  country_iso: string;
   id: string;
   user_id: string;
   type: string;
+  address_type: string;
   label: string;
   address_line_1: string;
   address_line_2: string;
@@ -129,4 +131,9 @@ export interface Payment {
     id: string;
     code: string;
   };
+}
+
+export interface PaymentByIdRes {
+  success: boolean;
+  resp: Payment;
 }

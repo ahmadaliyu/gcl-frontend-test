@@ -23,6 +23,7 @@ function AddAddresses() {
   });
 
   const [formData, setFormData] = useState({
+    address_type: '',
     label: '',
     address_line_1: '',
     address_line_2: '',
@@ -33,7 +34,7 @@ function AddAddresses() {
     post_code: '',
     contact_name: '',
     contact_phone: '',
-    notes: '',
+    drivers_note: '',
     is_default: false,
     is_sender_address: false,
   });
@@ -47,6 +48,7 @@ function AddAddresses() {
 
   const isFormValid = () => {
     return (
+      formData.address_type.trim() &&
       formData.label.trim() &&
       formData.address_line_1.trim() &&
       formData.address_line_2.trim() &&
@@ -61,9 +63,21 @@ function AddAddresses() {
   };
 
   const handleSave = () => {
+    // console.log(
+    //   {
+    //     payload: {
+    //       ...formData,
+    //       address_type: formData.address_type.toLowerCase(),
+    //       country_iso: formData.country,
+    //     },
+    //   },
+    //   'address'
+    // );
+
     mutate({
       payload: {
         ...formData,
+        address_type: formData.address_type.toLowerCase(),
         country_iso: formData.country,
       },
     });
@@ -78,7 +92,20 @@ function AddAddresses() {
 
         <h1 className="text-[#272727] font-[600] text-[24px] mb-[32px] text-center">Add New Address</h1>
 
+        {/* Address Type & Label */}
         <div className="flex flex-col md:flex-row gap-[16px]">
+          <SelectField
+            options={[
+              { label: 'Personal', value: 'Personal' },
+              { label: 'Company', value: 'Company' },
+            ]}
+            label="Address Type*"
+            placeholder="Select address type"
+            value={formData.address_type}
+            onChange={(val) => handleFieldChange('address_type', val)}
+            className="w-full md:w-[380px]"
+          />
+
           <InputField
             label="Label Name *"
             placeholder="Type something here"
@@ -87,17 +114,21 @@ function AddAddresses() {
             onChange={handleFieldChange}
             className="w-full md:w-[380px]"
           />
+        </div>
 
+        {/* Address Line 2 */}
+        <div className="flex flex-col mt-[16px]">
           <InputField
             label="Address Line 2*"
             placeholder="Type something here"
             value={formData.address_line_2}
             name="address_line_2"
             onChange={handleFieldChange}
-            className="w-full md:w-[380px]"
+            className="w-full"
           />
         </div>
 
+        {/* Address Line 1 & City */}
         <div className="flex flex-col md:flex-row gap-[16px] mt-[16px]">
           <InputField
             label="Address Line 1*"
@@ -118,6 +149,7 @@ function AddAddresses() {
           />
         </div>
 
+        {/* State & Country */}
         <div className="flex flex-col md:flex-row gap-[16px] mt-[16px]">
           <InputField
             label="State*"
@@ -141,6 +173,7 @@ function AddAddresses() {
           />
         </div>
 
+        {/* Email & Postcode */}
         <div className="flex flex-col md:flex-row gap-[16px] mt-[16px]">
           <InputField
             label="Contact Email*"
@@ -161,6 +194,7 @@ function AddAddresses() {
           />
         </div>
 
+        {/* Contact Name & Phone */}
         <div className="flex flex-col md:flex-row gap-[16px] mt-[16px]">
           <InputField
             label="Contact Name*"
@@ -182,18 +216,20 @@ function AddAddresses() {
           />
         </div>
 
+        {/* Notes */}
         <div className="flex flex-col mt-[16px]">
           <InputField
             textarea
             label="Delivery Driver notes"
             placeholder="Enter more information here"
-            value={formData.notes}
-            name="notes"
+            value={formData.drivers_note}
+            name="drivers_note"
             onChange={handleFieldChange}
             className="w-full"
           />
         </div>
 
+        {/* Checkboxes */}
         <p className="text-[12px] text-[#0088DD] mt-[18px]">Save Address as default</p>
 
         <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
@@ -212,6 +248,7 @@ function AddAddresses() {
           <p>Save as Sender address</p>
         </div>
 
+        {/* Save Button */}
         <div className="flex flex-col items-center justify-center mt-[50px]">
           <Button
             loading={isPending}

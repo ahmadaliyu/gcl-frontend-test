@@ -4,6 +4,7 @@ import { BookingFieldPayload, BookingState, ParcelItemFieldPayload, LegDetail } 
 const initialState: BookingState = {
   service_id: '',
   sender_address: {
+    type: '',
     label: '',
     address_line_1: '',
     address_line_2: '',
@@ -17,6 +18,7 @@ const initialState: BookingState = {
     drivers_note: '',
   },
   recipient_address: {
+    type: '',
     label: '',
     address_line_1: '',
     address_line_2: '',
@@ -29,16 +31,6 @@ const initialState: BookingState = {
     contact_phone: '',
     drivers_note: '',
   },
-  // origin: {
-  //   country: '',
-  //   postcode: '',
-  //   country_iso: '',
-  // },
-  // destination: {
-  //   country: '',
-  //   postcode: '',
-  //   country_iso: '',
-  // },
   product_book: '',
   product_code: '',
   product_type: '',

@@ -72,23 +72,23 @@ function UserPaymentAndInvoices() {
             payments?.resp?.map((payment) => (
               <div key={payment.id} className="border rounded-lg p-4 bg-white">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium">Invoice #{payment.id}</h3>
+                  <h3 className="font-medium">Invoice #{payment.Booking.code}</h3>
                   <span className="text-sm text-gray-500">{new Date(payment.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-semibold">₦{payment.amount?.toLocaleString()}</span>
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${
-                      payment.status === 'Pending'
-                        ? 'bg-[#FFFDEA] text-[#BB5802]'
-                        : payment.status === 'Successful'
-                        ? 'bg-[#D5EDFD] text-[#0088DD]'
-                        : payment.status === 'Failed'
-                        ? 'bg-[#FCE8E9] text-[#E51520]'
-                        : ''
+                      payment.status === 'pending'
+                        ? 'bg-orange-100 text-orange-700'
+                        : payment.status === 'paid'
+                        ? 'bg-green-100 text-green-700'
+                        : payment.status === 'cancelled'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-gray-100 text-gray-700'
                     }`}
                   >
-                    {payment.status}
+                    {payment.status.charAt(0).toUpperCase() + payment.status.slice(1).toLowerCase()}{' '}
                   </span>
                 </div>
                 <Button
@@ -96,7 +96,7 @@ function UserPaymentAndInvoices() {
                   title="View Details"
                   variant="outlined-blue-dark"
                   className="w-full rounded-full"
-                  onClick={() => router.push(`/user/payments/${payment.id}`)}
+                  onClick={() => router.push(`/user/payment-invoice-details/${payment.id}`)}
                 />
               </div>
             ))
@@ -136,7 +136,7 @@ function UserPaymentAndInvoices() {
                 payments?.resp?.map((payment) => (
                   <TableRow key={payment.id}>
                     <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                      {payment.id}
+                      {payment.Booking.code}
                     </TableCell>
                     <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
                       ₦{payment.amount?.toLocaleString()}
@@ -144,16 +144,16 @@ function UserPaymentAndInvoices() {
                     <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
                       <div
                         className={`h-[41px] flex items-center justify-center rounded-[32px] px-[12px] w-[120px] ${
-                          payment.status === 'Pending'
-                            ? 'bg-[#FFFDEA] text-[#BB5802]'
-                            : payment.status === 'Successful'
-                            ? 'bg-[#D5EDFD] text-[#0088DD]'
-                            : payment.status === 'Failed'
-                            ? 'bg-[#FCE8E9] text-[#E51520]'
-                            : ''
+                          payment.status === 'pending'
+                            ? 'bg-orange-100 text-orange-700'
+                            : payment.status === 'paid'
+                            ? 'bg-green-100 text-green-700'
+                            : payment.status === 'cancelled'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-gray-100 text-gray-700'
                         }`}
                       >
-                        {payment.status}
+                        {payment.status.charAt(0).toUpperCase() + payment.status.slice(1).toLowerCase()}{' '}
                       </div>
                     </TableCell>
                     <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
@@ -165,7 +165,7 @@ function UserPaymentAndInvoices() {
                         title="View Details"
                         variant="outlined-blue-dark"
                         className="rounded-full"
-                        onClick={() => router.push(`/user/payments/${payment.id}`)}
+                        onClick={() => router.push(`/user/payment-invoice-details/${payment.id}`)}
                       />
                     </TableCell>
                   </TableRow>

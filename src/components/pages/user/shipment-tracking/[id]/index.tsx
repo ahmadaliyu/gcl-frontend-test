@@ -1,26 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useParams, useRouter } from 'next/navigation';
-import { useTrackBooking } from '@/services';
+import { get, useTrackBooking } from '@/services';
 import UserDashboardWrapper from '@/components/layout/user/user-dashboard-wrapper';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 
-interface BookingStatus {
-  status: string;
-  slug: string;
-  comment: string;
-  action: string | null;
-  createdAt: string;
-}
-
-interface BookingStatusResponse {
-  success: boolean;
-  resp: BookingStatus[];
-}
-
 const statusColors: Record<string, string> = {
   'Order Placed': 'bg-gray-200 text-gray-800',
-  'On transit': 'bg-yellow-100 text-yellow-800',
+  transit: 'bg-yellow-100 text-yellow-800',
   'On Hold': 'bg-red-100 text-red-700',
   'Arrived at UK Office': 'bg-blue-100 text-blue-800',
   'Clearance in Progress': 'bg-purple-100 text-purple-800',
@@ -104,11 +91,15 @@ const ShipmentTracking = () => {
               const colorClass = statusColors[item.status] || 'bg-gray-100 text-gray-700';
               return (
                 <div key={index} className="relative">
-                  <div className="absolute left-[-30px] top-1/2 w-5 h-5 rounded-full bg-[#E51520] border-4 border-white shadow-md transform -translate-y-1/2" />
+                  <div
+                    className={`absolute left-[-30px] top-1/2 w-5 h-5 rounded-full border-4 border-white shadow-md transform -translate-y-1/2 ${
+                      statusColors[item.status]?.split(' ')[0] || 'bg-gray-300'
+                    }`}
+                  />
 
                   <div className="bg-white border border-gray-200 shadow-sm p-4 rounded-md">
                     <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}>
-                      {item.status}
+                      {item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()}
                     </div>
                     <p className="text-gray-700 mt-2">{item.comment}</p>
                     <p className="text-sm text-gray-500 mt-1">{dayjs(item.createdAt).format('MMM D, YYYY h:mm A')}</p>

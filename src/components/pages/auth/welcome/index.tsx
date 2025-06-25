@@ -191,7 +191,6 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   };
 
   const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
-
   const { data: cities, isLoading: isLoadingCities } = useGetCities();
 
   useEffect(() => {
@@ -210,6 +209,7 @@ const BillingAddress = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       dispatch(setCountries(transformedCountries));
     }
   }, [countries, dispatch]);
+
   useEffect(() => {
     if (cities?.data) {
       const transformedCities = cities.data.map((city) => ({
@@ -520,7 +520,7 @@ const PreviewFinish = ({
         <div className="flex flex-col md:flex-row gap-4 mt-4">
           <SelectField
             disabled
-            options={COUNTRY_CODE_LIST.map((x) => ({ label: x.label, value: x.value }))}
+            options={COUNTRY_CODE_LIST.map((x) => ({ label: x.name, value: x.name }))}
             value={form.state}
             label="State*"
             placeholder="Select an option here"

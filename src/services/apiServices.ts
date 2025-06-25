@@ -7,73 +7,52 @@ const service = axios.create({
   baseURL: Config.apiUrl,
   withCredentials: true,
   headers: {
-    // 'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
   },
 });
 
-// Add a request interceptor
+// Request Interceptor
 service.interceptors.request.use(
   async function (config) {
-    let token: any = await storage.getValueFor('token');
+    const token: string | null = (await storage.getValueFor('token')) as string | null;
 
-    // console.log(token, 'hmmmmmmmm');
-
-    // if (isAccessTokenExpired(token)) {
-    //   window.location.href = 'auth/login';
-    // }
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+
     return config;
   },
-
   function (error) {
-    if (error.response) {
-      return error.response;
-    } else if (error.request) {
-      return error.request;
-    } else {
-      return error.message;
-    }
-    // return Promise.reject(error);
+    return Promise.reject(error);
   }
 );
 
-// Add a response interceptor
+// Response Interceptor
 service.interceptors.response.use(
   async function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    // console.log(response, 'the response');
-
     if (response.status === 200) {
-      // alert(response?.data?.message || 'Success');
+      const resData = response?.data?.data;
 
-      const token = response?.data?.data.token;
-      const refreshToken = response?.data?.data.refresh;
-
-      if (token) {
-        await storage.save('token', token);
+      if (resData?.token) {
+        await storage.save('token', resData.token);
       }
-      if (refreshToken) {
-        await storage.save('refresh_token', refreshToken);
+      if (resData?.refresh) {
+        await storage.save('refresh_token', resData.refresh);
       }
     }
 
+    // Optional: Handle auto logout on 401 here if necessary
     if (response.status === 401) {
+      await storage.remove('token');
+      await storage.remove('refresh_token');
       window.location.href = '/auth/login';
-      //   deleteKey('token
-      storage.remove('token');
-      storage.remove('refresh_token');
     }
+
     return response;
   },
   function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
     if (error.response) {
-      alert(error.response?.data?.message);
+      alert(error.response?.data?.message || 'Something went wrong');
       return Promise.reject(error.response);
     } else if (error.request) {
       return Promise.reject(error.request);
@@ -83,94 +62,80 @@ service.interceptors.response.use(
   }
 );
 
-function isAccessTokenExpired(accessToken: any): any {
+// Helper: Token Expiry Check
+function isAccessTokenExpired(accessToken: string | null): boolean {
   if (!accessToken) return true;
-  const decodedToken = jwtDecode<{ exp?: any }>(accessToken);
-  const currentTime = Date.now() / 1000;
-  // console.log(currentTime > decodedToken.exp, 'token expiry');
 
-  return currentTime > decodedToken.exp;
+  try {
+    const decodedToken = jwtDecode<{ exp?: number }>(accessToken);
+    const currentTime = Date.now() / 1000;
+    return decodedToken.exp ? currentTime > decodedToken.exp : true;
+  } catch (e) {
+    return true;
+  }
 }
 
-export const post = async (url: any, payload?: any) => {
+// ==== API UTILITY METHODS ====
+
+export const post = async (url: string, payload?: any) => {
   try {
-    const data = await service.post(url, payload);
-    const resolvedData = await Promise.resolve(data);
-
-    if (resolvedData) {
-      return resolvedData;
-    }
+    const response = await service.post(url, payload);
+    return response;
   } catch (error: any) {
-    if (error.status === 403) {
-      window.location.href = '/auth/login';
-    } else if (error?.status === 0) {
-      throw new Error('An error ocurred, please try again later.');
-    } else if (error.data?.code >= 400) {
-      throw new Error(`${error?.data?.message}`);
-    }
-
-    return error;
+    handleCommonErrors(error);
+    throw error;
   }
 };
 
-export const patch = async (url: any, payload: any) => {
+export const patch = async (url: string, payload: any) => {
   try {
-    const data = await service.patch(url, payload);
-    const resolvedData = await Promise.resolve(data);
-    if (resolvedData) {
-      return resolvedData;
-    }
+    const response = await service.patch(url, payload);
+    return response;
   } catch (error: any) {
-    if (error?.status === 0) {
-      throw new Error('An error ocurred, please try again later.');
-    }
-    return error;
+    handleCommonErrors(error);
+    throw error;
   }
 };
 
-export const put = async (url: any, payload: any) => {
+export const put = async (url: string, payload: any) => {
   try {
-    const data = await service.put(url, payload);
-    const resolvedData = await Promise.resolve(data);
-    if (resolvedData) {
-      return resolvedData;
-    }
+    const response = await service.put(url, payload);
+    return response;
   } catch (error: any) {
-    if (error?.status === 0) {
-      throw new Error('An error ocurred, please try again later.');
-    }
-    return error;
+    handleCommonErrors(error);
+    throw error;
   }
 };
 
-export const Delete = async (url: any, payload?: any) => {
+export const Delete = async (url: string) => {
   try {
-    const data = await service.delete(url);
-    const resolvedData = await Promise.resolve(data);
-    if (resolvedData) {
-      return resolvedData;
-    }
+    const response = await service.delete(url);
+    return response;
   } catch (error: any) {
-    if (error?.status === 403) {
-    }
-    return error;
+    handleCommonErrors(error);
+    throw error;
   }
 };
 
-export const get = async (url: any, navigation?: any) => {
+export const get = async (url: string) => {
   try {
-    const { data } = await service.get(url);
-    const resolvedData = await Promise.resolve(data);
-    if (resolvedData) {
-      return resolvedData;
-    }
+    const response = await service.get(url);
+    return response.data;
   } catch (error: any) {
-    if (error?.status === 403) {
-      //   deleteKey('token');
-      //   errorMessage('Session timeout');
-      window.location.href = '/auth/login';
-    } else if (error.status === 0) {
-    }
-    return error;
+    handleCommonErrors(error);
+    throw error;
   }
 };
+
+// Common error handler
+function handleCommonErrors(error: any) {
+  if (error?.status === 403) {
+    storage.remove('token');
+    storage.remove('refresh_token');
+    window.location.href = '/auth/login';
+  } else if (error?.status === 0) {
+    throw new Error('An error occurred, please try again later.');
+  } else if (error?.data?.code >= 400) {
+    throw new Error(error?.data?.message || 'Something went wrong');
+  }
+}

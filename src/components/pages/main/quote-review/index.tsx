@@ -85,7 +85,7 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     delivery_note: '',
     country: '',
     country_iso: '',
-    type: '',
+    address_type: '',
   });
 
   const [recipientFormData, setRecipientFormData] = useState({
@@ -100,7 +100,7 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     delivery_note: '',
     country: '',
     country_iso: '',
-    type: '',
+    address_type: '',
   });
 
   const handleSenderFieldChange = (name: string, value: string) => {
@@ -109,6 +109,7 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       [name]: value,
     }));
   };
+
   const handleReceiverFieldChange = (name: string, value: string) => {
     setRecipientFormData((prev) => ({
       ...prev,
@@ -117,11 +118,12 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   };
 
   const getFormattedAddress = (form: typeof senderFormData) => ({
+    type: form.address_type,
     label: form.address_id,
     address_line_1: form.address_line_1,
     address_line_2: form.address_line_2,
     country: form.country,
-    country_iso: form.country,
+    country_iso: form.country_iso,
     state: '',
     city: form.city,
     post_code: form.postcode,
@@ -129,7 +131,7 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     contact_email: form.contact_email,
     contact_phone: form.onsite_telephone,
     drivers_note: form.delivery_note,
-    is_sender_address: form === senderFormData ? true : false,
+    is_sender_address: form === senderFormData,
   });
 
   const handleAddressSelect = (type: 'sender' | 'recipient', addressId: string) => {
@@ -150,8 +152,8 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       onsite_telephone: selectedAddress.contact_phone || '',
       delivery_note: selectedAddress.drivers_note || '',
       country: selectedAddress.country || '',
-      country_iso: selectedAddress.country || '',
-      type: prev.type || '',
+      country_iso: selectedAddress.country_iso || '',
+      address_type: selectedAddress.address_type || '',
     }));
   };
 
@@ -166,20 +168,7 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     form.onsite_telephone.trim() &&
     form.country.trim() &&
     form.delivery_note.trim() &&
-    form.type.trim();
-
-  const isReceiverFormValid = (form: typeof recipientFormData) =>
-    form.address_id.trim() &&
-    form.address_line_1.trim() &&
-    form.address_line_2.trim() &&
-    form.city.trim() &&
-    form.postcode.trim() &&
-    form.contact_name.trim() &&
-    form.contact_email.trim() &&
-    form.onsite_telephone.trim() &&
-    form.country.trim() &&
-    form.delivery_note.trim() &&
-    form.type.trim();
+    form.address_type.trim();
 
   const handleContinue = () => {
     dispatch(updateBookingField({ field: 'sender_address', value: getFormattedAddress(senderFormData) }));
@@ -191,19 +180,23 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
   return (
     <>
-      <h1 className="text-[#02044A] text-center text-[36px] font-medium">Recipient Details</h1>
-      <p className="text-[#272727] text-center text-[18px] mt-[16px]">We would like to know your address</p>
-      <button
-        className="w-[200px] text-sm border border-gray-400 text-gray-700 px-4 py-2 rounded"
-        onClick={handleAddAddress}
-      >
-        Add address
-      </button>
-      <div className="mt-[32px]">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[32px]">
-          {/* SENDER DETAILS */}
-          <div className="flex flex-col gap-[16px]">
-            <h2 className="text-[#272727] font-bold text-[16px] mb-[8px]">Sender From</h2>
+      <h1 className="text-[#02044A] text-center text-2xl md:text-[36px] font-medium">Recipient Details</h1>
+      <p className="text-[#272727] text-center text-base md:text-[18px] mt-4">We would like to know your address</p>
+
+      <div className="flex justify-end mt-4 px-4 sm:px-0">
+        <button
+          className="w-full sm:w-[200px] text-sm border border-gray-400 text-gray-700 px-4 py-2 rounded"
+          onClick={handleAddAddress}
+        >
+          Add address
+        </button>
+      </div>
+
+      <div className="mt-8 px-4 sm:px-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          {/* Sender Details */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-[#272727] font-bold text-base md:text-[16px] mb-2">Sender From</h2>
 
             <SelectField
               options={senderAddressOptions}
@@ -235,13 +228,14 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
             <SelectField
               placeholder="Select an option"
               options={[
-                { label: 'Personal', value: 'Personal' },
-                { label: 'Company', value: 'Company' },
+                { label: 'Personal', value: 'personal' },
+                { label: 'Company', value: 'company' },
               ]}
               label="Personal or Company *"
-              value={senderFormData.type}
-              onChange={(val: string) => handleSenderFieldChange('type', val)}
+              value={senderFormData.address_type}
+              onChange={(val: string) => handleSenderFieldChange('address_type', val)}
             />
+
             <SelectField
               placeholder="Select an option"
               options={[
@@ -255,9 +249,9 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
             />
           </div>
 
-          {/* RECIPIENT DETAILS */}
-          <div className="flex flex-col gap-[16px]">
-            <h2 className="text-[#272727] font-bold text-[16px] mb-[8px]">Deliver To</h2>
+          {/* Recipient Details */}
+          <div className="flex flex-col gap-4">
+            <h2 className="text-[#272727] font-bold text-base md:text-[16px] mb-2">Deliver To</h2>
 
             <SelectField
               options={recipientAddressOptions}
@@ -289,13 +283,14 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
             <SelectField
               placeholder="Select an option"
               options={[
-                { label: 'Personal', value: 'Personal' },
-                { label: 'Company', value: 'Company' },
+                { label: 'Personal', value: 'personal' },
+                { label: 'Company', value: 'company' },
               ]}
               label="Personal or Company *"
-              value={recipientFormData.type}
-              onChange={(val: string) => handleReceiverFieldChange('type', val)}
+              value={recipientFormData.address_type}
+              onChange={(val: string) => handleReceiverFieldChange('address_type', val)}
             />
+
             <SelectField
               placeholder="Select an option"
               options={[
@@ -310,18 +305,17 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
           </div>
         </div>
 
-        {/* Continue */}
-        <div className="flex flex-col items-center justify-center mt-[50px]">
+        <div className="flex flex-col items-center justify-center mt-12 px-4">
           <Button
             onClick={handleContinue}
             title="Continue"
             variant="blue"
-            className="w-[274px]"
-            disabled={!isFormValid(senderFormData) || !isReceiverFormValid(recipientFormData)}
+            className="w-full max-w-[274px]"
+            disabled={!isFormValid(senderFormData) || !isFormValid(recipientFormData)}
           />
         </div>
 
-        <p className="text-[16px] text-[#21222D] font-normal max-w-[630px] mt-[24px] mx-auto text-center">
+        <p className="text-sm sm:text-base text-[#21222D] font-normal max-w-[630px] mt-6 mx-auto text-center px-4 sm:px-0">
           Your information is safe with us. Read more about our{' '}
           <Link target="_blank" href="/terms-and-conditions" className="text-[#0088DD]">
             Terms & Conditions
@@ -338,7 +332,8 @@ const ReceipientDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
 const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const booking = useAppSelector((state) => state.booking);
-  const { priceDetails, quote } = useAppSelector((state) => state.quoteData);
+  const { priceDetails } = useAppSelector((state) => state.quoteData);
+  const dispatch = useAppDispatch();
 
   const [form, setForm] = useState({
     package_no: booking?.product_value || '',
@@ -353,8 +348,6 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     product_value: booking?.product_value || '',
   });
 
-  const dispatch = useAppDispatch();
-
   const handleFieldChange = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -364,7 +357,6 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       ...form,
       product_qty: form.quantity,
       amount: Number(priceDetails.handlingFee) + Number(form.quantity) * priceDetails?.totalPrice,
-      // amount: priceDetails?.totalAmount,
     };
 
     Object.entries(fieldMap).forEach(([field, value]) => {
@@ -386,180 +378,106 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     );
   };
 
-  // useEffect(() => {
-  //   const quantity = parseInt(form.quantity, 10) || 1;
-  //   const unitPrice = parseFloat(form.product_value) || 0;
-  //   const handlingFee = parseFloat(priceDetails.handlingFee) || 0;
-
-  //   const totalPrice = quantity * unitPrice;
-  //   const totalAmount = totalPrice + handlingFee;
-
-  //   dispatch(setPriceDetails({ totalPrice, totalAmount, handlingFee: priceDetails.handlingFee }));
-  // }, [form.quantity, form.product_value, priceDetails.handlingFee, dispatch]);
-
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6">
-      <h1 className="text-[#02044A] text-center text-2xl sm:text-3xl lg:text-[36px] font-medium">
-        Package Information
-      </h1>
-      <p className="text-[#272727] text-center text-base sm:text-[18px] mt-3 sm:mt-[16px]">
-        We would like to know what you are sending
-      </p>
+    <div className="w-full flex justify-center px-4 sm:px-6 py-6">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm p-6 sm:p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl sm:text-3xl font-medium text-gray-900 mb-2">Package Information</h1>
+          <p className="text-gray-600 text-base sm:text-lg">We would like to know what you are sending</p>
+        </div>
 
-      <div className="mt-6 sm:mt-[32px]">
-        <p className="text-[#272727] text-center text-base sm:text-[18px] mt-3 sm:mt-[16px]">Package 1 Details</p>
+        <div className="mb-6">
+          <h3 className="text-lg font-medium text-gray-700 mb-4 text-center sm:text-left">Package 1 Details</h3>
 
-        <div className="mt-6 sm:mt-[32px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-[24px]">
-          {/* Left Column */}
-          <div className="flex flex-col gap-3 sm:gap-[16px]">
-            <InputField
-              label="Package Number"
-              value={form.package_no}
-              name="package_no"
-              onChange={handleFieldChange}
-              placeholder="Enter package number"
-            />
-            <SelectField
-              label="Product Type"
-              options={[{ label: 'Electronics', value: 'Electronics' }]}
-              value={form.product_type}
-              onChange={(val) => handleFieldChange('product_type', val)}
-              placeholder="Select product type"
-            />
-            <InputField
-              label="Product Details"
-              value={form.product_details}
-              name="product_details"
-              onChange={handleFieldChange}
-              placeholder="Enter Details"
-            />
-            <InputField
-              label="Product Quantity"
-              value={form.quantity}
-              name="quantity"
-              onChange={handleFieldChange}
-              placeholder="Enter quantity"
-            />
-          </div>
-
-          {/* Middle Column */}
-          <div className="flex flex-col gap-3 sm:gap-[16px]">
-            <InputField
-              label="Product Book"
-              value={form.product_book}
-              name="product_book"
-              onChange={handleFieldChange}
-              placeholder="Enter product book"
-            />
-            <InputField
-              label="Product Code"
-              value={form.product_code}
-              name="product_code"
-              onChange={handleFieldChange}
-              placeholder="Enter product code"
-            />
-            <InputField
-              label="Product Weight (kg)"
-              value={form.product_weight}
-              name="product_weight"
-              onChange={handleFieldChange}
-              placeholder="Enter product weight"
-            />
-            <InputField
-              label="Product Unit Value (GBP)"
-              value={form.product_value}
-              name="product_value"
-              onChange={handleFieldChange}
-              placeholder="Enter unit value"
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className="flex flex-col gap-3 sm:gap-[16px]">
-            <div>
-              <table className="w-full text-sm sm:text-[14px] border-collapse border border-gray-300">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="border p-2">Pkg No.</th>
-                    <th className="border p-2">Value ($)</th>
-                    <th className="border p-2">Description</th>
-                    <th className="border p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border p-2 text-center">1</td>
-                    <td className="border p-2 text-center">200</td>
-                    <td className="border p-2 text-center">Wireless Mouse</td>
-                    <td className="border p-2 text-center">
-                      <div className="flex justify-center space-x-2">
-                        <button className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                          </svg>
-                        </button>
-                        <button className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Column 1 */}
+            <div className="space-y-4">
+              <InputField
+                label="Package Number"
+                value={form.package_no}
+                name="package_no"
+                onChange={handleFieldChange}
+                placeholder="Enter package number"
+                className="w-full"
+              />
+              <SelectField
+                label="Product Type"
+                options={[{ label: 'Electronics', value: 'Electronics' }]}
+                value={form.product_type}
+                onChange={(val) => handleFieldChange('product_type', val)}
+                placeholder="Select product type"
+                className="w-full"
+              />
+              <InputField
+                label="Product Details"
+                value={form.product_details}
+                name="product_details"
+                onChange={handleFieldChange}
+                placeholder="Enter details"
+                className="w-full"
+              />
+              <InputField
+                label="Product Quantity"
+                value={form.quantity}
+                name="quantity"
+                onChange={handleFieldChange}
+                placeholder="Enter quantity"
+                type="number"
+                className="w-full"
+              />
             </div>
 
-            <div className="text-xs sm:text-sm text-gray-600 bg-gray-50 p-3 sm:p-4 border border-gray-200 mt-3 sm:mt-4 space-y-4">
-              <div className="flex justify-between">
-                <span>Total Packages</span>
-                <span>{booking?.parcel.length}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping/Freight Cost</span>
-                <span>{`£${priceDetails?.handlingFee}`}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Package Contents Declared</span>
-                <span>{`£${Number(form.quantity) * priceDetails?.totalPrice}`}</span>
-              </div>
-              {/* <div className="flex justify-between">
-                <span>VAT</span>
-                <span>$60</span>
-              </div> */}
-              <div className="border-t border-black pt-2 font-semibold flex justify-between text-black">
-                <span>Total Product Value</span>
-                <span>{`£${Number(priceDetails.handlingFee) + Number(form.quantity) * priceDetails?.totalPrice}`}</span>
-              </div>
+            {/* Column 2 */}
+            <div className="space-y-4">
+              <InputField
+                label="Product Book"
+                value={form.product_book}
+                name="product_book"
+                onChange={handleFieldChange}
+                placeholder="Enter product book"
+                className="w-full"
+              />
+              <InputField
+                label="Product Code"
+                value={form.product_code}
+                name="product_code"
+                onChange={handleFieldChange}
+                placeholder="Enter product code"
+                className="w-full"
+              />
+              <InputField
+                label="Product Weight (kg)"
+                value={form.product_weight}
+                name="product_weight"
+                onChange={handleFieldChange}
+                placeholder="Enter product weight"
+                type="number"
+                className="w-full"
+              />
+              <InputField
+                label="Product Unit Value (GBP)"
+                value={form.product_value}
+                name="product_value"
+                onChange={handleFieldChange}
+                placeholder="Enter unit value"
+                type="number"
+                className="w-full"
+              />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Continue Button */}
-      <Button onClick={() => {}} title="Add to Cart" variant="blue" className="w-full sm:w-[274px] mt-4" />
-      <div className="flex flex-col items-center justify-center mt-8 sm:mt-[50px]">
-        <Button
-          onClick={handleContinue}
-          title="Proceed"
-          variant="red"
-          className="w-full sm:w-[274px]"
-          disabled={!isFormValid()}
-        />
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+          {/* <Button onClick={() => {}} title="Add to Cart" variant="blue" className="w-full sm:w-auto min-w-[200px]" /> */}
+          <Button
+            onClick={handleContinue}
+            title="Proceed"
+            variant="red"
+            className="w-full sm:w-auto min-w-[200px]"
+            disabled={!isFormValid()}
+          />
+        </div>
       </div>
     </div>
   );
@@ -581,6 +499,8 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       console.error('Stripe Checkout URL not found');
     }
   });
+
+  console.log(booking.parcel, 77777);
 
   const handleSubmit = async () => {
     // console.log(
@@ -643,118 +563,84 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 bg-white rounded-lg shadow-sm">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Order Summary</h1>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Main Content - 70% */}
-        <div className="lg:w-[65%]">
+        {/* Main Section */}
+        <div className="w-full lg:w-[65%] space-y-8">
           {/* Packages Table */}
-          <div className="mb-8 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-3 text-left border-b">Pkg No.</th>
-                  <th className="p-3 text-left border-b">Description</th>
-                  <th className="p-3 text-left border-b">Value</th>
-                  <th className="p-3 text-left border-b">Actions</th>
+          <div className="overflow-auto rounded border border-gray-200">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-100 text-left">
+                <tr>
+                  <th className="px-4 py-2 border-b">Quantity</th>
+                  <th className="px-4 py-2 border-b">Weight</th>
+                  <th className="px-4 py-2 border-b">Unit Weight</th>
                 </tr>
               </thead>
               <tbody>
                 {booking.parcel?.map((parcel, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="p-3">{index + 1}</td>
-                    <td className="p-3">{parcel.items[0]?.description || 'N/A'}</td>
-                    <td className="p-3">${parcel.items[0]?.description || '0'} exc VAT</td>
-                    <td className="p-3">
-                      {' '}
-                      <div className="flex justify-center space-x-2">
-                        <button className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                          </svg>
-                        </button>
-                        <button className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
+                  <tr key={index} className="border-b hover:bg-gray-50 transition">
+                    <td className="px-4 py-2">{parcel.items[0]?.quantity || 'N/A'}</td>
+                    <td className="px-4 py-2">{parcel.items[0]?.weight || '0'}</td>
+                    <td className="px-4 py-2">{parcel.items[0]?.unit_weight || '0'} Kg</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Addresses */}
-          <div className="space-y-6 mb-8">
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-2">Return Details: {booking.sender_address.contact_name}</h2>
-                <div className="bg-gray-50 p-4 rounded">
-                  <p>{booking.sender_address.address_line_1}</p>
-                  <p>{booking.sender_address.post_code}</p>
-                  <p>{booking.sender_address.city}</p>
-                </div>
+          {/* Address Section */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <h2 className="text-base font-semibold mb-1">Return Details</h2>
+              <div className="bg-gray-50 p-4 rounded text-sm space-y-1">
+                <p>{booking.sender_address?.contact_name}</p>
+                <p>{booking.sender_address?.address_line_1}</p>
+                <p>{booking.sender_address?.post_code}</p>
+                <p>{booking.sender_address?.city}</p>
               </div>
+            </div>
 
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-2">Delivery Details: {booking.sender_address.contact_name}</h2>
-                <div className="bg-gray-50 p-4 rounded">
-                  <p>{booking.sender_address.address_line_2}</p>
-                  <p>{booking.sender_address.post_code}</p>
-                  <p>{booking.sender_address.country}</p>
-                </div>
+            <div className="flex-1">
+              <h2 className="text-base font-semibold mb-1">Delivery Details</h2>
+              <div className="bg-gray-50 p-4 rounded text-sm space-y-1">
+                <p>{booking.sender_address?.contact_name}</p>
+                <p>{booking.sender_address?.address_line_2}</p>
+                <p>{booking.sender_address?.post_code}</p>
+                <p>{booking.sender_address?.country}</p>
               </div>
             </div>
           </div>
 
-          {/* Optional Features (Checkboxes) */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">Optional Features</h2>
-            <div className="bg-gray-50 p-4 rounded space-y-2">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={booking.is_insured} onChange={() => toggleCheckbox('is_insured')} />
-                Package Insured
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={booking.has_protection}
-                  onChange={() => toggleCheckbox('has_protection')}
-                />
-                Additional Protection
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={booking.is_sign_required}
-                  onChange={() => toggleCheckbox('is_sign_required')}
-                />
-                Signature Required
-              </label>
+          {/* Optional Features */}
+          {/* <div>
+            <h2 className="text-base font-semibold mb-2">Optional Features</h2>
+            <div className="bg-gray-50 p-4 rounded space-y-2 text-sm">
+              {(
+                [
+                  { label: 'Package Insured', key: 'is_insured' },
+                  { label: 'Additional Protection', key: 'has_protection' },
+                  { label: 'Signature Required', key: 'is_sign_required' },
+                ] as const
+              ).map(({ label, key }) => (
+                <label key={key} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={booking[key as 'is_insured' | 'has_protection' | 'is_sign_required']}
+                    onChange={() => toggleCheckbox(key)}
+                  />
+                  {label}
+                </label>
+              ))}
             </div>
-          </div>
+          </div> */}
 
-          {/* Print Option (Radio Buttons) */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-2">Print Option</h2>
-            <div className="flex flex-row items-center bg-gray-50 p-4 rounded gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+          {/* Print Options */}
+          <div>
+            <h2 className="text-base font-semibold mb-2">Print Option</h2>
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center bg-gray-50 p-4 rounded text-sm">
+              <label className="flex items-center gap-2">
                 <input
                   type="radio"
                   name="printOption"
@@ -764,7 +650,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
                 />
                 Print at Home
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2">
                 <input
                   type="radio"
                   name="printOption"
@@ -776,46 +662,44 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
               </label>
             </div>
           </div>
-
-          {/* Action Buttons */}
         </div>
 
-        {/* Summary - 30% */}
-        <div className="lg:w-[35%] flex-shrink-0">
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span>Base Price</span>
-                <span>{`£${priceDetails?.totalPrice}`}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Parcel Protection</span>
-                <span>{`£${priceDetails?.handlingFee}`}</span>
-              </div>
-              <div className="flex justify-between font-medium border-t pt-2">
-                <span>Sub-Total</span>
-                <span>{`£${priceDetails?.totalAmount}`}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>VAT</span>
-                <span>${'0.00'}</span>
-              </div>
-              <div className="flex justify-between font-bold text-lg border-t pt-2">
-                <span>Total Due</span>
-                <span>{`£${booking?.amount}`}</span>
-              </div>
+        {/* Summary Section */}
+        <div className="w-full lg:w-[35%]">
+          <div className="bg-gray-50 p-6 rounded-lg text-sm space-y-4">
+            <div className="flex justify-between">
+              <span>Base Price</span>
+              <span>£{priceDetails?.totalPrice || '0.00'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Parcel Protection</span>
+              <span>£{priceDetails?.handlingFee || '0.00'}</span>
+            </div>
+            <div className="flex justify-between font-medium border-t pt-2">
+              <span>Sub-Total</span>
+              <span>£{priceDetails?.totalAmount || '0.00'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>VAT</span>
+              <span>£0.00</span>
+            </div>
+            <div className="flex justify-between font-bold text-base border-t pt-2">
+              <span>Total Due</span>
+              <span>£{booking?.amount || '0.00'}</span>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex justify-center">
+
+      {/* Action Button */}
+      <div className="mt-6 flex justify-center">
         <Button
           title="Proceed to Payment"
           onClick={handleSubmit}
           disabled={isPending}
           loading={isPending}
           variant="yellow"
-          className="w-full md:w-auto"
+          className="w-full sm:w-auto"
         />
       </div>
     </div>

@@ -23,7 +23,7 @@ enum TabIds {
 enum StatusFilter {
   All = 'all',
   Paid = 'Paid',
-  InTransit = 'In Transit',
+  InTransit = 'Transit',
   Delivered = 'Delivered',
   Cancelled = 'Cancelled',
 }
@@ -45,6 +45,7 @@ function MyBookings() {
   const [activeTab, setActiveTab] = useState<TabIds>(TabIds.RecievedPackages);
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(StatusFilter.All);
   const [selectedDateFilter, setSelectedDateFilter] = useState<'all' | 'today' | 'last7days' | 'thisMonth'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading } = useGetBooking();
   const router = useRouter();
 
@@ -57,6 +58,10 @@ function MyBookings() {
       const statusMatch =
         selectedStatus === StatusFilter.All || booking.status?.toLowerCase() === selectedStatus.toLowerCase();
 
+      const searchMatch =
+        booking.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.status?.toLowerCase().includes(searchTerm.toLowerCase());
+
       let dateMatch = true;
       if (selectedDateFilter === 'today') {
         dateMatch = bookingDate.isSame(dayjs(), 'day');
@@ -66,17 +71,17 @@ function MyBookings() {
         dateMatch = bookingDate.isSame(dayjs(), 'month');
       }
 
-      return statusMatch && dateMatch;
+      return statusMatch && dateMatch && searchMatch;
     });
-  }, [data, selectedStatus, selectedDateFilter]);
+  }, [data, selectedStatus, selectedDateFilter, searchTerm]);
 
   const handleBookNew = () => router.push('/user/book-a-quote');
+  const handleTrack = (id: string) => router.push(`/user/shipment-tracking/${id}`);
 
   if (isLoading) return <LoadingSkeleton />;
 
   return (
     <UserDashboardWrapper>
-      {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-8 gap-4 w-full">
         <h1 className="text-[#272727] font-semibold text-lg md:text-2xl">My Bookings</h1>
         <button
@@ -87,9 +92,15 @@ function MyBookings() {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="w-full flex flex-col sm:flex-row gap-3 mb-4">
-        {/* Date Filter */}
+        <input
+          type="text"
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-[#CCCCCC] bg-[#F7F7F7] rounded-lg h-10 px-3 text-sm w-full sm:w-auto"
+        />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex border gap-2 border-[#CCCCCC] bg-[#F7F7F7] rounded-lg h-10 items-center justify-center px-3 w-full sm:w-auto text-sm">
@@ -117,7 +128,6 @@ function MyBookings() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Status Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex border gap-2 border-[#CCCCCC] bg-[#F7F7F7] rounded-lg h-10 items-center justify-center px-3 w-full sm:w-auto text-sm">
@@ -143,9 +153,9 @@ function MyBookings() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
       {/* Table Section */}
       <div className="w-full overflow-x-auto">
+        {/* Mobile Cards View */}
         {/* Mobile Cards View */}
         <div className="sm:hidden space-y-3">
           {filteredBookings.length > 0 ? (
@@ -158,17 +168,17 @@ function MyBookings() {
                   </div>
                   <div
                     className={`border h-8 flex items-center justify-center border-[#E3E3E3] font-medium px-2 rounded-full text-xs
-                    ${
-                      service.status === 'In Transit'
-                        ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
-                        : service.status === 'Delivered'
-                        ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
-                        : service.status === 'Cancelled'
-                        ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
-                        : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
-                    }`}
+            ${
+              service.status === 'In Transit'
+                ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
+                : service.status === 'Delivered'
+                ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
+                : service.status === 'Cancelled'
+                ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
+                : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
+            }`}
                   >
-                    {service.status}
+                    {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
                   </div>
                 </div>
                 <div className="flex justify-between items-center mt-3">
@@ -180,6 +190,15 @@ function MyBookings() {
                     <p className="font-medium text-sm">Created</p>
                     <p className="text-gray-600">{new Date(service.createdAt).toLocaleDateString()}</p>
                   </div>
+                </div>
+                {/* Add Track button here */}
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={() => handleTrack(service.code)}
+                    className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-4 py-2 rounded-md transition"
+                  >
+                    Track
+                  </button>
                 </div>
               </div>
             ))
@@ -196,6 +215,7 @@ function MyBookings() {
               <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Status</TableHead>
               <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Total Paid</TableHead>
               <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Created</TableHead>
+              <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -206,28 +226,38 @@ function MyBookings() {
                   <TableCell>
                     <div
                       className={`border h-10 flex items-center justify-center border-[#E3E3E3] font-medium w-24 px-2 rounded-full text-sm
-                      ${
-                        service.status === 'In Transit'
-                          ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
-                          : service.status === 'Delivered'
-                          ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
-                          : service.status === 'Cancelled'
-                          ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
-                          : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
-                      }`}
+            ${
+              service.status === 'transit'
+                ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
+                : service.status === 'delivered'
+                ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
+                : service.status === 'cancelled'
+                ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
+                : service.status === 'paid'
+                ? 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
+                : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
+            }`}
                     >
-                      {service.status}
+                      {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
                     </div>
                   </TableCell>
                   <TableCell className="font-medium py-4 px-2">{`£${service.amount}`}</TableCell>
                   <TableCell className="font-medium py-4 px-2">
                     {new Date(service.createdAt).toLocaleDateString()}
                   </TableCell>
+                  <TableCell className="py-4 px-2">
+                    <button
+                      onClick={() => handleTrack(service.code)}
+                      className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-3 py-1 rounded-md transition"
+                    >
+                      Track
+                    </button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                   No bookings found
                 </TableCell>
               </TableRow>

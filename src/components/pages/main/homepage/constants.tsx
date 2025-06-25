@@ -14,6 +14,7 @@ import { addOrUpdateItemInParcel, deleteItemInParcel, updateShipFrom, updateShip
 import InputField from '@/components/reuseables/InputField';
 import { useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
+import { PlusIcon } from '@radix-ui/react-icons';
 
 export enum EChannels {
   WithinUK = 'within-uk',
@@ -777,8 +778,8 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-4">
-        <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex h-[auto] py-[8px] px-[16px] items-center">
+      <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex flex-col sm:flex-row gap-4 sm:gap-[16px] p-4 sm:py-[8px] sm:px-[16px] sm:h-[61px] items-start sm:items-center">
+        <div className="font-poppins w-full rounded-[10px] flex h-auto py-[8px] px-[16px] items-center border-r border-r-gray-300">
           <div className="flex-1 flex w-full justify-between gap-[8px]">
             <div className="w-full">
               <p className="text-[#0088DD] text-[12px]">Quantity</p>
@@ -825,9 +826,10 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
             setModalUnit(1);
             setModalDescription('');
           }}
-          className="h-[48px] sm:h-[61px] px-2 bg-blue-500 text-xs text-white rounded-[10px] hover:bg-blue-600 transition-colors whitespace-nowrap"
+          className="h-[36px] w-[36px] flex items-center justify-center bg-[#0088DD] text-white rounded-full hover:bg-[#0077C0] transition-all"
+          title="Add Item"
         >
-          Add Item
+          <PlusIcon className="w-[16px] h-[16px]" />
         </button>
       </div>
 

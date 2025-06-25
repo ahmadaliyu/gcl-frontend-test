@@ -12,6 +12,8 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { addOrUpdateItemInParcel, deleteItemInParcel, updateShipFrom, updateShipTo } from '@/store/auth/quoteSlice';
 import { useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
+import { PlusIcon } from '@radix-ui/react-icons';
+import { useGetCountries } from '@/services';
 
 export enum EChannels {
   WithinUK = 'within-uk',
@@ -520,6 +522,12 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
   const COUNTRY_CODE_LIST = useAppSelector((state) => state.country.countries);
   const CITIES_LIST = useAppSelector((state) => state.country.cities);
 
+  const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
+
+  console.log(countries, 'hmmm');
+
+  console.log(COUNTRY_CODE_LIST, 999);
+
   const WITHINUKLIST = [
     { name: 'UK Mainland', alpha_2_code: 'GB', emoji: '' },
     { name: 'Scotish Highlands', alpha_2_code: 'SC', emoji: '' },
@@ -781,43 +789,46 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-4">
-        <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex h-[auto] py-[8px] px-[16px] items-center">
-          <div className="flex-1 flex w-full justify-between gap-[8px]">
-            <div className="w-full">
-              <p className="text-[#0088DD] text-[12px]">Quantity</p>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
-                placeholder="1"
-              />
-            </div>
-            <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
-            <div className="w-full">
-              <p className="text-[#0088DD] text-[12px]">Weight</p>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
-                placeholder="1"
-              />
-            </div>
-            <div className="border-l-[1px] h-[40px] border-dashed shrink-0" />
-            <div className="w-full">
-              <p className="text-[#0088DD] text-[12px]">Unit</p>
-              <input
-                type="number"
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
-                placeholder="1"
-              />
-            </div>
-            <p className="text-[#0088DD] text-[16px] mt-auto">Kg</p>
+      <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex flex-col sm:flex-row gap-4 sm:gap-[16px] p-4 sm:py-[8px] sm:px-[16px] sm:h-[61px] items-start sm:items-center">
+        <div className="font-poppins w-full rounded-[10px] flex h-auto py-[8px] px-[16px] items-center border-r border-r-gray-300">
+          <div className="flex flex-col items-start justify-center w-[80px]">
+            <label className="text-[#0088DD] text-[12px] mb-[2px]">Quantity</label>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              className="w-full text-[12px] text-[#272727] border-none outline-none"
+              placeholder="1"
+            />
           </div>
+
+          <div className="border-l h-[40px] border-dashed" />
+
+          <div className="flex flex-col items-start justify-center w-[80px]">
+            <label className="text-[#0088DD] text-[12px] mb-[2px]">Weight</label>
+            <input
+              type="number"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="w-full text-[12px] text-[#272727] border-none outline-none"
+              placeholder="1"
+            />
+          </div>
+
+          <div className="border-l h-[40px] border-dashed" />
+
+          <div className="flex flex-col items-start justify-center w-[80px]">
+            <label className="text-[#0088DD] text-[12px] mb-[2px]">Unit</label>
+            <input
+              type="number"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              className="w-full text-[12px] text-[#272727] border-none outline-none"
+              placeholder="1"
+            />
+          </div>
+
+          {/* <span className="text-[#0088DD] text-[13px] font-medium mt-5">Kg</span> */}
         </div>
 
         <button
@@ -829,23 +840,13 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
             setModalUnit(1);
             setModalDescription('');
           }}
-          className="h-[48px] sm:h-[61px] px-2 bg-blue-500 text-xs text-white rounded-[10px] hover:bg-blue-600 transition-colors whitespace-nowrap"
+          className="h-[36px] w-[36px] flex items-center justify-center bg-[#0088DD] text-white rounded-full hover:bg-[#0077C0] transition-all"
+          title="Add Item"
         >
-          Add Item
+          <PlusIcon className="w-[16px] h-[16px]" />
         </button>
       </div>
 
-      {/* <div className="flex-1 mt-4">
-        <p className="text-[#0088DD] text-[12px]">Description</p>
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] flex-1 w-full focus:border-[#CCD6DF] focus:outline-none"
-          placeholder="Enter description"
-        />
-      </div> */}
-
-      {/* Display Items */}
       <div className="mt-6 space-y-2">
         <h4 className="text-sm font-semibold text-[#0088DD]">Items in Parcel</h4>
         {parcels[parcelIndex]?.items?.map((itm, idx) => (
@@ -857,7 +858,6 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
               • {itm.quantity} x {itm.weight}kg ({itm.unit_weight} unit) - {itm.description || 'No Description'}
             </span>
             <div className="flex gap-3">
-              {/* Edit Icon Button */}
               <button
                 onClick={() => {
                   setEditingItemIndex(idx);
@@ -870,48 +870,20 @@ export const WeightLengthWidthHeight = ({ parcelIndex = 0, itemIndex = 0 }: any)
                 aria-label="Edit item"
                 className="text-blue-500 hover:text-blue-700"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
-                </svg>
+                ✎
               </button>
-              {/* Delete Icon Button */}
               <button
-                onClick={() => dispatch(deleteItemInParcel({ parcelIndex, itemIndex }))}
+                onClick={() => dispatch(deleteItemInParcel({ parcelIndex, itemIndex: idx }))}
                 aria-label="Delete item"
                 className="text-red-500 hover:text-red-700"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"
-                  />
-                </svg>
+                🗑️
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-[10px] w-full max-w-md p-6">

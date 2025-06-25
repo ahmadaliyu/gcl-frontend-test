@@ -12,30 +12,6 @@ export type TStep = {
 };
 
 export const steps: TStep[] = [
-  // {
-  //   id: EStepIds.QuoteReview,
-  //   title: 'Quote Review',
-  //   activeIcon: (
-  //     <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  //       <rect x="0.75" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
-  //       <rect x="0.75" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
-  //       <path
-  //         d="M33.3346 36V33.3333C33.3346 31.9188 32.7727 30.5623 31.7725 29.5621C30.7723 28.5619 29.4158 28 28.0013 28H20.0013C18.5868 28 17.2303 28.5619 16.2301 29.5621C15.2299 30.5623 14.668 31.9188 14.668 33.3333V36"
-  //         stroke="#E51520"
-  //         strokeWidth="2"
-  //         strokeLinecap="round"
-  //         strokeLinejoin="round"
-  //       />
-  //       <path
-  //         d="M24.0013 22.6667C26.9468 22.6667 29.3346 20.2789 29.3346 17.3333C29.3346 14.3878 26.9468 12 24.0013 12C21.0558 12 18.668 14.3878 18.668 17.3333C18.668 20.2789 21.0558 22.6667 24.0013 22.6667Z"
-  //         stroke="#E51520"
-  //         strokeWidth="2"
-  //         strokeLinecap="round"
-  //         strokeLinejoin="round"
-  //       />
-  //     </svg>
-  //   ),
-  // },
   {
     id: EStepIds.ReceipientDetails,
     title: 'Receipient Details',

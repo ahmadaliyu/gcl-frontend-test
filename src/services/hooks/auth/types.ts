@@ -156,8 +156,6 @@ export interface CountryResponse {
 }
 
 export interface Country {
-  label: any;
-  value: any;
   name: string;
   alpha_2_code: string;
   has_postal: boolean;

@@ -20,7 +20,7 @@ import Link from 'next/link';
 import InputField from '@/components/reuseables/InputField';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { RootState } from '@/store/store';
-import { useGetQuotes } from '@/services';
+import { useGetCities, useGetCountries, useGetQuotes } from '@/services';
 import { loadQuotes } from '@/store/auth/quoteDataSlice';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -29,10 +29,45 @@ import { Input } from '@/components/ui/input';
 import { storage } from '@/lib/storage/localstorage';
 import Footer from '@/components/layout/main/footer';
 import NavBarIndex from '@/components/layout/main/navbar';
+import { setCities, setCountries } from '@/store/auth/countrySlice';
 
 function BookAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
   const [activeChannel, setActiveChannel] = useState<EChannels>(EChannels.WithinUK);
+
+  const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
+  const { data: cities, isLoading: isLoadingCities } = useGetCities();
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (countries?.data) {
+      const transformedCountries = countries.data.map((country) => ({
+        name: country.name,
+        countryCode: country.alpha_2_code,
+        alpha_2_code: country.alpha_2_code,
+        has_postal: country.has_postal,
+        is_active: country.is_active,
+        emoji: country.alpha_2_code
+          .split('')
+          .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+          .join(''),
+      }));
+      dispatch(setCountries(transformedCountries));
+    }
+  }, [countries, dispatch]);
+
+  useEffect(() => {
+    if (cities?.data) {
+      const transformedCities = cities.data.map((city) => ({
+        label: city.name,
+        name: city.name,
+        code: city.code,
+        is_active: city.is_active,
+      }));
+      dispatch(setCities(transformedCities));
+    }
+  }, [cities, dispatch]);
 
   useEffect(() => {
     if (activeTab?.channels?.length) setActiveChannel(activeTab?.channels[0]);
@@ -41,22 +76,23 @@ function BookAQuote() {
   const numberOfActiveChannels = activeTab?.channels?.length || 0;
 
   return (
-    <>
-      <div className="relative min-h-screen flex flex-col bg-[#ffffff]">
-        {/* Banner image with fixed positioning and controlled height */}
-        <div className="absolute inset-0 w-full h-full z-0">
-          <img src="/images/homepage-banner-1.webp" alt="frame" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/30" />
-        </div>
+    <div className="relative min-h-screen flex flex-col bg-[#ffffff]">
+      {/* Background Image */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        <img src="/images/homepage-banner-1.webp" alt="frame" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
-        {/* Main content with proper spacing */}
-        <main className="flex-1 flex flex-col items-center pt-[40px] pb-[80px] px-[16px] z-10">
-          <div className="flex flex-col items-center w-full max-w-[690px]">
-            <div className="flex w-full border-b-[#7C98B6] border-b divide-x-[1px] divide-[#7C98B6] divide-y-[0px]">
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col items-center pt-[40px] pb-[80px] px-4 z-10">
+        <div className="w-full max-w-[1440px] flex flex-col items-center">
+          <div className="w-full sm:w-[90%] md:w-[85%] lg:w-[75%] xl:w-[70%]">
+            {/* Tabs */}
+            <div className="flex border-b border-[#7C98B6] divide-x divide-[#7C98B6]">
               {tabs.map((tab) => (
                 <div
                   key={tab.id}
-                  className={`flex flex-col items-center cursor-pointer text-[14px] flex-1 font-medium gap-[8px] pb-[16px] border-b-[4px] mb-[-1px] ${
+                  className={`flex flex-col items-center justify-center cursor-pointer text-[14px] flex-1 font-medium gap-2 pb-4 border-b-4 ${
                     activeTab?.id === tab.id ? 'text-[#E51520] border-b-[#E51520]' : 'text-white border-b-transparent'
                   }`}
                   onClick={() => setActiveTab(tab)}
@@ -66,7 +102,9 @@ function BookAQuote() {
                 </div>
               ))}
             </div>
-            <div className="flex-1 flex justify-between gap-[16px] w-full rounded-t-[16px] mt-[24px]">
+
+            {/* Channels */}
+            <div className="flex flex-wrap justify-between gap-4 w-full rounded-t-[16px] mt-6">
               {channels.map((channel) => {
                 if (!activeTab.channels?.includes(channel?.key)) return null;
 
@@ -74,31 +112,34 @@ function BookAQuote() {
                 return (
                   <div
                     key={channel.key}
-                    className={`flex-1 flex items-center justify-center gap-[8px] w-full h-[53px] rounded-t-[16px] text-[14px] font-[500] cursor-pointer ${
-                      !isActiveChannel ? 'bg-[#02044A] text-white' : 'bg-white text-[#02044A]'
+                    className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 h-[53px] rounded-t-[16px] text-[14px] font-medium cursor-pointer ${
+                      isActiveChannel ? 'bg-white text-[#02044A]' : 'bg-[#02044A] text-white'
                     } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
                     onClick={() => setActiveChannel(channel.key)}
                   >
-                    <span className="block text-center sm:text-left">{channel.title}</span>
+                    <span className="text-center">{channel.title}</span>
                     {isActiveChannel ? channel.icon_active : channel.icon_inactive}
                   </div>
                 );
               })}
             </div>
 
-            {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
-            {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
-            {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
-            {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
+            {/* Dynamic Form */}
+            <div className="mt-6">
+              {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
+              {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
+              {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
+              {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
+            </div>
           </div>
-        </main>
+        </div>
+      </main>
 
-        {/* Footer positioned at the bottom */}
-        <footer className="relative z-20 bg-white/90 backdrop-blur-sm py-4">
-          <Footer />
-        </footer>
-      </div>
-    </>
+      {/* Footer */}
+      <footer className="relative z-20 bg-white/90 backdrop-blur-sm py-4">
+        <Footer />
+      </footer>
+    </div>
   );
 }
 

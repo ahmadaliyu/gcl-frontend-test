@@ -12,6 +12,8 @@ function Homepage() {
   const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
   const { data: cities, isLoading: isLoadingCities } = useGetCities();
 
+  console.log(countries, 'hmmm');
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {

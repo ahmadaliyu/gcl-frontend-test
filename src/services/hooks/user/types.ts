@@ -1,5 +1,5 @@
 export interface AddressFormData {
-  type?: string;
+  address_type: string;
   label: string;
   address_line_1: string;
   address_line_2: string;
