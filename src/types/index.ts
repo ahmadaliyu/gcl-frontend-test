@@ -42,10 +42,7 @@ export interface User {
   howYouFoundUs?: string;
   createdAt?: Date | null;
   updatedAt?: Date | null;
-  role?: string;
   Role?: {
     slug?: string;
   };
 }
-
-

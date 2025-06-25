@@ -223,28 +223,40 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  const user = useAppSelector((state: RootState) => state.user);
+
   const navItems = [
     { id: 'home', title: 'Home', link: '/', hideChevron: true },
     { id: 'services', title: 'Services', link: '#' },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
-    { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
+    {
+      id: 'track-trace',
+      title: 'Track & Trace',
+      link: user?.Role?.slug === 'user' ? '/user/track-a-parcel' : '/auth/login',
+      hideChevron: true,
+    },
   ];
   const navItemsUser = [
     { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
+    {
+      id: 'track-trace',
+      title: 'Track & Trace',
+      link: user?.Role?.slug === 'user' ? '/user/track-a-parcel' : '/auth/login',
+      hideChevron: true,
+    },
   ];
 
   const [scroll, setScroll] = useState(false);
   const router = useRouter();
-  const user = useAppSelector((state: RootState) => state.user);
 
-  const isAuthenticated = user?.role === 'user';
+  const isAuthenticated = user?.Role?.slug === 'user';
 
   const NAVITEMS = useMemo(() => {
-    return user?.role === 'user' ? navItemsUser : navItems;
-  }, [user?.role]);
+    return user?.Role?.slug === 'user' ? navItemsUser : navItems;
+  }, [user?.Role?.slug]);
 
   const handleLogout = () => {
     dispatch(resetUser());

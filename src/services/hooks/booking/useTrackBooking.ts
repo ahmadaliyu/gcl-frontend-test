@@ -10,7 +10,6 @@ export const useTrackBooking = (bookingId: string, onSuccess?: (data: BookingSta
     refetchIntervalInBackground: true,
     queryFn: async (): Promise<BookingStatusResponse> => {
       const response: BookingStatusResponse = await get(`users/bookings/tracker/${bookingId}`);
-      console.log(response, 'lllleg wwww');
 
       if (response.success === false) {
         console.error(`Error `);

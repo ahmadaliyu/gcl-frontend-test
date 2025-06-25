@@ -21,8 +21,6 @@ function UserPaymentAndInvoices() {
   const { data: payments, isLoading } = useGetPayment();
   const router = useRouter();
 
-  console.log(payments, 88);
-
   return (
     <UserDashboardWrapper>
       <div className="px-4 sm:px-0">

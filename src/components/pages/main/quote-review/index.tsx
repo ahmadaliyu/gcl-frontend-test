@@ -500,8 +500,6 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
     }
   });
 
-  console.log(booking.parcel, 77777);
-
   const handleSubmit = async () => {
     // console.log(
     //   {

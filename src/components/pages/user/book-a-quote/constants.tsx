@@ -524,10 +524,6 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
 
   const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
 
-  console.log(countries, 'hmmm');
-
-  console.log(COUNTRY_CODE_LIST, 999);
-
   const WITHINUKLIST = [
     { name: 'UK Mainland', alpha_2_code: 'GB', emoji: '' },
     { name: 'Scotish Highlands', alpha_2_code: 'SC', emoji: '' },
