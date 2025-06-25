@@ -21,10 +21,6 @@ function WelcomePage() {
 
   const router = useRouter();
 
-  const fd = useAppSelector((state) => state.form);
-
-  console.log(fd, 999);
-
   const { isPending, mutate } = useRegister((response) => {
     if (response?.status === 201 || response?.data?.success) {
       router.push('/auth/verify-email');

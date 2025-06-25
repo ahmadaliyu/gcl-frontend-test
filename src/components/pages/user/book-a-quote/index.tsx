@@ -113,7 +113,7 @@ function BookAQuote() {
                   <div
                     key={channel.key}
                     className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 h-[53px] rounded-t-[16px] text-[14px] font-medium cursor-pointer ${
-                      isActiveChannel ? 'bg-white text-[#02044A]' : 'bg-[#02044A] text-white'
+                      isActiveChannel ? 'bg-[#02044A] text-white' : 'bg-gray-300 text-[#02044A]'
                     } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
                     onClick={() => setActiveChannel(channel.key)}
                   >
