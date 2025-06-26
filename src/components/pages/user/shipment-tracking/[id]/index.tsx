@@ -23,6 +23,8 @@ const ShipmentTracking = () => {
 
   const { data: trackingData, isLoading } = useTrackBooking(bookingId);
 
+  console.log(trackingData, 999);
+
   const TRACKERS = useMemo(() => {
     return trackingData?.resp || [];
   }, [trackingData]);

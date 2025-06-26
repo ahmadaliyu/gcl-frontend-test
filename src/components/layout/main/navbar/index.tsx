@@ -1,7 +1,6 @@
 import Button from '@/components/reuseables/Button';
-import { resetForm, setTempCredentials } from '@/store/auth/formSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { persistor, RootState } from '@/store/store';
+import { RootState } from '@/store/store';
 import { resetUser } from '@/store/user/userSlice';
 import { HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
 import Link from 'next/link';
@@ -11,6 +10,7 @@ import LogoutModal from '../modal/LogoutModal';
 import { resetBooking } from '@/store/booking/bookingSlice';
 import { clearQuote } from '@/store/auth/quoteDataSlice';
 import { clearQuotesData } from '@/store/auth/quoteSlice';
+import Cookies from 'js-cookie';
 
 const chevron_down = (
   <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -259,12 +259,27 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   }, [user?.Role?.slug]);
 
   const handleLogout = () => {
+    // Clear Redux state
     dispatch(resetUser());
     dispatch(resetBooking());
     dispatch(clearQuote());
     dispatch(clearQuotesData());
+
+    // Clear all cookies
+    Cookies.remove('token'); // Remove access token
+    Cookies.remove('refresh_token'); // Remove refresh token
+
+    // Optionally clear other cookies if needed
+    // Cookies.remove('other_cookie_name');
+
+    // Close logout modal
     setShowLogoutModal(false);
+
+    // Redirect to login page
     router.replace('/auth/login');
+
+    // Optional: Force a hard refresh to ensure all state is cleared
+    // window.location.href = '/auth/login';
   };
 
   useEffect(() => {

@@ -46,6 +46,8 @@ function LoginPage() {
   };
 
   const handleLogin = () => {
+    console.log('logging in.....');
+
     const { email, password } = formData;
     dispatch(clearTempCredentials());
     dispatch(setTempCredentials({ email, password }));

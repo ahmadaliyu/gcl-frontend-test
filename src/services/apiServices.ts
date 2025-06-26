@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Config from './Config';
-import { storage } from '@/lib/storage/localstorage';
 import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 
 const service = axios.create({
   baseURL: Config.apiUrl,
@@ -11,15 +11,61 @@ const service = axios.create({
   },
 });
 
-// Request Interceptor
-service.interceptors.request.use(
-  async function (config) {
-    const token: string | null = (await storage.getValueFor('token')) as string | null;
+// ✅ Check if access token is expired
+function isAccessTokenExpired(accessToken: string): boolean {
+  if (!accessToken) return true;
+  try {
+    const decodedToken = jwtDecode<{ exp?: number }>(accessToken);
+    const currentTime = Date.now() / 1000;
+    return decodedToken.exp ? currentTime > decodedToken.exp : true;
+  } catch (error) {
+    return true; // If token is invalid, treat it as expired
+  }
+}
 
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+// ✅ Refresh access token
+async function refreshAccessToken(refreshToken?: string | null) {
+  if (!refreshToken) {
+    throw { message: 'No RefreshToken', status: 402 };
+  }
+
+  try {
+    const payload = { rtoken: refreshToken };
+    const res = await post(`auth/refresh-token`, payload);
+
+    const token = res?.data?.data?.token;
+    const newRefreshToken = res?.data?.data?.refresh_token;
+
+    if (token && newRefreshToken) {
+      Cookies.set('token', token);
+      Cookies.set('refresh_token', newRefreshToken);
+      return token;
     }
 
+    throw new Error('Invalid refresh response');
+  } catch (error) {
+    Cookies.remove('token');
+    Cookies.remove('refresh_token');
+    throw { message: 'Failed to refresh token', status: 402 };
+  }
+}
+
+// ✅ Request Interceptor
+service.interceptors.request.use(
+  async (config) => {
+    // Skip token for auth endpoints
+    if (!config.url?.match(/^\/?auth/i)) {
+      let token = Cookies.get('token');
+
+      if (isAccessTokenExpired(token as string)) {
+        const refreshToken = Cookies.get('refresh_token');
+        token = await refreshAccessToken(refreshToken);
+      }
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
     return config;
   },
   function (error) {
@@ -27,111 +73,93 @@ service.interceptors.request.use(
   }
 );
 
-// Response Interceptor
+// ✅ Response Interceptor
 service.interceptors.response.use(
   async function (response) {
-    if (response.status === 200) {
-      const resData = response?.data?.data;
+    const token = response?.data?.data?.token;
+    const refresh = response?.data?.data?.refresh || response?.data?.data?.refresh_token;
 
-      if (resData?.token) {
-        await storage.save('token', resData.token);
-      }
-      if (resData?.refresh) {
-        await storage.save('refresh_token', resData.refresh);
-      }
-    }
-
-    // Optional: Handle auto logout on 401 here if necessary
-    if (response.status === 401) {
-      await storage.remove('token');
-      await storage.remove('refresh_token');
-      window.location.href = '/auth/login';
+    if (token && refresh) {
+      Cookies.set('token', token);
+      Cookies.set('refresh_token', refresh);
     }
 
     return response;
   },
-  function (error) {
-    if (error.response) {
-      alert(error.response?.data?.message || 'Something went wrong');
-      return Promise.reject(error.response);
-    } else if (error.request) {
-      return Promise.reject(error.request);
-    } else {
-      return Promise.reject(error.message);
+
+  async function (error: AxiosError) {
+    const refreshToken = Cookies.get('refresh_token');
+
+    if (error?.response?.status === 402 || error.code === 'ERR_BAD_REQUEST') {
+      try {
+        await refreshAccessToken(refreshToken);
+      } catch (refreshError) {
+        console.error('Refresh failed:', refreshError);
+        Cookies.remove('token');
+        Cookies.remove('refresh_token');
+        window.location.href = '/auth/login';
+      }
     }
+
+    return Promise.reject(error);
   }
 );
 
-// Helper: Token Expiry Check
-function isAccessTokenExpired(accessToken: string | null): boolean {
-  if (!accessToken) return true;
-
-  try {
-    const decodedToken = jwtDecode<{ exp?: number }>(accessToken);
-    const currentTime = Date.now() / 1000;
-    return decodedToken.exp ? currentTime > decodedToken.exp : true;
-  } catch (e) {
-    return true;
-  }
-}
-
-// ==== API UTILITY METHODS ====
+// ✅ Standard HTTP Methods
 
 export const post = async (url: string, payload?: any) => {
   try {
-    const response = await service.post(url, payload);
-    return response;
+    const data = await service.post(url, payload);
+    return data;
   } catch (error: any) {
-    handleCommonErrors(error);
-    throw error;
+    handleError(error);
+    return error;
   }
 };
 
 export const patch = async (url: string, payload: any) => {
   try {
-    const response = await service.patch(url, payload);
-    return response;
+    const data = await service.patch(url, payload);
+    return data;
   } catch (error: any) {
-    handleCommonErrors(error);
-    throw error;
+    handleError(error);
+    return error;
   }
 };
 
 export const put = async (url: string, payload: any) => {
   try {
-    const response = await service.put(url, payload);
-    return response;
+    const data = await service.put(url, payload);
+    return data;
   } catch (error: any) {
-    handleCommonErrors(error);
-    throw error;
+    handleError(error);
+    return error;
   }
 };
 
 export const Delete = async (url: string) => {
   try {
-    const response = await service.delete(url);
-    return response;
+    const data = await service.delete(url);
+    return data;
   } catch (error: any) {
-    handleCommonErrors(error);
-    throw error;
+    handleError(error);
+    return error;
   }
 };
 
 export const get = async (url: string) => {
   try {
-    const response = await service.get(url);
-    return response.data;
+    const data = await service.get(url);
+    return data.data;
   } catch (error: any) {
-    handleCommonErrors(error);
-    throw error;
+    handleError(error);
+    return error;
   }
 };
 
-// Common error handler
-function handleCommonErrors(error: any) {
+// ✅ Centralized error handler
+function handleError(error: any) {
   if (error?.status === 403) {
-    storage.remove('token');
-    storage.remove('refresh_token');
     window.location.href = '/auth/login';
   } else if (error?.status === 0) {
     throw new Error('An error occurred, please try again later.');

@@ -30,6 +30,9 @@ export const useSignIn = (onSuccess?: (data: any) => void) => {
         }
       }
     },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 
   return { mutate, isPending };
