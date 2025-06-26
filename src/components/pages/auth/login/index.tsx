@@ -24,6 +24,8 @@ function LoginPage() {
   const { showAlert } = useAlert();
 
   const { isPending, mutate } = useSignIn((response: any) => {
+    console.log(response, 22221111);
+
     if (response?.response?.status >= 400) {
       showAlert(`${response?.response.data?.message}`, 'error');
     }
