@@ -44,7 +44,7 @@ export const channels = [
     key: EChannels.WithinUK,
     title: 'Send Within the UK',
     icon_active: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="30" height="30" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
         <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
         <path
@@ -78,7 +78,7 @@ export const channels = [
       </svg>
     ),
     icon_inactive: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="30" height="30" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" fill="#CCCCCC" />
         <rect x="0.625" y="0.5" width="47" height="47" rx="23.5" stroke="#E3E3E3" />
         <path
@@ -116,7 +116,7 @@ export const channels = [
     key: EChannels.SendInternational,
     title: 'Send Internationally',
     icon_active: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="30" height="30" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="#FCE8E9" />
         <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#E51520" />
         <g clipPath="url(#clip0_0_11552)">

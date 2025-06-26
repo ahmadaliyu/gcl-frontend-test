@@ -1,3 +1,4 @@
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 import { LoginResponse, post } from '@/services';
 import { clearTempCredentials, setTempCredentials } from '@/store/auth/formSlice';
 import { useAppDispatch } from '@/store/hook';
@@ -29,9 +30,10 @@ export const useSignIn = (onSuccess?: (data: any) => void) => {
           onSuccess(response);
         }
       }
+      return response;
     },
     onError: (error) => {
-      console.error(error);
+      console.error(error, 'rrrr');
     },
   });
 

@@ -11,7 +11,7 @@ const service = axios.create({
   },
 });
 
-// ✅ Check if access token is expired
+// Check if access token is expired
 function isAccessTokenExpired(accessToken: string): boolean {
   if (!accessToken) return true;
   try {
@@ -23,7 +23,7 @@ function isAccessTokenExpired(accessToken: string): boolean {
   }
 }
 
-// ✅ Refresh access token
+//  Refresh access token
 async function refreshAccessToken(refreshToken?: string | null) {
   if (!refreshToken) {
     throw { message: 'No RefreshToken', status: 402 };
@@ -50,7 +50,7 @@ async function refreshAccessToken(refreshToken?: string | null) {
   }
 }
 
-// ✅ Request Interceptor
+//  Request Interceptor
 service.interceptors.request.use(
   async (config) => {
     // Skip token for auth endpoints
@@ -73,7 +73,7 @@ service.interceptors.request.use(
   }
 );
 
-// ✅ Response Interceptor
+//  Response Interceptor
 service.interceptors.response.use(
   async function (response) {
     const token = response?.data?.data?.token;
@@ -97,7 +97,7 @@ service.interceptors.response.use(
         console.error('Refresh failed:', refreshError);
         Cookies.remove('token');
         Cookies.remove('refresh_token');
-        window.location.href = '/auth/login';
+        // window.location.href = '/auth/login';
       }
     }
 
@@ -105,7 +105,7 @@ service.interceptors.response.use(
   }
 );
 
-// ✅ Standard HTTP Methods
+//  Standard HTTP Methods
 
 export const post = async (url: string, payload?: any) => {
   try {
@@ -160,7 +160,7 @@ export const get = async (url: string) => {
 // ✅ Centralized error handler
 function handleError(error: any) {
   if (error?.status === 403) {
-    window.location.href = '/auth/login';
+    // window.location.href = '/auth/login';
   } else if (error?.status === 0) {
     throw new Error('An error occurred, please try again later.');
   } else if (error?.data?.code >= 400) {

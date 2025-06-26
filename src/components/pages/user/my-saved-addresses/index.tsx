@@ -9,6 +9,7 @@ import { saveAddress } from '@/store/user/addressSlice';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import AddressSkeleton from './skeleton';
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 
 enum TabIds {
   ContactAddresses = 'contact-addresses',
@@ -27,6 +28,7 @@ function MySavedAddresses() {
   const [addressToDelete, setAddressToDelete] = useState<any>(null);
 
   interface Address {
+    drivers_note: string;
     id?: string;
     label: string;
     address_line_1: string;
@@ -43,15 +45,18 @@ function MySavedAddresses() {
     is_sender_address: boolean;
   }
 
+  const { showAlert } = useAlert();
   const { mutate, isPending } = useDeleteAddress((response) => {
-    if (response) {
+    if (response.status === 200) {
+      showAlert('Address Deleted', 'success');
+      refetch();
       setShowDeleteModal(false);
       setAddressToDelete(null);
     }
   });
 
   const router = useRouter();
-  const { data: addresses, isLoading } = useGetAddresses();
+  const { data: addresses, isLoading, refetch } = useGetAddresses();
   const dispatch = useAppDispatch();
 
   const handleDeleteClick = (address: any) => {
@@ -70,7 +75,7 @@ function MySavedAddresses() {
 
   const handleEditClick = (data: Address) => {
     router.push('/user/edit-address');
-    dispatch(saveAddress({ ...data, notes: data.notes ?? '' }));
+    dispatch(saveAddress({ ...data, drivers_note: data.drivers_note ?? '' }));
   };
 
   return (

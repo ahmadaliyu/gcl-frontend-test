@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { useRouter } from 'next/navigation';
 import { setLegDetails, updateBookingField } from '@/store/booking/bookingSlice';
 import { setPriceDetails } from '@/store/auth/quoteDataSlice';
+import { formatType } from '@/utils/formatType';
 
 function GetAQuote() {
   const [activeStepId, setActiveStepId] = useState<EStepIds>(EStepIds.SampleQuote);
@@ -113,10 +114,10 @@ function GetAQuote() {
             {SERVICES.map((service) => (
               <div key={service.id} className="border border-[#E3E3E3] rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <img src="/icons/outer.png" className="w-[60px] h-[42px]" alt={service.company} />
+                  {/* <img src="/icons/outer.png" className="w-[60px] h-[42px]" alt={service.company} /> */}
                   <div>
                     <h3 className="font-medium text-[16px]">{service.company}</h3>
-                    <p className="text-[#757575] text-[12px]">{service.type}</p>
+                    <p className="text-[#757575] text-[12px]">{formatType(service.type)}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-4">
@@ -175,11 +176,11 @@ function GetAQuote() {
                   {SERVICES.map((service) => (
                     <TableRow key={service.id}>
                       <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px] flex items-center gap-[10px]">
-                        <img
+                        {/* <img
                           src="/icons/outer.png"
                           className="w-[60px] md:w-[80px] h-[42px] md:h-[56px]"
                           alt={service.company}
-                        />
+                        /> */}
                         <span>{service.company}</span>
                       </TableCell>
                       <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
@@ -195,7 +196,7 @@ function GetAQuote() {
                         {service.total}
                       </TableCell>
                       <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
-                        {service.type}
+                        {formatType(service.type)}
                       </TableCell>
                       <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.company}

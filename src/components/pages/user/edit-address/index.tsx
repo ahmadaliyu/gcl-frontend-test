@@ -33,7 +33,7 @@ function EditAddress() {
     post_code: savedAddress.post_code || '',
     contact_name: savedAddress.contact_name || '',
     contact_phone: savedAddress.contact_phone || '',
-    notes: savedAddress.notes || '',
+    drivers_note: savedAddress.drivers_note || '',
     is_default: savedAddress.is_default || false,
     is_sender_address: savedAddress.is_sender_address || false,
   });
@@ -192,8 +192,8 @@ function EditAddress() {
             textarea
             label="Delivery Driver notes"
             placeholder="Enter more information here"
-            value={formData.notes}
-            name="notes"
+            value={formData.drivers_note}
+            name="drivers_note"
             onChange={handleFieldChange}
             className="w-full"
           />

@@ -67,7 +67,7 @@ function GetAQuote() {
               } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
               onClick={() => setActiveChannel(channel.key)}
             >
-              <span className="text-center">{channel.title}</span>
+              <span className="text-center text-xs">{channel.title}</span>
               {isActiveChannel ? channel.icon_active : channel.icon_inactive}
             </div>
           );

@@ -1,3 +1,4 @@
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 import Button from '@/components/reuseables/Button';
 import InputField from '@/components/reuseables/InputField';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,6 +12,8 @@ function RegisterPage() {
   const form = useAppSelector(selectForm);
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+  const { showAlert } = useAlert();
 
   const [passwordError, setPasswordError] = React.useState('');
 
@@ -37,11 +40,12 @@ function RegisterPage() {
       setPasswordError(
         'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, and a special character.'
       );
+      showAlert('Password does not meet the requirements', 'error');
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+      showAlert("Passwords don't match!", 'error');
       return;
     }
 

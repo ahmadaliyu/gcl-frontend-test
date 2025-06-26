@@ -29,6 +29,7 @@ function WelcomePage() {
 
   const handleSubmit = () => {
     const { confirmPassword, ...submissionData } = form;
+
     mutate({ payload: submissionData });
   };
 

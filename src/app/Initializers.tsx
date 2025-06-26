@@ -62,6 +62,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from '@/store/store';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { AlertProvider } from '@/components/reuseables/Alert/alert-context';
 
 function Initializers({ children }: { children: ReactNode }) {
   const pathname = usePathname() || '';
@@ -85,40 +86,11 @@ function Initializers({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = Cookies.get('token');
 
-    console.log(token, 'toks');
-
     // If on protected route and no token, redirect to login
     if (isProtectedRoute && !token) {
       router.replace('/auth/login');
       return;
     }
-
-    // If token exists, check if it's expired
-    // if (token) {
-    //   try {
-    //     const decoded = jwtDecode<{ exp: number }>(token);
-    //     const isExpired = decoded.exp < Date.now() / 1000;
-
-    //     if (isExpired) {
-    //       Cookies.remove('token');
-    //       Cookies.remove('refresh_token');
-    //       if (isProtectedRoute) {
-    //         router.replace('/auth/login');
-    //       }
-    //     }
-    //   } catch (error) {
-    //     Cookies.remove('token');
-    //     Cookies.remove('refresh_token');
-    //     if (isProtectedRoute) {
-    //       router.replace('/auth/login');
-    //     }
-    //   }
-    // }
-
-    // // If on auth page but already logged in, redirect to home
-    // if (isAuthPage && token) {
-    //   router.replace('/');
-    // }
 
     setIsLoading(false);
   }, [pathname, router, isProtectedRoute, isAuthPage]);
@@ -136,11 +108,13 @@ function Initializers({ children }: { children: ReactNode }) {
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
           <AppThemeProvider>
-            <NextTopLoader color="#000000" height={3} />
-            <Navbar fixed={isUserPage ? false : true} />
-            {children}
-            {hideFooter ? null : <Footer />}
-            <Toaster richColors />
+            <AlertProvider>
+              <NextTopLoader color="#000000" height={3} />
+              <Navbar fixed={isUserPage ? false : true} />
+              {children}
+              {hideFooter ? null : <Footer />}
+              <Toaster richColors />
+            </AlertProvider>
           </AppThemeProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

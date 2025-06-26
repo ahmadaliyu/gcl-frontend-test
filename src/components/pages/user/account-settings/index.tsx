@@ -4,13 +4,11 @@ import InputField from '@/components/reuseables/InputField';
 import SelectField from '@/components/reuseables/SelectField';
 import { COUNTRY_CODE_LIST } from '@/constants';
 import { Checkbox } from '@/components/ui/checkbox';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hook';
-import { useChangePassword, UserProfileUpdateResponse, useUpdateProfile } from '@/services/hooks/profile';
-import { setUser } from '@/store/user/userSlice';
-import { useGetProfile } from '@/services/hooks/profile/useGetProfile';
+import React, { useState } from 'react';
+import { useAppSelector } from '@/store/hook';
+import { useChangePassword, useUpdateProfile } from '@/services/hooks/profile';
 import { useMediaQuery } from './useMediaQuery';
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 
 enum TabIds {
   PersonalInformation = 'personal-information',
@@ -88,9 +86,11 @@ const Security = () => {
     confirmPassword: '',
     enableTwoFA: false,
   });
+
+  const { showAlert } = useAlert();
   const { isPending, mutate } = useChangePassword((response: any) => {
     if (response?.status === 200 || response?.status === 201) {
-      alert(`${response?.data.message}`);
+      showAlert(`${response?.data.message}`, 'success');
     }
   });
 
@@ -241,9 +241,11 @@ const PersonalInformation = () => {
   // Determine disabled state based on active step
   const isEditing = (step: EStepIds) => activeStepId === step;
 
+  const { showAlert } = useAlert();
+
   const { isPending, mutate, isSuccess } = useUpdateProfile((response: any) => {
     if (response?.status === 200 || response?.status === 201) {
-      alert(`${response?.data.message}`);
+      showAlert(response?.data.message, 'success');
     }
   });
 

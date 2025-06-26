@@ -1,3 +1,4 @@
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 import Button from '@/components/reuseables/Button';
 import { useResendCode } from '@/services';
 import { useVerifyEmail } from '@/services/hooks/auth/useVerifyEmail';
@@ -19,10 +20,14 @@ function VerifyEmail() {
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const { isPending, mutate } = useVerifyEmail((response: { status: number; data: any; message: string }) => {
+    console.log(response, 'verify response');
+
     if (response.status === 200) {
       router.replace('/user/my-bookings');
+      showAlert('Verification Successful', 'success');
       dispatch(setUser(response?.data?.data?.user));
       // dispatch(resetForm());
     }

@@ -9,15 +9,20 @@ import { useAppSelector } from '@/store/hook';
 import { useAddAddress } from '@/services/hooks/user';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 
 function AddAddresses() {
   const COUNTRY_CODE_LIST = useAppSelector((state) => state?.country.countries);
   const router = useRouter();
 
+  const { showAlert } = useAlert();
+
   const { mutate, isPending } = useAddAddress((response) => {
-    if (response.status >= 400) {
+    if (response?.response?.status >= 400) {
+      showAlert(`${response?.response?.data?.message}`, 'error');
       return;
-    } else {
+    }
+    if (response.status === 200) {
       router.back();
     }
   });

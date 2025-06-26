@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Address } from './types';
 
 const initialState: Address = {
+  drivers_note: '',
   id: '',
   label: '',
   address_line_1: '',
@@ -14,7 +15,6 @@ const initialState: Address = {
   post_code: '',
   contact_name: '',
   contact_phone: '',
-  notes: '',
   is_default: false,
   is_sender_address: false,
 };

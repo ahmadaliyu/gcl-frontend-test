@@ -1,3 +1,4 @@
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 import Button from '@/components/reuseables/Button';
 import InputField from '@/components/reuseables/InputField';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,8 +21,14 @@ function LoginPage() {
   const quote = params.get('quote');
   const dispatch = useAppDispatch();
 
+  const { showAlert } = useAlert();
+
   const { isPending, mutate } = useSignIn((response: any) => {
-    if (response?.data?.success || response?.status === 200) {
+    if (response?.response?.status >= 400) {
+      showAlert(`${response?.response.data?.message}`, 'error');
+    }
+    if (response.status === 200) {
+      showAlert(`${response?.data?.message}`, 'success');
       const user = response?.data?.data?.user;
       dispatch(setUser(user));
 
@@ -46,8 +53,6 @@ function LoginPage() {
   };
 
   const handleLogin = () => {
-    console.log('logging in.....');
-
     const { email, password } = formData;
     dispatch(clearTempCredentials());
     dispatch(setTempCredentials({ email, password }));
