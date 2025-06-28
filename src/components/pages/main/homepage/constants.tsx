@@ -133,7 +133,7 @@ export const channels = [
       </svg>
     ),
     icon_inactive: (
-      <svg width="49" height="48" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="30" height="30" viewBox="0 0 49 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" fill="white" fillOpacity="0.14" />
         <rect x="1.125" y="0.5" width="47" height="47" rx="23.5" stroke="#CCCCCC" />
         <g clipPath="url(#clip0_0_11524)">

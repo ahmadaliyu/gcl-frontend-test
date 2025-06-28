@@ -296,7 +296,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
         } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
       >
         <div className="max-screen-inner h-[96px] flex items-center justify-between">
-          <a href={user?.email ? '#' : '/'}>
+          <a href={user?.email ? '/' : '/'}>
             <img src="/images/logo.png" className="w-[153px] h-[62px]" alt="logo" />
           </a>
           <div className="flex flex-1 justify-center gap-[30px] max-[1120px]:hidden">

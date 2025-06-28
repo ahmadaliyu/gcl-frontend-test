@@ -26,8 +26,6 @@ function WelcomePage() {
   const { showAlert } = useAlert();
 
   const { isPending, mutate } = useRegister((response) => {
-    console.log(response, 'hmmmm');
-
     if (response?.status === 201 || response?.data?.success) {
       router.push('/auth/verify-email');
     } else {
