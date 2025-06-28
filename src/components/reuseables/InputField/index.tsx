@@ -12,6 +12,7 @@ const InputField = ({
   name,
   onChange,
   className = '',
+  error,
 }: {
   label?: string;
   placeholder?: string;
@@ -23,10 +24,10 @@ const InputField = ({
   value?: any;
   onChange?: (name: string, value: string) => void;
   className?: string;
+  error?: string;
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  // Determine the actual input type
   const getInputType = () => {
     if (textarea) return undefined;
     if (type === 'password') {
@@ -37,14 +38,16 @@ const InputField = ({
 
   return (
     <div className={`w-full ${className}`}>
+      {label && <p className="text-[#0088DD] text-[12px] font-medium mb-1">{label}</p>}
+
       <div
-        className={`font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] px-[16px] items-center ${
-          textarea ? 'min-h-[100px] pt-[12px] pb-[8px]' : 'py-[8px]'
-        } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
+        className={`
+          font-poppins w-full border rounded-[10px] h-[61px] px-[16px] flex items-center
+          ${disabled ? 'bg-[#F5F5F5]' : 'bg-white'}
+          ${error ? 'border-red-500' : 'border-[#CCD6DF]'}
+        `}
       >
         <div className="flex-1 w-full">
-          {label && <p className="text-[#0088DD] text-[12px] font-medium mb-1">{label}</p>}
-
           <div className="flex w-full text-[14px] items-center">
             {textarea ? (
               <textarea
@@ -80,6 +83,8 @@ const InputField = ({
           </div>
         </div>
       </div>
+
+      {error && <p className="text-red-500 text-sm mt-1 ml-1">{error}</p>}
     </div>
   );
 };

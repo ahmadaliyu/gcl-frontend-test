@@ -227,13 +227,13 @@ function MyBookings() {
                     <div
                       className={`border h-10 flex items-center justify-center border-[#E3E3E3] font-medium w-24 px-2 rounded-full text-sm
             ${
-              service.status === 'transit'
+              service.status.toLowerCase() === 'transit'
                 ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
-                : service.status === 'delivered'
+                : service.status.toLowerCase() === 'delivered'
                 ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
-                : service.status === 'cancelled'
+                : service.status.toLowerCase() === 'cancelled'
                 ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
-                : service.status === 'paid'
+                : service.status.toLowerCase() === 'paid'
                 ? 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
                 : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
             }`}

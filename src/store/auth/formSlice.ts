@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 interface FormState {
+  postcodeSearch: string;
   first_name: string;
   last_name: string;
   middle_name: string;
@@ -66,6 +67,7 @@ const initialState: FormState = {
   is_residential: true,
   is_vat_registered: false,
   selectedCountry: undefined,
+  postcodeSearch: '',
 };
 
 export const formSlice = createSlice({
@@ -88,7 +90,7 @@ export const formSlice = createSlice({
         name: action.payload.name,
         code: action.payload.code,
         dial_code: action.payload.dial_code,
-      }
+      };
     },
     setTempCredentials: (state, action: PayloadAction<{ email: string; password: string }>) => {
       state.temp_credentials = {
@@ -102,10 +104,11 @@ export const formSlice = createSlice({
   },
 });
 
-export const { updateField, resetForm, setFormData, setTempCredentials, clearTempCredentials, setSelectedCountry } = formSlice.actions;
+export const { updateField, resetForm, setFormData, setTempCredentials, clearTempCredentials, setSelectedCountry } =
+  formSlice.actions;
 // export const selectForm = (state: RootState) => state.form;
 export const selectForm = (state: RootState) => {
-  const { _persist, ...formState } = (state.form as any);
+  const { _persist, ...formState } = state.form as any;
   return formState as FormState;
 };
 
