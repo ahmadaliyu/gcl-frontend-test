@@ -15,6 +15,8 @@ import InputField from '@/components/reuseables/InputField';
 import { useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { PlusIcon } from '@radix-ui/react-icons';
+import { debounce } from 'lodash';
+import axios from 'axios';
 
 export enum EChannels {
   WithinUK = 'within-uk',
@@ -344,25 +346,53 @@ export const tabs: TTab[] = [
 ];
 
 export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) => {
-  const INTERNATIONAL = [
+  const COUNTRY_CODE_LIST = useAppSelector((state) => state.country.countries);
+  const CITIES_LIST = useAppSelector((state) => state.country.cities);
+
+  const WITHINUKLIST = [
     { name: 'UK Mainland', alpha_2_code: 'GB', emoji: '' },
-    { name: 'Nigeria', alpha_2_code: 'NG', emoji: '' },
-    { name: 'China', alpha_2_code: 'CH', emoji: '' },
+    { name: 'Scotish Highlands', alpha_2_code: 'SC', emoji: '' },
+    { name: 'Northern Island', alpha_2_code: 'NT', emoji: '' },
+    { name: 'Channel Island', alpha_2_code: 'CH', emoji: '' },
   ];
 
   const [country, setCountry] = React.useState('');
-  const [postCode, setPostCode] = React.useState('');
   const [area, setArea] = React.useState('');
+  const [postCode, setPostCode] = React.useState('');
+  const [postcodeSuggestions, setPostcodeSuggestions] = React.useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
 
-  const CITIES_LIST = useAppSelector((state) => state.country.cities);
   const dispatch = useAppDispatch();
 
+  const fetchPostcodeSuggestions = React.useCallback(
+    debounce(async (query: string) => {
+      try {
+        const res = await axios.get(`https://api.postcodes.io/postcodes?q=${query}`);
+        const suggestions = res.data?.result?.map((item: any) => item.postcode) || [];
+
+        setPostcodeSuggestions(suggestions);
+        setShowSuggestions(true);
+      } catch (err) {
+        setPostcodeSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 400),
+    []
+  );
+
   React.useEffect(() => {
-    if (country && postCode) {
-      const selected = INTERNATIONAL.find((c) => c.alpha_2_code === country);
+    if (postCode && country) {
+      let selected: { alpha_2_code: string; name: string } | undefined;
+
+      if (sendFrom === 'uk') {
+        selected = WITHINUKLIST.find((c) => c.alpha_2_code === country);
+      } else {
+        selected = COUNTRY_CODE_LIST.find((c) => c.alpha_2_code === country);
+      }
+
       if (selected) {
         dispatch(
-          updateShipFrom({
+          updateShipTo({
             country_iso: selected.alpha_2_code,
             name: selected.name,
             postcode: postCode,
@@ -372,47 +402,45 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
     }
   }, [postCode, country]);
 
+  React.useEffect(() => {
+    if (postCode.length >= 3 && country !== 'NG') {
+      fetchPostcodeSuggestions(postCode);
+    } else {
+      setPostcodeSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [postCode]);
+
   return (
-    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex flex-col sm:flex-row gap-4 sm:gap-[16px] p-4 sm:py-[8px] sm:px-[16px] sm:h-[61px] items-start sm:items-center">
-      {/* Country/Area Select */}
-      <div className="w-full sm:flex-1">
+    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-auto py-[8px] px-[16px] items-start flex-col sm:flex-row sm:items-center sm:h-[61px]">
+      <div className="flex-1 overflow-hidden w-full">
         {sendFrom === 'uk' ? (
           <Select
             value={area}
             onValueChange={(value) => {
               setArea(value);
-              const selected = INTERNATIONAL.find((c) => c.name === value);
+              setPostCode('');
+              const selected = WITHINUKLIST.find((c) => c.alpha_2_code === value);
               if (selected) {
                 setCountry(selected.alpha_2_code);
-                setPostCode('');
-                dispatch(
-                  updateShipFrom({
-                    country_iso: selected.alpha_2_code,
-                    name: selected.name,
-                    postcode: '',
-                  })
-                );
               }
             }}
           >
-            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0 border-none shadow-none">
               <p className="text-[#0088DD] text-[12px]">Send From</p>
-              <div className="flex w-full text-[12px] items-center">
-                <SelectValue
-                  placeholder="UK Mainland"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-                />
-                <img
-                  src="/icons/chevron-down.png"
-                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
-                  alt="dropdown"
-                />
+              <div className="flex w-full text-[12px]">
+                <SelectValue placeholder="UK Mainland" className="placeholder:text-[#757575] text-[12px] flex-1" />
+                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
               </div>
             </SelectTrigger>
-            <SelectContent className="w-[var(--radix-select-trigger-width)]">
+            <SelectContent>
               <SelectGroup>
                 <SelectLabel>Select area</SelectLabel>
-                <SelectItem value="UK Mainland">UK Mainland</SelectItem>
+                {WITHINUKLIST.map((c) => (
+                  <SelectItem key={c.alpha_2_code} value={c.alpha_2_code}>
+                    {c.emoji} {c.name.length > 10 ? `${c.name.slice(0, 15)}...` : c.name}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -420,38 +448,21 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
           <Select
             value={country}
             onValueChange={(value) => {
-              const selected = INTERNATIONAL.find((c) => c.alpha_2_code === value);
-              if (selected) {
-                setCountry(selected.alpha_2_code);
-                setPostCode('');
-                dispatch(
-                  updateShipFrom({
-                    country_iso: selected.alpha_2_code,
-                    name: selected.name,
-                    postcode: '',
-                  })
-                );
-              }
+              setCountry(value);
+              setPostCode('');
             }}
           >
-            <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
-              <p className="text-[#0088DD] text-[12px]">Send From</p>
-              <div className="flex w-full text-[12px] items-center">
-                <SelectValue
-                  placeholder="Select Country"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-                />
-                <img
-                  src="/icons/chevron-down.png"
-                  className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
-                  alt="dropdown"
-                />
+            <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
+              <p className="text-[#0088DD] text-[12px]">Send To</p>
+              <div className="flex w-full">
+                <SelectValue placeholder="Select Country" className="placeholder:text-[#757575] text-[12px] flex-1" />
+                <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
               </div>
             </SelectTrigger>
-            <SelectContent className="w-[var(--radix-select-trigger-width)]">
+            <SelectContent>
               <SelectGroup>
                 <SelectLabel>Select A Country</SelectLabel>
-                {INTERNATIONAL.map((c) => (
+                {COUNTRY_CODE_LIST.map((c) => (
                   <SelectItem key={c.alpha_2_code} value={c.alpha_2_code}>
                     {c.emoji} {c.name.length > 10 ? `${c.name.slice(0, 10)}...` : c.name}
                   </SelectItem>
@@ -462,17 +473,13 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
         )}
       </div>
 
-      {/* Postcode/City Input */}
-      <div className="w-full sm:flex-1">
+      <div className="flex-1 w-full relative">
         {country === 'NG' ? (
           <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
             <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
               <p className="text-[#0088DD] text-[12px]">{'City'}</p>
               <div className="flex w-full text-[12px] items-center">
-                <SelectValue
-                  placeholder="Select City"
-                  className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full focus:outline-none"
-                />
+                <SelectValue placeholder="Select City" className="placeholder:text-[#757575] text-[12px] w-full" />
                 <img
                   src="/icons/chevron-down.png"
                   className="h-[16px] w-[16px] sm:h-[24px] sm:w-[24px] ml-auto"
@@ -492,14 +499,40 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
             </SelectContent>
           </Select>
         ) : (
-          <div>
+          <div className="relative w-full">
             <p className="text-[#0088DD] text-[12px]">{'Postcode'}</p>
             <input
-              className="placeholder:text-[#757575] placeholder:text-[12px] text-[12px] w-full border-b border-[#CCD6DF] focus:border-[#0088DD] focus:outline-none py-1"
+              className="placeholder:text-[#757575] text-[12px] w-full border-b border-[#CCD6DF] focus:border-[#0088DD] focus:outline-none py-1"
               placeholder="Enter Postcode"
               value={postCode}
               onChange={(e) => setPostCode(e.target.value)}
             />
+            {showSuggestions && postcodeSuggestions.length > 0 && (
+              <div className="absolute z-50 bg-white border border-gray-300 rounded-md mt-1 w-full max-h-[150px] overflow-y-auto shadow-lg">
+                {postcodeSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    onClick={() => {
+                      setPostCode(suggestion);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+                <div
+                  className="px-4 py-2 text-red-500 text-xs cursor-pointer border-t border-gray-200 hover:bg-gray-50"
+                  onClick={() => {
+                    setPostCode('');
+                    setPostcodeSuggestions([]);
+                    setShowSuggestions(false);
+                  }}
+                >
+                  Cancel
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -521,8 +554,25 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
   const [country, setCountry] = React.useState('');
   const [area, setArea] = React.useState('');
   const [postCode, setPostCode] = React.useState('');
+  const [postcodeSuggestions, setPostcodeSuggestions] = React.useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
 
   const dispatch = useAppDispatch();
+
+  const fetchPostcodeSuggestions = React.useCallback(
+    debounce(async (query: string) => {
+      try {
+        const res = await axios.get(`https://api.postcodes.io/postcodes?q=${query}`);
+        const suggestions = res.data?.result?.map((item: any) => item.postcode) || [];
+        setPostcodeSuggestions(suggestions);
+        setShowSuggestions(true);
+      } catch (err) {
+        setPostcodeSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 400),
+    []
+  );
 
   React.useEffect(() => {
     if (postCode && country) {
@@ -546,9 +596,18 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
     }
   }, [postCode, country]);
 
+  React.useEffect(() => {
+    if (postCode.length >= 3 && country !== 'NG') {
+      fetchPostcodeSuggestions(postCode);
+    } else {
+      setPostcodeSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [postCode]);
+
   return (
-    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-[61px] py-[8px] px-[16px] items-center">
-      <div className="flex-1 overflow-hidden">
+    <div className="font-poppins w-full border border-[#CCD6DF] rounded-[10px] flex gap-[16px] h-auto py-[8px] px-[16px] items-start flex-col sm:flex-row sm:items-center sm:h-[61px]">
+      <div className="flex-1 overflow-hidden w-full">
         {sendTo === 'uk' ? (
           <Select
             value={area}
@@ -608,7 +667,7 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
         )}
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 w-full relative">
         {country === 'NG' ? (
           <Select value={postCode} onValueChange={(value) => setPostCode(value)}>
             <SelectTrigger className="w-full flex flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
@@ -634,12 +693,41 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
             </SelectContent>
           </Select>
         ) : (
-          <input
-            className="placeholder:text-[#757575] text-[12px] w-full border-b border-[#CCD6DF] focus:border-[#0088DD] focus:outline-none py-1"
-            placeholder="Enter Postcode"
-            value={postCode}
-            onChange={(e) => setPostCode(e.target.value)}
-          />
+          <div className="relative w-full">
+            <p className="text-[#0088DD] text-[12px]">{'Postcode'}</p>
+            <input
+              className="placeholder:text-[#757575] text-[12px] w-full border-b border-[#CCD6DF] focus:border-[#0088DD] focus:outline-none py-1"
+              placeholder="Enter Postcode"
+              value={postCode}
+              onChange={(e) => setPostCode(e.target.value)}
+            />
+            {showSuggestions && postcodeSuggestions.length > 0 && (
+              <div className="absolute z-50 bg-white border border-gray-300 rounded-md mt-1 w-full max-h-[150px] overflow-y-auto shadow-lg">
+                {postcodeSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    onClick={() => {
+                      setPostCode(suggestion);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+                <div
+                  className="px-4 py-2 text-red-500 text-xs cursor-pointer border-t border-gray-200 hover:bg-gray-50"
+                  onClick={() => {
+                    setPostCode('');
+                    setPostcodeSuggestions([]);
+                    setShowSuggestions(false);
+                  }}
+                >
+                  Cancel
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

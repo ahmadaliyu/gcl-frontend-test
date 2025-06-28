@@ -4,3 +4,4 @@ export * from './useGetAddresses';
 export * from './useGetBooking';
 export * from './useTrackBooking';
 export * from './useGetPayment';
+export * from './useGetNote';
