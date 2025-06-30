@@ -254,6 +254,8 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
 
   const isAuthenticated = user?.Role?.slug === 'user';
 
+  const hasToken = !!Cookies.get('token');
+
   const NAVITEMS = useMemo(() => {
     return user?.Role?.slug === 'user' ? navItemsUser : navItems;
   }, [user?.Role?.slug]);
@@ -311,16 +313,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
               </Link>
             ))}
           </div>
-          {pathname === '/' || (pathname?.startsWith('/auth') && !isAuthenticated) ? (
-            <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
-              <Link href="/auth/login">
-                <Button title="Login" variant="outlined-blue" />
-              </Link>
-              <Link href="/auth/register">
-                <Button title="Get Started" />
-              </Link>
-            </div>
-          ) : pathname.startsWith('/get-a-quote') && !isAuthenticated ? (
+          {!hasToken ? (
             <div className="flex justify-center gap-[16px] max-[1120px]:hidden">
               <Link href="/auth/login">
                 <Button title="Login" variant="outlined-blue" />

@@ -21,8 +21,9 @@ function Initializers({ children }: { children: ReactNode }) {
 
   const isAuthPage = pathname.startsWith('/auth/');
   const isPublicPage = pathname.startsWith('/public/');
+  const isGetQuote = pathname.startsWith('/get-a-quote');
   const isRootPage = pathname === '/';
-  const isProtectedRoute = !(isAuthPage || isPublicPage || isRootPage);
+  const isProtectedRoute = !(isAuthPage || isPublicPage || isRootPage || isGetQuote);
 
   const hideFooter = isAuthPage || pathname.startsWith('/user/');
 
