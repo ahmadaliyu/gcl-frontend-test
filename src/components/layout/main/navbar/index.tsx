@@ -222,6 +222,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const dispatch = useAppDispatch();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const hasToken = !!Cookies.get('token');
 
   const user = useAppSelector((state: RootState) => state.user);
 
@@ -251,10 +252,6 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
 
   const [scroll, setScroll] = useState(false);
   const router = useRouter();
-
-  const isAuthenticated = user?.Role?.slug === 'user';
-
-  const hasToken = !!Cookies.get('token');
 
   const NAVITEMS = useMemo(() => {
     return user?.Role?.slug === 'user' ? navItemsUser : navItems;

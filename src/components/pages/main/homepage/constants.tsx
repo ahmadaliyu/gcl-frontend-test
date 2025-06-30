@@ -359,7 +359,7 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
   const [country, setCountry] = React.useState('');
   const [area, setArea] = React.useState('');
   const [postCode, setPostCode] = React.useState('');
-  const [postcodeSuggestions, setPostcodeSuggestions] = React.useState<string[]>([]);
+  const [postcodeSuggestions, setPostcodeSuggestions] = React.useState<{ postcode: string; ward: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = React.useState(false);
 
   const dispatch = useAppDispatch();
@@ -368,8 +368,11 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
     debounce(async (query: string) => {
       try {
         const res = await axios.get(`https://api.postcodes.io/postcodes?q=${query}`);
-        const suggestions = res.data?.result?.map((item: any) => item.postcode) || [];
-
+        const suggestions =
+          res.data?.result?.map((item: any) => ({
+            postcode: item.postcode,
+            ward: item.admin_ward || '',
+          })) || [];
         setPostcodeSuggestions(suggestions);
         setShowSuggestions(true);
       } catch (err) {
@@ -453,7 +456,7 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
             }}
           >
             <SelectTrigger className="flex-1 flex-col p-0 border-0 items-start justify-start outline-none focus:ring-0">
-              <p className="text-[#0088DD] text-[12px]">Send To</p>
+              <p className="text-[#0088DD] text-[12px]">Send From</p>
               <div className="flex w-full">
                 <SelectValue placeholder="Select Country" className="placeholder:text-[#757575] text-[12px] flex-1" />
                 <img src="/icons/chevron-down.png" className="h-[24px] w-[24px] ml-auto" />
@@ -514,11 +517,12 @@ export const SendFrom = ({ sendFrom }: { sendFrom?: 'uk' | 'international' }) =>
                     key={index}
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                     onClick={() => {
-                      setPostCode(suggestion);
+                      setPostCode(suggestion.postcode);
                       setShowSuggestions(false);
                     }}
                   >
-                    {suggestion}
+                    <div className="font-medium">{suggestion.postcode}</div>
+                    <div className="text-xs text-gray-500">{suggestion.ward}</div>
                   </div>
                 ))}
                 <div
@@ -554,7 +558,7 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
   const [country, setCountry] = React.useState('');
   const [area, setArea] = React.useState('');
   const [postCode, setPostCode] = React.useState('');
-  const [postcodeSuggestions, setPostcodeSuggestions] = React.useState<string[]>([]);
+  const [postcodeSuggestions, setPostcodeSuggestions] = React.useState<{ postcode: string; ward: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = React.useState(false);
 
   const dispatch = useAppDispatch();
@@ -563,7 +567,11 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
     debounce(async (query: string) => {
       try {
         const res = await axios.get(`https://api.postcodes.io/postcodes?q=${query}`);
-        const suggestions = res.data?.result?.map((item: any) => item.postcode) || [];
+        const suggestions =
+          res.data?.result?.map((item: any) => ({
+            postcode: item.postcode,
+            ward: item.admin_ward || '',
+          })) || [];
         setPostcodeSuggestions(suggestions);
         setShowSuggestions(true);
       } catch (err) {
@@ -708,11 +716,12 @@ export const SendTo = ({ sendTo }: { sendTo?: 'uk' | 'international' }) => {
                     key={index}
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                     onClick={() => {
-                      setPostCode(suggestion);
+                      setPostCode(suggestion.postcode);
                       setShowSuggestions(false);
                     }}
                   >
-                    {suggestion}
+                    <div className="font-medium">{suggestion.postcode}</div>
+                    <div className="text-xs text-gray-500">{suggestion.ward}</div>
                   </div>
                 ))}
                 <div

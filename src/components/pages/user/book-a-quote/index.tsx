@@ -5,9 +5,7 @@ import {
   EChannels,
   channels,
   WeightLengthWidthHeight,
-  WhatAreYouSending,
   SendFrom,
-  OuterPackagingType,
   SendTo,
   TTabIds,
   ChooseYourPackages,
@@ -24,11 +22,8 @@ import { useGetCities, useGetCountries, useGetQuotes } from '@/services';
 import { loadQuotes } from '@/store/auth/quoteDataSlice';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { clearQuotesData } from '@/store/auth/quoteSlice';
 import { Input } from '@/components/ui/input';
-import { storage } from '@/lib/storage/localstorage';
 import Footer from '@/components/layout/main/footer';
-import NavBarIndex from '@/components/layout/main/navbar';
 import { setCities, setCountries } from '@/store/auth/countrySlice';
 
 function BookAQuote() {
