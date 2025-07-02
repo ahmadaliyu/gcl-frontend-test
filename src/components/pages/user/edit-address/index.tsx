@@ -1,28 +1,34 @@
+'use client';
+
 import React, { useState } from 'react';
 import Button from '@/components/reuseables/Button';
 import InputField from '@/components/reuseables/InputField';
 import SelectField from '@/components/reuseables/SelectField';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAppSelector } from '@/store/hook';
-import { useAddAddress, useUpdateAddress } from '@/services/hooks/user';
+import { useUpdateAddress } from '@/services/hooks/user';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 
 function EditAddress() {
   const COUNTRY_CODE_LIST = useAppSelector((state) => state?.country.countries);
   const savedAddress = useAppSelector((state) => state?.address);
-
   const router = useRouter();
+  const { showAlert } = useAlert();
 
   const { mutate, isPending } = useUpdateAddress((response) => {
-    if (response.status >= 400) {
+    if (response?.response?.status >= 400) {
+      showAlert(`${response?.response?.data?.message}`, 'error');
       return;
-    } else {
+    }
+    if (response.status === 200) {
       router.back();
     }
   });
 
   const [formData, setFormData] = useState({
+    address_type: savedAddress.address_type || '',
     label: savedAddress.label || '',
     address_line_1: savedAddress.address_line_1 || '',
     address_line_2: savedAddress.address_line_2 || '',
@@ -35,7 +41,7 @@ function EditAddress() {
     contact_phone: savedAddress.contact_phone || '',
     drivers_note: savedAddress.drivers_note || '',
     is_default: savedAddress.is_default || false,
-    is_sender_address: savedAddress.is_sender_address || false,
+    is_sender_address: savedAddress.is_sender_address ?? true,
   });
 
   const handleFieldChange = (field: string, value: string | boolean) => {
@@ -45,22 +51,9 @@ function EditAddress() {
     }));
   };
 
-  const handleSave = () => {
-    if (!savedAddress.id) {
-      // Optionally, show an error or prevent mutation if id is missing
-      return;
-    }
-    mutate({
-      id: savedAddress.id,
-      payload: {
-        ...formData,
-        country_iso: formData.country,
-      },
-    });
-  };
-
   const isFormValid = () => {
     return (
+      formData.address_type.trim() &&
       formData.label.trim() &&
       formData.address_line_1.trim() &&
       formData.address_line_2.trim() &&
@@ -74,6 +67,18 @@ function EditAddress() {
     );
   };
 
+  const handleSave = () => {
+    if (!savedAddress.id) return;
+    mutate({
+      id: savedAddress.id,
+      payload: {
+        ...formData,
+        address_type: formData.address_type.toLowerCase(),
+        country_iso: formData.country,
+      },
+    });
+  };
+
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-[800px] p-4">
@@ -81,9 +86,21 @@ function EditAddress() {
           <ArrowLeftIcon className="w-6 h-6 text-black" />
         </div>
 
-        <h1 className="text-[#272727] font-[600] text-[24px] mb-[32px] text-center">Add New Address</h1>
+        <h1 className="text-[#272727] font-[600] text-[24px] mb-[32px] text-center">Edit Address</h1>
 
         <div className="flex flex-col md:flex-row gap-[16px]">
+          <SelectField
+            options={[
+              { label: 'Personal', value: 'Personal' },
+              { label: 'Company', value: 'Company' },
+            ]}
+            label="Address Type*"
+            placeholder="Select address type"
+            value={formData.address_type}
+            onChange={(val) => handleFieldChange('address_type', val)}
+            className="w-full md:w-[380px]"
+          />
+
           <InputField
             label="Label Name *"
             placeholder="Type something here"
@@ -92,23 +109,25 @@ function EditAddress() {
             onChange={handleFieldChange}
             className="w-full md:w-[380px]"
           />
-
-          <InputField
-            label="Address Line 2*"
-            placeholder="Type something here"
-            value={formData.address_line_2}
-            name="address_line_2"
-            onChange={handleFieldChange}
-            className="w-full md:w-[380px]"
-          />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-[16px] mt-[16px]">
+        <div className="flex flex-col mt-[16px]">
           <InputField
             label="Address Line 1*"
             placeholder="Type something here"
             value={formData.address_line_1}
             name="address_line_1"
+            onChange={handleFieldChange}
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-[16px] mt-[16px]">
+          <InputField
+            label="Address Line 2*"
+            placeholder="Type something here"
+            value={formData.address_line_2}
+            name="address_line_2"
             onChange={handleFieldChange}
             className="w-full md:w-[380px]"
           />
@@ -200,8 +219,7 @@ function EditAddress() {
         </div>
 
         <p className="text-[12px] text-[#0088DD] mt-[18px]">Save Address as default</p>
-
-        <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
+        <div className="flex gap-[10px] items-center mt-[8px] text-[16px] text-[#272727]">
           <Checkbox
             checked={formData.is_default}
             onCheckedChange={(val) => handleFieldChange('is_default', Boolean(val))}
@@ -209,19 +227,40 @@ function EditAddress() {
           <p>Save as default</p>
         </div>
 
-        <div className="flex gap-[10px] items-center mt-[16px] text-[16px] text-[#272727]">
-          <Checkbox
-            checked={formData.is_sender_address}
-            onCheckedChange={(val) => handleFieldChange('is_sender_address', Boolean(val))}
-          />
-          <p>Save as Sender address</p>
+        {/* Address Role (Sender / Recipient) */}
+        <div className="mt-[24px]">
+          <label className="block text-[16px] text-[#272727] mb-[8px]">Address Role*</label>
+          <div className="flex gap-[24px]">
+            <label className="flex items-center gap-[8px]">
+              <input
+                type="radio"
+                name="address_role"
+                value="sender"
+                checked={formData.is_sender_address}
+                onChange={() => handleFieldChange('is_sender_address', true)}
+                className="accent-blue-600"
+              />
+              Sender Address
+            </label>
+            <label className="flex items-center gap-[8px]">
+              <input
+                type="radio"
+                name="address_role"
+                value="recipient"
+                checked={!formData.is_sender_address}
+                onChange={() => handleFieldChange('is_sender_address', false)}
+                className="accent-blue-600"
+              />
+              Recipient Address
+            </label>
+          </div>
         </div>
 
         <div className="flex flex-col items-center justify-center mt-[50px]">
           <Button
             loading={isPending}
             onClick={handleSave}
-            title="Save"
+            title={formData.is_sender_address ? 'Save Sender Address' : 'Save Recipient Address'}
             variant="blue"
             className="w-[274px]"
             disabled={!isFormValid()}

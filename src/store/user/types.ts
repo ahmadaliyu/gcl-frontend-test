@@ -1,4 +1,5 @@
 export interface Address {
+  address_type: string;
   drivers_note: string;
   id?: string;
   label: string;
