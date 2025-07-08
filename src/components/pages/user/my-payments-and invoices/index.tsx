@@ -74,7 +74,7 @@ function UserPaymentAndInvoices() {
                   <span className="text-sm text-gray-500">{new Date(payment.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="font-semibold">₦{payment.amount?.toLocaleString()}</span>
+                  <span className="font-semibold">£{payment.amount?.toLocaleString()}</span>
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${
                       payment.status === 'pending'
@@ -137,7 +137,7 @@ function UserPaymentAndInvoices() {
                       {payment.Booking.code}
                     </TableCell>
                     <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
-                      ₦{payment.amount?.toLocaleString()}
+                      £{payment.amount?.toLocaleString()}
                     </TableCell>
                     <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[30px] px-[8px]">
                       <div

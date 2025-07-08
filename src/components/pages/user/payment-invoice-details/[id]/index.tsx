@@ -51,7 +51,7 @@ const PaymentDetails = () => {
           <div className="bg-white p-6 rounded-md border space-y-6 shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {renderDetailItem('Invoice ID', payment.id)}
-              {renderDetailItem('Amount Paid', `₦${payment.amount?.toLocaleString()}`)}
+              {renderDetailItem('Amount Paid', `£${payment.amount?.toLocaleString()}`)}
               {renderDetailItem('Reference', payment.payment_type)}
               {renderDetailItem('Date', dayjs(payment.createdAt).format('MMMM D, YYYY h:mm A'))}
               <div className="flex flex-col gap-1">
