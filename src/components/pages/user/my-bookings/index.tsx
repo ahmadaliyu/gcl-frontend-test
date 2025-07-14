@@ -78,6 +78,17 @@ function MyBookings() {
   const handleBookNew = () => router.push('/user/book-a-quote');
   const handleTrack = (id: string) => router.push(`/user/shipment-tracking/${id}`);
 
+  const statusColors: Record<string, string> = {
+    'Order Placed': 'bg-gray-200 text-gray-800',
+    transit: 'bg-yellow-100 text-yellow-800',
+    'On Hold': 'bg-red-100 text-red-700',
+    'Arrived at UK Office': 'bg-blue-100 text-blue-800',
+    'Clearance in Progress': 'bg-purple-100 text-purple-800',
+    Cancelled: 'bg-red-600 text-red-200',
+    Delivered: 'bg-green-400 text-green-200',
+    paid: 'bg-green-100 text-green-200',
+  };
+
   if (isLoading) return <LoadingSkeleton />;
 
   return (
@@ -167,16 +178,8 @@ function MyBookings() {
                     <p className="text-gray-600">{service.code || 'Recipient'}</p>
                   </div>
                   <div
-                    className={`border h-8 flex items-center justify-center border-[#E3E3E3] font-medium px-2 rounded-full text-xs
-            ${
-              service.status === 'In Transit'
-                ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
-                : service.status === 'Delivered'
-                ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
-                : service.status === 'Cancelled'
-                ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
-                : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
-            }`}
+                    className={`border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-2 rounded-full text-xs
+            ${statusColors[service.status]?.split(' ')[0] || 'bg-gray-300'}`}
                   >
                     {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
                   </div>
@@ -225,18 +228,10 @@ function MyBookings() {
                   <TableCell className="font-medium py-4 px-2">{service.code || 'Recipient'}</TableCell>
                   <TableCell>
                     <div
-                      className={`border h-10 flex items-center justify-center border-[#E3E3E3] font-medium w-24 px-2 rounded-full text-sm
-            ${
-              service.status.toLowerCase() === 'transit'
-                ? 'bg-[#FFF6C5] border-[#BB5802] text-[#BB5802]'
-                : service.status.toLowerCase() === 'delivered'
-                ? 'bg-[#EAF0F6] border-[#02044A] text-[#02044A]'
-                : service.status.toLowerCase() === 'cancelled'
-                ? 'bg-[#FCE8E9] border-[#E51520] text-[#E51520]'
-                : service.status.toLowerCase() === 'paid'
-                ? 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
-                : 'bg-[#E6F4EA] border-[#2E7D32] text-[#2E7D32]'
-            }`}
+                      className={
+                        `border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-0 rounded-full text-xs
+            ${statusColors[service.status]?.split(' ')[0]}` || 'bg-gray-300'
+                      }
                     >
                       {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
                     </div>

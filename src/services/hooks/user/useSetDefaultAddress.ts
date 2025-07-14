@@ -1,25 +1,26 @@
 import { post } from '@/services';
 import { useMutation } from '@tanstack/react-query';
-import { BookingState } from '@/store/booking/types';
 
 type MutationProps = {
-  payload: BookingState;
+  id: string;
 };
 
-export const useCreateBooking = (onSuccess?: (data: any) => void) => {
+export const useSetDefaultAddress = (onSuccess?: (data: any) => void) => {
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ payload }: MutationProps) => {
-      return post('users/bookings', payload);
+    mutationFn: ({ id }: MutationProps) => {
+      return post(`users/addresses/${id}/default`, {});
     },
     onSuccess: async (response: any) => {
-      const message = response?.message;
       if (response.success === false) {
-        throw new Error(message);
+        throw new Error(response?.message);
       } else {
         if (onSuccess) {
           onSuccess(response);
         }
       }
+    },
+    onError: (error: Error) => {
+      console.error(error, 'Error');
     },
   });
 

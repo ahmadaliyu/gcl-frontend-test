@@ -116,11 +116,21 @@ const MobileSidebar = ({
     { id: 'services', title: 'Services', link: '#' },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
-    { id: 'track-trace', title: 'Track & Trace', link: '/track-a-parcel', hideChevron: true },
+    {
+      id: 'track-trace',
+      title: 'Track & Trace',
+      link: '/track-a-parcel',
+      hideChevron: true,
+    },
   ];
 
   const navItemsUser = [
-    { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
+    {
+      id: 'Dashboard',
+      title: 'Dashboard',
+      link: '/user/my-bookings',
+      hideChevron: true,
+    },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
   ];
@@ -239,13 +249,18 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     },
   ];
   const navItemsUser = [
-    { id: 'Dashboard', title: 'Dashboard', link: '/user/my-bookings', hideChevron: true },
+    {
+      id: 'Dashboard',
+      title: 'Dashboard',
+      link: '/user/my-bookings',
+      hideChevron: true,
+    },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
     {
       id: 'track-trace',
       title: 'Track & Trace',
-      link: user?.Role?.slug === 'user' ? '/user/track-a-parcel' : '/auth/login',
+      link: user?.email ? '/user/track-a-parcel' : '/auth/login',
       hideChevron: true,
     },
   ];
@@ -254,8 +269,8 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const router = useRouter();
 
   const NAVITEMS = useMemo(() => {
-    return user?.Role?.slug === 'user' ? navItemsUser : navItems;
-  }, [user?.Role?.slug]);
+    return user?.email ? navItemsUser : navItems;
+  }, [user?.email]);
 
   const handleLogout = () => {
     // Clear Redux state

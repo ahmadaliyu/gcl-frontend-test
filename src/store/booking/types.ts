@@ -37,11 +37,13 @@ export interface LegDetail {
   legId: string;
   courier: string;
 }
+export interface AdditionalService {
+  name: string;
+  amount: number;
+}
 
-export interface BookingState {
-  service_id: string;
-  sender_address: Address;
-  recipient_address: Address;
+export interface Product_Details {
+  id?: string; // Added this field
   product_book: string;
   product_code: string;
   product_type: string;
@@ -49,10 +51,15 @@ export interface BookingState {
   product_weight: string;
   product_value: string;
   product_qty: string;
-  is_insured: boolean;
-  has_protection: boolean;
-  is_sign_required: boolean;
-  print_type: string;
+  print_type?: string;
+}
+
+export interface BookingState {
+  service_id: string;
+  sender_address: Address;
+  recipient_address: Address;
+  product_data: Product_Details[];
+  additional_services: AdditionalService[];
   amount: number;
   parcel: Parcel[];
   leg_details: LegDetail[];
@@ -70,7 +77,4 @@ export type ParcelItemFieldPayload = {
   value: any;
 };
 
-// export interface LocationUpdatePayload {
-//   target: 'origin' | 'destination';
-//   data: Partial<BookingState['origin']>;
-// }
+export type ProductDetailsPayload = Omit<Product_Details, 'id'> & { id?: string };

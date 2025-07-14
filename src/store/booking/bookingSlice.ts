@@ -1,5 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BookingFieldPayload, BookingState, ParcelItemFieldPayload, LegDetail } from './types';
+import {
+  BookingFieldPayload,
+  BookingState,
+  ParcelItemFieldPayload,
+  LegDetail,
+  ProductDetailsPayload,
+  Product_Details,
+  AdditionalService,
+} from './types';
 
 const initialState: BookingState = {
   service_id: '',
@@ -31,18 +39,9 @@ const initialState: BookingState = {
     contact_phone: '',
     drivers_note: '',
   },
-  product_book: '',
-  product_code: '',
-  product_type: '',
-  product_details: '',
-  product_weight: '',
-  product_value: '',
-  product_qty: '',
-  is_insured: false,
-  has_protection: false,
-  is_sign_required: false,
-  print_type: 'home',
   amount: 0,
+  product_data: [],
+  additional_services: [],
   parcel: [
     {
       items: [
@@ -93,15 +92,45 @@ const bookingSlice = createSlice({
         }
       }
     },
-    // updateOriginOrDestination: (state, action: PayloadAction<LocationUpdatePayload>) => {
-    //   const { target, data } = action.payload;
 
-    //   if (target === 'origin') {
-    //     state.origin = { ...state.origin, ...data };
-    //   } else if (target === 'destination') {
-    //     state.destination = { ...state.destination, ...data };
-    //   }
-    // },
+    addProduct: (state, action: PayloadAction<ProductDetailsPayload>) => {
+      const id = Date.now().toString();
+      const newProduct = {
+        ...action.payload,
+        id,
+      };
+      state.product_data.push(newProduct);
+    },
+
+    updateProduct: (state, action: PayloadAction<Product_Details>) => {
+      const index = state.product_data.findIndex((product) => product.id === action.payload.id);
+      if (index !== -1) {
+        state.product_data[index] = action.payload;
+      }
+    },
+
+    deleteProduct: (state, action: PayloadAction<string>) => {
+      state.product_data = state.product_data.filter((product) => product.id !== action.payload);
+    },
+
+    replaceProductData: (state, action: PayloadAction<Product_Details[]>) => {
+      state.product_data = action.payload;
+    },
+
+    addAdditionalService: (state, action: PayloadAction<AdditionalService>) => {
+      const exists = state.additional_services.some((service) => service.name === action.payload.name);
+      if (!exists) {
+        state.additional_services.push(action.payload);
+      }
+    },
+
+    removeAdditionalService: (state, action: PayloadAction<{ name: string }>) => {
+      state.additional_services = state.additional_services.filter((service) => service.name !== action.payload.name);
+    },
+
+    clearAdditionalServices: (state) => {
+      state.additional_services = [];
+    },
 
     updateParcelItemField: (state, action: PayloadAction<ParcelItemFieldPayload>) => {
       const { parcelIndex, itemIndex, field, value } = action.payload;
@@ -118,6 +147,18 @@ const bookingSlice = createSlice({
   },
 });
 
-export const { updateBookingField, updateParcelItemField, setLegDetails, resetBooking } = bookingSlice.actions;
+export const {
+  updateBookingField,
+  updateParcelItemField,
+  setLegDetails,
+  resetBooking,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  replaceProductData,
+  addAdditionalService,
+  removeAdditionalService,
+  clearAdditionalServices,
+} = bookingSlice.actions;
 
 export default bookingSlice.reducer;

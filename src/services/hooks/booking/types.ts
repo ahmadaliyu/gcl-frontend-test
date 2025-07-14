@@ -88,7 +88,15 @@ export interface Shipment {
   print_type: string;
   amount: number;
   parcel: ParcelItem[];
-  status: string;
+  status:
+    | 'In Transit'
+    | 'Arrived at UK Office'
+    | 'Cancelled'
+    | 'Delivered'
+    | 'Order Placed'
+    | 'On Hold'
+    | 'Clearance in Progress'
+    | 'Paid';
   comment: string | null;
   createdAt: string;
   updatedAt: string;

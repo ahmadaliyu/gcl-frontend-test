@@ -13,7 +13,8 @@ const statusColors: Record<string, string> = {
   'On Hold': 'bg-red-100 text-red-700',
   'Arrived at UK Office': 'bg-blue-100 text-blue-800',
   'Clearance in Progress': 'bg-purple-100 text-purple-800',
-  Cancelled: 'bg-red-200 text-red-800',
+  Cancelled: 'bg-red-600 text-red-200',
+  Delivered: 'bg-green-400 text-green-200',
 };
 
 const ShipmentTracking = () => {

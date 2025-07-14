@@ -175,33 +175,33 @@ function GetAQuote() {
                 <TableBody>
                   {SERVICES.map((service) => (
                     <TableRow key={service.id}>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px] flex items-center gap-[10px]">
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px] flex items-center gap-[10px]">
                         {/* <img
                           src="/icons/outer.png"
                           className="w-[60px] md:w-[80px] h-[42px] md:h-[56px]"
                           alt={service.company}
                         /> */}
-                        <span>{service.company}</span>
-                      </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
-                        {service.transitTime}
-                      </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
-                        {service.weight}
-                      </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
-                        {service.fees}
-                      </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
-                        {service.total}
-                      </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
-                        {formatType(service.type)}
-                      </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         {service.company}
                       </TableCell>
-                      <TableCell className="border-b border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                        {service.transitTime}
+                      </TableCell>
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                        {service.weight}
+                      </TableCell>
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                        {service.fees}
+                      </TableCell>
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                        {service.total}
+                      </TableCell>
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                        {formatType(service.type)}
+                      </TableCell>
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
+                        {service.company}
+                      </TableCell>
+                      <TableCell className="border-b-[#E3E3E3] font-medium py-[20px] px-[8px]">
                         <Button
                           onClick={() =>
                             handleNext(
