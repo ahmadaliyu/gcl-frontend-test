@@ -380,20 +380,23 @@ const initialForm: Omit<BookingState['product_data'][0], 'id'> = {
 const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const dispatch = useAppDispatch();
   const booking = useAppSelector((state) => state.booking);
+  const shipment = useAppSelector((state) => state.quote.shipment);
   const packages = booking?.product_data ?? [];
   const { priceDetails } = useAppSelector((state) => state.quoteData);
+
+  const { showAlert } = useAlert();
 
   const [currentForm, setCurrentForm] = useState(initialForm);
   const [editingPackage, setEditingPackage] = useState<BookingState['product_data'][0] | null>(null);
 
   const isFormValid = (pkg: typeof currentForm) => {
     return (
-      pkg.product_book?.trim() &&
-      pkg.product_details?.trim() &&
-      pkg.product_type?.trim() &&
-      pkg.product_value?.trim() &&
-      pkg.product_weight?.trim() &&
-      pkg.product_qty?.trim()
+      pkg.product_book.trim() &&
+      pkg.product_details.trim() &&
+      pkg.product_type.trim() &&
+      pkg.product_value.trim() &&
+      pkg.product_weight.trim() &&
+      pkg.product_qty.trim()
     );
   };
 
@@ -411,16 +414,16 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
   const handleFieldChange = (field: keyof typeof currentForm, value: string) => {
     if (editingPackage) {
-      setEditingPackage((prev) => (prev ? { ...prev, [field]: value } : null));
+      setEditingPackage({ ...editingPackage, [field]: value });
     } else {
-      setCurrentForm((prev) => ({ ...prev, [field]: value }));
+      setCurrentForm({ ...currentForm, [field]: value });
     }
   };
 
   const handleAddToList = () => {
     if (!isFormValid(currentForm)) return;
 
-    const duplicate = packages.find((pkg) => arePackagesEqual(pkg, currentForm));
+    const duplicate = Array.isArray(packages) && packages.find((pkg) => arePackagesEqual(pkg, currentForm));
     if (duplicate) {
       alert('This package has already been added.');
       return;
@@ -442,8 +445,35 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   };
 
   const handleContinue = () => {
+    console.log(shipment, 'shipment parcel before continue');
+
+    // Step 1: Sum weights in shipment parcels
+    const totalParcelWeight = shipment?.parcels?.reduce((sum, parcel) => {
+      const itemsWeight = parcel.items?.reduce((itemSum, item) => {
+        return itemSum + Number(item.weight || 0);
+      }, 0);
+      return sum + itemsWeight;
+    }, 0);
+
+    // Step 2: Sum weights in packages
+    const totalPackageWeight = packages.reduce((sum, pkg) => {
+      return sum + Number(pkg.product_weight || 0);
+    }, 0);
+
+    console.log(' totalPackageWeight', totalPackageWeight, 'totalParcelWeight', totalParcelWeight);
+
+    // Step 3: Compare
+    if (totalPackageWeight > totalParcelWeight) {
+      showAlert(
+        `Total package weight (${totalPackageWeight}) exceeds allowed parcel weight (${totalParcelWeight})`,
+        'error'
+      );
+      return;
+    }
+
+    // Step 4: Continue if valid
     if (packages.length > 0) {
-      const amount = Number(priceDetails?.totalAmount ?? 0);
+      const amount = Number(priceDetails.totalAmount);
       dispatch(updateBookingField({ field: 'amount', value: amount }));
 
       const cleanedPackages = packages.map(({ id, print_type, ...rest }) => rest);
@@ -559,7 +589,7 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
           <div className="space-y-4 overflow-x-auto">
             <h4 className="font-semibold text-lg text-gray-700">Added Packages</h4>
 
-            {packages.length === 0 ? (
+            {Array.isArray(packages) && packages.length === 0 ? (
               <div className="border rounded-lg p-4 text-center bg-gray-50">
                 <p className="text-gray-500">No packages added yet</p>
               </div>
@@ -578,34 +608,35 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {packages.map((pkg, idx) => (
-                      <tr key={pkg.id || idx} className="hover:bg-gray-50">
-                        <td className="p-2 border">{idx + 1}</td>
-                        <td className="p-2 border">{pkg.product_type}</td>
-                        <td className="p-2 border max-w-xs truncate">{pkg.product_details}</td>
-                        <td className="p-2 border">{pkg.product_qty}</td>
-                        <td className="p-2 border">{pkg.product_weight}</td>
-                        <td className="p-2 border">£{pkg.product_value}</td>
-                        <td className="p-2 border">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => setEditingPackage(pkg)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <FiEdit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => pkg.id && handleDeletePackage(pkg.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <FiTrash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {Array.isArray(packages) &&
+                      packages.map((pkg, idx) => (
+                        <tr key={pkg.id || idx} className="hover:bg-gray-50">
+                          <td className="p-2 border">{idx + 1}</td>
+                          <td className="p-2 border">{pkg.product_type}</td>
+                          <td className="p-2 border max-w-xs truncate">{pkg.product_details}</td>
+                          <td className="p-2 border">{pkg.product_qty}</td>
+                          <td className="p-2 border">{pkg.product_weight}</td>
+                          <td className="p-2 border">£{pkg.product_value}</td>
+                          <td className="p-2 border">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => setEditingPackage(pkg)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <FiEdit2 size={16} />
+                              </button>
+                              <button
+                                onClick={() => pkg.id && handleDeletePackage(pkg.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <FiTrash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -746,7 +777,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
                         <td className="px-4 py-2">{itemIndex + 1}</td>
                         <td className="px-4 py-2">{item.quantity || 'N/A'}</td>
                         <td className="px-4 py-2">{item.weight || '0'}</td>
-                        <td className="px-4 py-2">{item.unit_weight || '0'} Kg</td>
+                        <td className="px-4 py-2">{item.unit_weight || '0'}</td>
                       </tr>
                     ))
                   )}

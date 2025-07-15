@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   tabs,
   TTab,
@@ -14,30 +14,23 @@ import {
   FCLPackages,
   ServiceType,
   NumberOfItems,
-} from "./constants";
-import Button from "@/components/reuseables/Button";
-import Link from "next/link";
-import InputField from "@/components/reuseables/InputField";
-import { useAppDispatch, useAppSelector } from "@/store/hook";
-import { RootState } from "@/store/store";
-import { useGetQuotes } from "@/services";
-import { loadQuotes } from "@/store/auth/quoteDataSlice";
-import { useRouter } from "next/navigation";
-import { clearQuotesData } from "@/store/auth/quoteSlice";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useAlert } from "@/components/reuseables/Alert/alert-context";
+} from './constants';
+import Button from '@/components/reuseables/Button';
+import Link from 'next/link';
+import InputField from '@/components/reuseables/InputField';
+import { useAppDispatch, useAppSelector } from '@/store/hook';
+import { RootState } from '@/store/store';
+import { useGetQuotes } from '@/services';
+import { loadQuotes } from '@/store/auth/quoteDataSlice';
+import { useRouter } from 'next/navigation';
+import { clearQuotesData } from '@/store/auth/quoteSlice';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 
 function GetAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
-  const [activeChannel, setActiveChannel] = useState<EChannels>(
-    EChannels.WithinUK
-  );
+  const [activeChannel, setActiveChannel] = useState<EChannels>(EChannels.WithinUK);
 
   useEffect(() => {
     if (activeTab?.channels?.length) setActiveChannel(activeTab?.channels[0]);
@@ -52,9 +45,7 @@ function GetAQuote() {
           <div
             key={tab.id}
             className={`flex flex-col items-center justify-center cursor-pointer text-[14px] flex-1 font-medium gap-[8px] pb-[16px] border-b-[4px] mb-[-1px] ${
-              activeTab?.id === tab.id
-                ? "text-[#E51520] border-b-[#E51520]"
-                : "text-white border-b-transparent"
+              activeTab?.id === tab.id ? 'text-[#E51520] border-b-[#E51520]' : 'text-white border-b-transparent'
             }`}
             onClick={() => setActiveTab(tab)}
           >
@@ -73,10 +64,8 @@ function GetAQuote() {
             <div
               key={channel.key}
               className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 h-[53px] rounded-t-[16px] text-[14px] font-medium cursor-pointer ${
-                isActiveChannel
-                  ? "bg-[#02044A] text-white"
-                  : "bg-gray-300 text-[#02044A]"
-              } ${numberOfActiveChannels > 1 ? "" : "max-w-[200px]"}`}
+                isActiveChannel ? 'bg-[#02044A] text-white' : 'bg-gray-300 text-[#02044A]'
+              } ${numberOfActiveChannels > 1 ? '' : 'max-w-[200px]'}`}
               onClick={() => setActiveChannel(channel.key)}
             >
               <span className="text-center text-xs">{channel.title}</span>
@@ -86,55 +75,37 @@ function GetAQuote() {
         })}
       </div>
 
-      {activeTab.id === TTabIds.RoadFreight && (
-        <RoadFreightAndAirFreightForm activeChannel={activeChannel} />
-      )}
-      {activeTab.id === TTabIds.SeaFreight && (
-        <SeaFreightForm activeChannel={activeChannel} />
-      )}
-      {activeTab.id === TTabIds.CustomsClearance && (
-        <CustomsClearanceForm activeChannel={activeChannel} />
-      )}
+      {activeTab.id === TTabIds.RoadFreight && <RoadFreightAndAirFreightForm activeChannel={activeChannel} />}
+      {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
+      {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
     </div>
   );
 }
 
-const RoadFreightAndAirFreightForm = ({
-  activeChannel,
-}: {
-  activeChannel?: EChannels;
-}) => {
+const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   const { shipment } = useAppSelector((state: RootState) => state.quote);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const [showModal, setShowModal] = React.useState(false);
-  const [guestEmail, setGuestEmail] = React.useState("");
-  const [guestName, setGuestName] = React.useState("");
+  const [guestEmail, setGuestEmail] = React.useState('');
+  const [guestName, setGuestName] = React.useState('');
 
   const { showAlert } = useAlert();
 
   const { mutate, isPending } = useGetQuotes((response: any) => {
-    console.log("Response data:", response);
+    console.log('Response data:', response);
 
     const options = response?.data?.data?.options;
 
-    if (
-      response?.status === 200 &&
-      Array.isArray(options) &&
-      options.length > 0
-    ) {
+    if (response?.status === 200 && Array.isArray(options) && options.length > 0) {
       dispatch(loadQuotes(response.data));
-      router.push("/get-a-quote");
-    } else if (
-      response?.status === 200 &&
-      Array.isArray(options) &&
-      options.length === 0
-    ) {
-      console.log("hello");
+      router.push('/get-a-quote');
+    } else if (response?.status === 200 && Array.isArray(options) && options.length === 0) {
+      console.log('hello');
       setShowModal(true);
     } else if (response?.response?.status >= 400) {
-      showAlert(`${response?.response?.data?.message}`, "error");
+      showAlert(`${response?.response?.data?.message}`, 'error');
     }
   });
 
@@ -143,9 +114,7 @@ const RoadFreightAndAirFreightForm = ({
       shipment: {
         ...shipment,
         despatch_date:
-          shipment.despatch_date instanceof Date
-            ? shipment.despatch_date.toISOString()
-            : shipment.despatch_date,
+          shipment.despatch_date instanceof Date ? shipment.despatch_date.toISOString() : shipment.despatch_date,
       },
     };
     mutate({ payload });
@@ -159,16 +128,8 @@ const RoadFreightAndAirFreightForm = ({
     <div className="flex-1 bg-white min-h-[100px] rounded-b-[16px] w-full p-4 sm:p-6 md:p-8">
       {/* Row 1: Send From / Send To */}
       <div className="flex flex-col md:flex-row gap-4">
-        <SendFrom
-          sendFrom={
-            activeChannel === EChannels?.WithinUK ? "uk" : "international"
-          }
-        />
-        <SendTo
-          sendTo={
-            activeChannel === EChannels?.WithinUK ? "uk" : "international"
-          }
-        />
+        <SendFrom sendFrom={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
+        <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
       {/* Row 2: What Are You Sending / Packaging */}
@@ -207,23 +168,14 @@ const RoadFreightAndAirFreightForm = ({
             <DialogTitle>No services available for this quote</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4">
-            <Input
-              placeholder="Enter your name"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-            />
+            <Input placeholder="Enter your name" value={guestName} onChange={(e) => setGuestName(e.target.value)} />
             <Input
               placeholder="Enter your email"
               type="email"
               value={guestEmail}
               onChange={(e) => setGuestEmail(e.target.value)}
             />
-            <Button
-              title="Submit"
-              onClick={handleModalSubmit}
-              className="w-full"
-              variant="blue"
-            />
+            <Button title="Submit" onClick={handleModalSubmit} className="w-full" variant="blue" />
           </div>
         </DialogContent>
       </Dialog>
@@ -236,11 +188,7 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
     <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
       <div className="flex gap-[16px]">
         <SendFrom />
-        <SendTo
-          sendTo={
-            activeChannel === EChannels?.WithinUK ? "uk" : "international"
-          }
-        />
+        <SendTo sendTo={activeChannel === EChannels?.WithinUK ? 'uk' : 'international'} />
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
@@ -250,7 +198,7 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          <Link href={"/get-a-quote"}>
+          <Link href={'/get-a-quote'}>
             <Button title="Get a Quote" variant="red" className="w-full" />
           </Link>
         </div>
@@ -260,11 +208,7 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   );
 };
 
-const CustomsClearanceForm = ({
-  activeChannel,
-}: {
-  activeChannel?: EChannels;
-}) => {
+const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   return (
     <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
       <div className="flex gap-[16px]">
@@ -273,10 +217,7 @@ const CustomsClearanceForm = ({
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
-        <InputField
-          label="Company name"
-          placeholder="Enter company name here"
-        />
+        <InputField label="Company name" placeholder="Enter company name here" />
         <InputField label="Email Address" placeholder="username@email.com" />
       </div>
 
@@ -284,24 +225,18 @@ const CustomsClearanceForm = ({
         <div className="flex-1">
           <InputField label="Phone number" placeholder="Enter phone here" />
         </div>
+        <div className="flex-1">{activeChannel === EChannels.MultipleClearance && <NumberOfItems />}</div>
+      </div>
+
+      <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          {activeChannel === EChannels.MultipleClearance && <NumberOfItems />}
+          <InputField label="Give More Details" placeholder="Type here..." textarea />
         </div>
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          <InputField
-            label="Give More Details"
-            placeholder="Type here..."
-            textarea
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-[16px] mt-[16px]">
-        <div className="flex-1">
-          <Link href={"/get-a-quote"}>
+          <Link href={'/get-a-quote'}>
             <Button title="Get a Quote" variant="red" className="w-full" />
           </Link>
         </div>
