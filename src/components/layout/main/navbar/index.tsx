@@ -103,6 +103,7 @@ const MobileSidebar = ({
   user,
   handleLogout,
   setShowLogoutModal,
+  hasToken,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -110,6 +111,7 @@ const MobileSidebar = ({
   user: any;
   handleLogout: () => void;
   setShowLogoutModal: (show: boolean) => void;
+  hasToken: boolean;
 }) => {
   const navItems = [
     { id: 'home', title: 'Home', link: '/', hideChevron: true },
@@ -133,6 +135,12 @@ const MobileSidebar = ({
     },
     { id: 'solutions', title: 'Solutions', link: '#' },
     { id: 'resources', title: 'Resources', link: '#' },
+    {
+      id: 'track-trace',
+      title: 'Track & Trace',
+      link: '/user/track-a-parcel',
+      hideChevron: true,
+    },
   ];
 
   return (
@@ -150,7 +158,7 @@ const MobileSidebar = ({
         </div>
 
         <div className="px-4 py-2">
-          {!user?.email && (
+          {!hasToken ? (
             <div className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <Link
@@ -164,9 +172,7 @@ const MobileSidebar = ({
                 </Link>
               ))}
             </div>
-          )}
-
-          {user?.email && (
+          ) : (
             <div className="flex flex-col space-y-4">
               {navItemsUser.map((item) => (
                 <Link
@@ -183,16 +189,7 @@ const MobileSidebar = ({
           )}
 
           <div className="mt-8 border-t pt-4">
-            {pathname === '/' || (pathname?.startsWith('/auth') && !user?.email) ? (
-              <div className="flex flex-col gap-4">
-                <Link href="/auth/login" onClick={onClose}>
-                  <Button title="Login" variant="outlined-blue" fullWidth />
-                </Link>
-                <Link href="/auth/register" onClick={onClose}>
-                  <Button title="Get Started" fullWidth />
-                </Link>
-              </div>
-            ) : pathname.startsWith('/get-a-quote') && !user?.email ? (
+            {!hasToken ? (
               <div className="flex flex-col gap-4">
                 <Link href="/auth/login" onClick={onClose}>
                   <Button title="Login" variant="outlined-blue" fullWidth />
@@ -232,7 +229,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const dispatch = useAppDispatch();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const hasToken = !!Cookies.get('token');
+  const [hasToken, setHasToken] = useState(false);
 
   const user = useAppSelector((state: RootState) => state.user);
 
@@ -269,8 +266,8 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
   const router = useRouter();
 
   const NAVITEMS = useMemo(() => {
-    return user?.email ? navItemsUser : navItems;
-  }, [user?.email]);
+    return hasToken ? navItemsUser : navItems;
+  }, [hasToken]);
 
   const handleLogout = () => {
     // Clear Redux state
@@ -283,24 +280,23 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
     Cookies.remove('token'); // Remove access token
     Cookies.remove('refresh_token'); // Remove refresh token
 
-    // Optionally clear other cookies if needed
-    // Cookies.remove('other_cookie_name');
-
     // Close logout modal
     setShowLogoutModal(false);
+    setHasToken(false);
 
     // Redirect to login page
     router.replace('/auth/login');
-
-    // Optional: Force a hard refresh to ensure all state is cleared
-    // window.location.href = '/auth/login';
   };
 
   useEffect(() => {
     window.addEventListener('scroll', () => {
       setScroll(window.scrollY > 0);
     });
-  }, []);
+
+    // Check for token on mount and when user changes
+    const token = Cookies.get('token');
+    setHasToken(!!token);
+  }, [user]);
 
   return (
     <>
@@ -310,7 +306,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
         } transition-all duration-300 ease-in-out  max-screen-wrapper bg-white z-[40]`}
       >
         <div className="max-screen-inner h-[96px] flex items-center justify-between">
-          <a href={user?.email ? '/' : '/'}>
+          <a href={hasToken ? '/' : '/'}>
             <img src="/images/logo.png" className="w-[153px] h-[62px]" alt="logo" />
           </a>
           <div className="flex flex-1 justify-center gap-[30px] max-[1120px]:hidden">
@@ -361,6 +357,7 @@ const NavbarMain = ({ fixed }: { fixed?: boolean }) => {
         user={user}
         handleLogout={handleLogout}
         setShowLogoutModal={setShowLogoutModal}
+        hasToken={hasToken}
       />
 
       <LogoutModal show={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogout} />

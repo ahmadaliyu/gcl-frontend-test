@@ -158,3 +158,64 @@ export interface BookingNotesResponse {
   success: boolean;
   resp: BookingNote[];
 }
+
+export interface BookingResponse {
+  success: boolean;
+  data: Booking[];
+}
+
+export interface Booking {
+  id: string;
+  user_id: string;
+  service_id: string;
+  sender_address_id: string;
+  recipient_address_id: string;
+  code: string;
+  product_data: Product[];
+  origin: string;
+  origin_postcode: string;
+  origin_country_iso: string;
+  destination: string;
+  destination_postcode: string;
+  destination_country_iso: string;
+  amount: number;
+  status: string;
+  comment: string | null;
+  leg_details: LegDetail[];
+  createdAt: string;
+  updatedAt: string;
+  Service: ServiceInfo;
+  AdditionalBookingServices: AdditionalBookingService[];
+}
+
+export interface Product {
+  product_qty: string;
+  product_book: string;
+  product_code: string;
+  product_type: string;
+  product_value: string;
+  product_weight: string;
+  product_details: string;
+}
+
+export interface LegDetail {
+  to: string;
+  from: string;
+  legId: string;
+  price: number;
+  amount: number;
+  courier: string;
+  handlingFee: string;
+}
+
+export interface ServiceInfo {
+  id: string;
+  name: string;
+  service_type: string;
+  image_url: string;
+}
+
+export interface AdditionalBookingService {
+  name: string;
+  amount: string;
+}

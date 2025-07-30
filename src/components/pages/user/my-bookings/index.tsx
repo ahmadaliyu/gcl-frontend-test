@@ -14,6 +14,7 @@ import {
 import { useGetBooking } from '@/services';
 import { useRouter } from 'next/navigation';
 import LoadingSkeleton from './my-booking-skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 enum TabIds {
   SentPackages = 'sent-packages',
@@ -87,6 +88,13 @@ function MyBookings() {
     Cancelled: 'bg-red-600 text-red-200',
     Delivered: 'bg-green-400 text-green-200',
     paid: 'bg-green-100 text-green-200',
+  };
+
+  console.log(filteredBookings, 999);
+
+  const formatAdditionalServices = (services?: { name: string; amount: string }[]) => {
+    if (!services || services.length === 0) return 'No additional services';
+    return services.map((s) => `${s.name.replace(/_/g, ' ')}: £${s.amount}`).join('\n');
   };
 
   if (isLoading) return <LoadingSkeleton />;
@@ -164,102 +172,122 @@ function MyBookings() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {/* Table Section */}
-      <div className="w-full overflow-x-auto">
-        {/* Mobile Cards View */}
-        {/* Mobile Cards View */}
-        <div className="sm:hidden space-y-3">
+
+      {/* Mobile View */}
+      <div className="sm:hidden space-y-3">
+        {filteredBookings.length > 0 ? (
+          filteredBookings.map((service) => (
+            <div key={service.id} className="border rounded-lg p-4">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-medium text-sm">Recipient</p>
+                  <p className="text-gray-600">{service.code || 'Recipient'}</p>
+                </div>
+                <div
+                  className={`border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-2 rounded-full text-xs
+              ${statusColors[service.status]?.split(' ')[0] || 'bg-gray-300'}`}
+                >
+                  {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
+                </div>
+              </div>
+
+              {/* Additional Services Inline Display */}
+              {service.AdditionalBookingServices && service.AdditionalBookingServices.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium text-sm mb-1">Additional services</p>
+                  <ul className="text-gray-600 text-sm list-disc list-inside">
+                    {service.AdditionalBookingServices.map((s, idx) => (
+                      <li key={idx}>
+                        {s.name.replace(/_/g, ' ')}: £{s.amount}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center mt-3">
+                <div>
+                  <p className="font-medium text-sm">Total Paid</p>
+                  <p className="text-gray-600">{`£${service.amount}`}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Created</p>
+                  <p className="text-gray-600">{new Date(service.createdAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => handleTrack(service.code)}
+                  className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-4 py-2 rounded-md transition"
+                >
+                  Track
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-gray-500">No bookings found</div>
+        )}
+      </div>
+
+      {/* Desktop View */}
+      <Table className="hidden sm:table min-w-full mt-4 mb-12">
+        <TableHeader>
+          <TableRow className="bg-[#FCE8E9] hover:bg-[#FCE8E9]">
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Recipient</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Status</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Total Paid</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Created</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {filteredBookings.length > 0 ? (
             filteredBookings.map((service) => (
-              <div key={service.id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-medium text-sm">Recipient</p>
-                    <p className="text-gray-600">{service.code || 'Recipient'}</p>
-                  </div>
+              <TableRow key={service.id}>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <TableCell className="font-medium py-4 px-2 cursor-help">{service.code || 'Recipient'}</TableCell>
+                    </TooltipTrigger>
+                    <TooltipContent className="whitespace-pre-line max-w-[250px]">
+                      {formatAdditionalServices(service.AdditionalBookingServices)}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <TableCell>
                   <div
-                    className={`border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-2 rounded-full text-xs
-            ${statusColors[service.status]?.split(' ')[0] || 'bg-gray-300'}`}
+                    className={
+                      `border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-0 rounded-full text-xs
+                        ${statusColors[service.status]?.split(' ')[0]}` || 'bg-gray-300'
+                    }
                   >
                     {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
                   </div>
-                </div>
-                <div className="flex justify-between items-center mt-3">
-                  <div>
-                    <p className="font-medium text-sm">Total Paid</p>
-                    <p className="text-gray-600">{`£${service.amount}`}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">Created</p>
-                    <p className="text-gray-600">{new Date(service.createdAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                {/* Add Track button here */}
-                <div className="mt-4 flex justify-end">
+                </TableCell>
+                <TableCell className="font-medium py-4 px-2">{`£${service.amount}`}</TableCell>
+                <TableCell className="font-medium py-4 px-2">
+                  {new Date(service.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="py-4 px-2">
                   <button
                     onClick={() => handleTrack(service.code)}
-                    className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-4 py-2 rounded-md transition"
+                    className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-3 py-1 rounded-md transition"
                   >
                     Track
                   </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-gray-500">No bookings found</div>
-          )}
-        </div>
-
-        {/* Desktop Table View */}
-        <Table className="hidden sm:table min-w-full mt-4 mb-12">
-          <TableHeader>
-            <TableRow className="bg-[#FCE8E9] hover:bg-[#FCE8E9]">
-              <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Recipient</TableHead>
-              <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Status</TableHead>
-              <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Total Paid</TableHead>
-              <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Created</TableHead>
-              <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredBookings.length > 0 ? (
-              filteredBookings.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell className="font-medium py-4 px-2">{service.code || 'Recipient'}</TableCell>
-                  <TableCell>
-                    <div
-                      className={
-                        `border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-0 rounded-full text-xs
-            ${statusColors[service.status]?.split(' ')[0]}` || 'bg-gray-300'
-                      }
-                    >
-                      {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium py-4 px-2">{`£${service.amount}`}</TableCell>
-                  <TableCell className="font-medium py-4 px-2">
-                    {new Date(service.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="py-4 px-2">
-                    <button
-                      onClick={() => handleTrack(service.code)}
-                      className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-3 py-1 rounded-md transition"
-                    >
-                      Track
-                    </button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                  No bookings found
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                No bookings found
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </UserDashboardWrapper>
   );
 }

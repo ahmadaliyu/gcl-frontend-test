@@ -1,14 +1,14 @@
 import { get } from '@/services/apiServices';
 import { useQuery } from '@tanstack/react-query';
-import { ShipmentResponse } from './types';
+import { BookingResponse } from './types';
 
 export const useGetBooking = (onSuccess?: (data: any) => void) => {
-  return useQuery<ShipmentResponse, Error>({
+  return useQuery<BookingResponse, Error>({
     queryKey: ['bookings'],
     // refetchInterval: 5000,
 
-    queryFn: async (): Promise<ShipmentResponse> => {
-      const response: ShipmentResponse = await get('users/bookings');
+    queryFn: async (): Promise<BookingResponse> => {
+      const response: BookingResponse = await get('users/bookings');
 
       if (response.success === false) {
         throw new Error('Failed to fetch');

@@ -656,7 +656,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   const { showAlert } = useAlert();
 
   const { isPending, mutate } = useCreateBooking((response: any) => {
-    console.log(response, 'booking response');
+    // console.log(response, 'booking response');
 
     if (response?.data?.data.url) {
       dispatch(clearQuotesData());
@@ -687,7 +687,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       parcel: quote?.shipment.parcels,
     };
 
-    console.log(payload, 'booking payload all');
+    // console.log(payload, 'booking payload all');
     mutate({ payload });
   };
 
@@ -716,6 +716,13 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
       label: 'Additional Protection',
     },
   ];
+
+  const isInsured = booking.additional_services?.find((s) => s.name === 'is_insured');
+  const hasProtection = booking.additional_services?.find((s) => s.name === 'has_protection');
+
+  const additionalCharges = (isInsured?.amount || 0) + (hasProtection?.amount || 0);
+
+  const totalDue = (booking?.amount ?? 0) + additionalCharges;
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6 bg-white rounded-lg shadow-sm">
@@ -862,7 +869,7 @@ const PreviewFinish = ({ setActiveStepId }: { setActiveStepId?: any }) => {
 
             <div className="flex justify-between font-bold text-base border-t pt-2">
               <span>Total Due</span>
-              <span>£{(booking?.amount ?? 0).toFixed(2)}</span>
+              <span>£{totalDue.toFixed(2)}</span>
             </div>
           </div>
         </div>
