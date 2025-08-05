@@ -18,13 +18,14 @@ import Link from 'next/link';
 import InputField from '@/components/reuseables/InputField';
 import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { RootState } from '@/store/store';
-import { useGetCities, useGetCountries, useGetQuotes } from '@/services';
+import { useClearCustom, useGetCities, useGetCountries, useGetQuotes } from '@/services';
 import { loadQuotes } from '@/store/auth/quoteDataSlice';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import Footer from '@/components/layout/main/footer';
 import { setCities, setCountries } from '@/store/auth/countrySlice';
+import { useAlert } from '@/components/reuseables/Alert/alert-context';
 
 function BookAQuote() {
   const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
@@ -347,41 +348,150 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   );
 };
 
-const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
+interface FormData {
+  type: string;
+  full_name: string;
+  company_name?: string;
+  email: string;
+  phone: string;
+  no_of_items?: number;
+  description: string;
+}
+
+export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
+  const { showAlert } = useAlert();
+
+  const { mutate, isPending } = useClearCustom((response) => {
+    if (response?.status === 200) {
+      showAlert('Customs clearance data submitted successfully', 'success');
+      // Optionally, you can reset the form or redirect the user
+    }
+  });
+
+  const [formData, setFormData] = React.useState<FormData>({
+    type: 'Custom Clearance',
+    full_name: '',
+    email: '',
+    phone: '',
+    description: '',
+  });
+
+  // Updated to match InputField's expected onChange signature
+  const handleInputChange = (name: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleServiceTypeChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      type: value,
+    }));
+  };
+
+  const handleNumberOfItemsChange = (value: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      no_of_items: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    mutate({
+      payload: {
+        type: formData.type,
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        no_of_items: formData.no_of_items || 0,
+        address: '', // Assuming address is not required for this form
+        description: formData.description,
+      },
+    });
+    console.log(formData, 'Form Data Submitted');
+  };
+
   return (
-    <div className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
+    <form onSubmit={handleSubmit} className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
       <div className="flex gap-[16px]">
-        <ServiceType />
-        <InputField label="Full Name" placeholder="Enter name here" />
+        <ServiceType value={formData.type} onValueChange={handleServiceTypeChange} />
+        <InputField
+          label="Full Name"
+          placeholder="Enter name here"
+          name="full_name"
+          value={formData.full_name}
+          onChange={handleInputChange}
+        />
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
-        <InputField label="Company name" placeholder="Enter company name here" />
-        <InputField label="Email Address" placeholder="username@email.com" />
+        <InputField
+          label="Company name"
+          placeholder="Enter company name here"
+          name="company_name"
+          value={formData.company_name || ''}
+          onChange={handleInputChange}
+        />
+        <InputField
+          label="Email Address"
+          placeholder="username@email.com"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleInputChange}
+        />
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          <InputField label="Phone number" placeholder="Enter phone here" />
+          <InputField
+            isPhoneInput
+            label="Phone number"
+            placeholder="Enter phone here"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+          />
         </div>
-        <div className="flex-1">{activeChannel === EChannels.MultipleClearance && <NumberOfItems />}</div>
-      </div>
-
-      <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          <InputField label="Give More Details" placeholder="Type here..." textarea />
+          {/* {activeChannel === EChannels.MultipleClearance && (
+            <NumberOfItems value={formData.no_of_items} onChange={handleNumberOfItemsChange} />
+          )} */}
+          <NumberOfItems value={formData.no_of_items} onChange={handleNumberOfItemsChange} />
         </div>
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          <Link href={'/get-a-quote'}>
-            <Button title="Get a Quote" variant="red" className="w-full" />
-          </Link>
+          <InputField
+            label="Give More Details"
+            placeholder="Type here..."
+            textarea
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-[16px] mt-[16px]">
+        <div className="flex-1">
+          <Button
+            loading={isPending}
+            disabled={isPending}
+            type="submit"
+            title="Submit"
+            variant="red"
+            className="w-full"
+          />
         </div>
         <div className="flex-1"></div>
       </div>
-    </div>
+    </form>
   );
 };
 

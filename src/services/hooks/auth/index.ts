@@ -5,5 +5,6 @@ export * from './useForgotPassword';
 export * from './useResetPassword';
 export * from './useGetCountries';
 export * from './useGetCities';
-export * from './useGetQuotes'
+export * from './useGetQuotes';
+export * from './useClearCustom';
 export * from './types';

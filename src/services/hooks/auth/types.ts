@@ -243,3 +243,24 @@ interface ShipmentSummary {
   isToUKOffice: boolean;
   totalOptions: number;
 }
+
+export interface CustomData {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  type: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  no_of_items: number;
+  address: string;
+  description: string;
+  user_id: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface CustomClearanceResponse {
+  success: boolean;
+  data: CustomData;
+}
