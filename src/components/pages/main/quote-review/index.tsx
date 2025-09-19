@@ -445,8 +445,6 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
   };
 
   const handleContinue = () => {
-    console.log(shipment, 'shipment parcel before continue');
-
     // Step 1: Sum weights in shipment parcels
     const totalParcelWeight = shipment?.parcels?.reduce((sum, parcel) => {
       const itemsWeight = parcel.items?.reduce((itemSum, item) => {
@@ -491,8 +489,9 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
           <p className="text-gray-600 text-base sm:text-lg">We would like to know what you are sending</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Form section - now taking 5 columns instead of 2 */}
+          <div className="lg:col-span-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <InputField
                 label="Product Type"
@@ -586,7 +585,8 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
             </div>
           </div>
 
-          <div className="space-y-4 overflow-x-auto">
+          {/* Packages section - now taking 7 columns instead of 1 */}
+          <div className="lg:col-span-7 space-y-4">
             <h4 className="font-semibold text-lg text-gray-700">Added Packages</h4>
 
             {Array.isArray(packages) && packages.length === 0 ? (
@@ -594,41 +594,43 @@ const PackageDetails = ({ setActiveStepId }: { setActiveStepId?: any }) => {
                 <p className="text-gray-500">No packages added yet</p>
               </div>
             ) : (
-              <div className="min-w-full">
-                <table className="w-full border-collapse text-sm">
+              <div className="overflow-x-auto border rounded-lg">
+                <table className="w-full text-sm">
                   <thead className="bg-gray-100 text-gray-700">
                     <tr>
-                      <th className="text-left p-2 border">Pkg. No</th>
-                      <th className="text-left p-2 border">Type</th>
-                      <th className="text-left p-2 border">Details</th>
-                      <th className="text-left p-2 border">Qty</th>
-                      <th className="text-left p-2 border">Weight (kg)</th>
-                      <th className="text-left p-2 border">Value (£)</th>
-                      <th className="text-left p-2 border">Actions</th>
+                      <th className="text-left p-3 border-b">Pkg. No</th>
+                      <th className="text-left p-3 border-b">Type</th>
+                      <th className="text-left p-3 border-b">Details</th>
+                      <th className="text-left p-3 border-b">Qty</th>
+                      <th className="text-left p-3 border-b">Weight (kg)</th>
+                      <th className="text-left p-3 border-b">Value (£)</th>
+                      <th className="text-left p-3 border-b">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {Array.isArray(packages) &&
                       packages.map((pkg, idx) => (
-                        <tr key={pkg.id || idx} className="hover:bg-gray-50">
-                          <td className="p-2 border">{idx + 1}</td>
-                          <td className="p-2 border">{pkg.product_type}</td>
-                          <td className="p-2 border max-w-xs truncate">{pkg.product_details}</td>
-                          <td className="p-2 border">{pkg.product_qty}</td>
-                          <td className="p-2 border">{pkg.product_weight}</td>
-                          <td className="p-2 border">£{pkg.product_value}</td>
-                          <td className="p-2 border">
+                        <tr key={pkg.id || idx} className="hover:bg-gray-50 even:bg-gray-50/30">
+                          <td className="p-3 border-b">{idx + 1}</td>
+                          <td className="p-3 border-b">{pkg.product_type}</td>
+                          <td className="p-3 border-b max-w-xs truncate" title={pkg.product_details}>
+                            {pkg.product_details}
+                          </td>
+                          <td className="p-3 border-b">{pkg.product_qty}</td>
+                          <td className="p-3 border-b">{pkg.product_weight}</td>
+                          <td className="p-3 border-b">£{pkg.product_value}</td>
+                          <td className="p-3 border-b">
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => setEditingPackage(pkg)}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-blue-600 hover:text-blue-800 transition-colors"
                                 title="Edit"
                               >
                                 <FiEdit2 size={16} />
                               </button>
                               <button
                                 onClick={() => pkg.id && handleDeletePackage(pkg.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-red-600 hover:text-red-800 transition-colors"
                                 title="Delete"
                               >
                                 <FiTrash2 size={16} />

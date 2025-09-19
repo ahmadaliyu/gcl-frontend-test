@@ -90,7 +90,7 @@ function MyBookings() {
     paid: 'bg-green-100 text-green-200',
   };
 
-  console.log(filteredBookings, 999);
+  // console.log(filteredBookings, 999);
 
   const formatAdditionalServices = (services?: { name: string; amount: string }[]) => {
     if (!services || services.length === 0) return 'No additional services';
@@ -217,7 +217,7 @@ function MyBookings() {
               </div>
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={() => handleTrack(service.code)}
+                  onClick={() => handleTrack(service.id)}
                   className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-4 py-2 rounded-md transition"
                 >
                   Track

@@ -19,6 +19,7 @@ const statusColors: Record<string, string> = {
 
 const ShipmentTracking = () => {
   const params = useParams();
+
   const bookingIdParam = params?.id;
   const bookingId = Array.isArray(bookingIdParam) ? bookingIdParam[0] : bookingIdParam;
 
@@ -26,6 +27,8 @@ const ShipmentTracking = () => {
 
   const { data: trackingData, isLoading } = useTrackBooking(bookingId);
   const { data: notes } = useGetNote(bookingId);
+
+  console.log(bookingId, notes, 'notes in tracking page');
 
   const [showAllNotes, setShowAllNotes] = useState(false);
 
