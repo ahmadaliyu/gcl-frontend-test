@@ -208,10 +208,11 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
 
 interface FormData {
   type: string;
-  full_name: string;
-  company_name?: string;
-  email: string;
-  phone: string;
+  // full_name: string;
+  // company_name?: string;
+  // email: string;
+  // phone: string;
+  address: string;
   no_of_items?: number;
   description: string;
 }
@@ -219,22 +220,23 @@ interface FormData {
 export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   const { showAlert } = useAlert();
 
-  const token = Cookies.get('token');
-
-  const router = useRouter();
-
   const { mutate, isPending } = useClearCustom((response) => {
+    console.log(response.status, 'Customs clearance response');
     if (response?.status === 200) {
       showAlert('Customs clearance data submitted successfully', 'success');
-      // Optionally, you can reset the form or redirect the user
+    }
+    if (response.response.status === 400) {
+      showAlert(`${response?.response.data.message}`, 'error');
     }
   });
 
   const [formData, setFormData] = React.useState<FormData>({
-    type: 'Custom Clearance',
-    full_name: '',
-    email: '',
-    phone: '',
+    type: '',
+    // full_name: '',
+    // email: '',
+    // phone: '',
+    no_of_items: 0,
+    address: '',
     description: '',
   });
 
@@ -266,11 +268,11 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
     mutate({
       payload: {
         type: formData.type,
-        full_name: formData.full_name,
-        email: formData.email,
-        phone: formData.phone,
+        // full_name: formData.full_name,
+        // email: formData.email,
+        // phone: formData.phone,
         no_of_items: formData.no_of_items || 0,
-        address: '', // Assuming address is not required for this form
+        address: formData.address,
         description: formData.description,
       },
     });
@@ -281,41 +283,41 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
     <form onSubmit={handleSubmit} className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
       <div className="flex gap-[16px]">
         <ServiceType value={formData.type} onValueChange={handleServiceTypeChange} />
-        <InputField
+        {/* <InputField
           label="Full Name"
           placeholder="Enter name here"
           name="full_name"
           value={formData.full_name}
           onChange={handleInputChange}
-        />
+        /> */}
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
-        <InputField
+        {/* <InputField
           label="Company name"
           placeholder="Enter company name here"
           name="company_name"
           value={formData.company_name || ''}
           onChange={handleInputChange}
-        />
-        <InputField
+        /> */}
+        {/* <InputField
           label="Email Address"
           placeholder="username@email.com"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleInputChange}
-        />
+        /> */}
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
           <InputField
             isPhoneInput
-            label="Phone number"
-            placeholder="Enter phone here"
-            name="phone"
-            value={formData.phone}
+            label="Address"
+            placeholder="Enter Address here"
+            name="address"
+            value={formData.address}
             onChange={handleInputChange}
           />
         </div>
@@ -342,23 +344,14 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
-          {token ? (
-            <Button
-              loading={isPending}
-              disabled={isPending}
-              type="submit"
-              title={'Submit'}
-              variant="red"
-              className="w-full"
-            />
-          ) : (
-            <Button
-              title="Login to Submit"
-              variant="red"
-              className="w-full"
-              onClick={() => router.push('auth/login')}
-            />
-          )}
+          <Button
+            loading={isPending}
+            disabled={isPending}
+            type="submit"
+            title="Submit"
+            variant="red"
+            className="w-full"
+          />
         </div>
         <div className="flex-1"></div>
       </div>
