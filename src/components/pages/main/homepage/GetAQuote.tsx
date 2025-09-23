@@ -100,7 +100,6 @@ const RoadFreightAndAirFreightForm = ({ activeChannel }: { activeChannel?: EChan
       dispatch(loadQuotes(response.data));
       router.push('/get-a-quote');
     } else if (response?.status === 200 && Array.isArray(options) && options.length === 0) {
-      console.log('hello');
       setShowModal(true);
     } else if (response?.response?.status >= 400) {
       showAlert(`${response?.response?.data?.message}`, 'error');
@@ -208,10 +207,6 @@ const SeaFreightForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
 
 interface FormData {
   type: string;
-  // full_name: string;
-  // company_name?: string;
-  // email: string;
-  // phone: string;
   address: string;
   no_of_items?: number;
   description: string;
@@ -219,28 +214,25 @@ interface FormData {
 
 export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChannels }) => {
   const { showAlert } = useAlert();
+  const router = useRouter();
 
   const { mutate, isPending } = useClearCustom((response) => {
     console.log(response.status, 'Customs clearance response');
     if (response?.status === 200) {
       showAlert('Customs clearance data submitted successfully', 'success');
     }
-    if (response.response.status === 400) {
+    if (response.response?.status === 400) {
       showAlert(`${response?.response.data.message}`, 'error');
     }
   });
 
   const [formData, setFormData] = React.useState<FormData>({
     type: '',
-    // full_name: '',
-    // email: '',
-    // phone: '',
     no_of_items: 0,
     address: '',
     description: '',
   });
 
-  // Updated to match InputField's expected onChange signature
   const handleInputChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -265,12 +257,17 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // ✅ Check if user is logged in
+    const token = Cookies.get('token');
+    if (!token) {
+      showAlert('Please login to continue', 'error');
+      router.push('/auth/login');
+      return;
+    }
+
     mutate({
       payload: {
         type: formData.type,
-        // full_name: formData.full_name,
-        // email: formData.email,
-        // phone: formData.phone,
         no_of_items: formData.no_of_items || 0,
         address: formData.address,
         description: formData.description,
@@ -279,41 +276,22 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
     console.log(formData, 'Form Data Submitted');
   };
 
+  // ✅ Validation check
+  const isFormValid =
+    formData.type.trim() !== '' &&
+    formData.address.trim() !== '' &&
+    formData.description.trim() !== '' &&
+    (formData.no_of_items ?? 0) > 0;
+
   return (
     <form onSubmit={handleSubmit} className="flex-1 h-full bg-white min-h-[100px] rounded-b-[16px] w-full p-[16px]">
       <div className="flex gap-[16px]">
         <ServiceType value={formData.type} onValueChange={handleServiceTypeChange} />
-        {/* <InputField
-          label="Full Name"
-          placeholder="Enter name here"
-          name="full_name"
-          value={formData.full_name}
-          onChange={handleInputChange}
-        /> */}
-      </div>
-
-      <div className="flex gap-[16px] mt-[16px]">
-        {/* <InputField
-          label="Company name"
-          placeholder="Enter company name here"
-          name="company_name"
-          value={formData.company_name || ''}
-          onChange={handleInputChange}
-        /> */}
-        {/* <InputField
-          label="Email Address"
-          placeholder="username@email.com"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleInputChange}
-        /> */}
       </div>
 
       <div className="flex gap-[16px] mt-[16px]">
         <div className="flex-1">
           <InputField
-            isPhoneInput
             label="Address"
             placeholder="Enter Address here"
             name="address"
@@ -322,9 +300,6 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
           />
         </div>
         <div className="flex-1">
-          {/* {activeChannel === EChannels.MultipleClearance && (
-            <NumberOfItems value={formData.no_of_items} onChange={handleNumberOfItemsChange} />
-          )} */}
           <NumberOfItems value={formData.no_of_items} onChange={handleNumberOfItemsChange} />
         </div>
       </div>
@@ -346,7 +321,7 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
         <div className="flex-1">
           <Button
             loading={isPending}
-            disabled={isPending}
+            disabled={!isFormValid || isPending}
             type="submit"
             title="Submit"
             variant="red"
