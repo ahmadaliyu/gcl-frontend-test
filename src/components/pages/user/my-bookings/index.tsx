@@ -61,7 +61,13 @@ function MyBookings() {
 
       const searchMatch =
         booking.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.status?.toLowerCase().includes(searchTerm.toLowerCase());
+        booking.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.Service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.Service?.service_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.destination?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.destination_country_iso?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.origin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.origin_country_iso?.toLowerCase().includes(searchTerm.toLowerCase());
 
       let dateMatch = true;
       if (selectedDateFilter === 'today') {
@@ -90,11 +96,26 @@ function MyBookings() {
     paid: 'bg-green-100 text-green-200',
   };
 
-  // console.log(filteredBookings, 999);
-
   const formatAdditionalServices = (services?: { name: string; amount: string }[]) => {
     if (!services || services.length === 0) return 'No additional services';
     return services.map((s) => `${s.name.replace(/_/g, ' ')}: £${s.amount}`).join('\n');
+  };
+
+  const formatServiceType = (serviceType: string) => {
+    return serviceType
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const shortenServiceName = (name: string, maxLength: number = 30) => {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength) + '...';
+  };
+
+  const shortenCountryName = (name: string, maxLength: number = 20) => {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength) + '...';
   };
 
   if (isLoading) return <LoadingSkeleton />;
@@ -114,7 +135,7 @@ function MyBookings() {
       <div className="w-full flex flex-col sm:flex-row gap-3 mb-4">
         <input
           type="text"
-          placeholder="Search"
+          placeholder="Search by order ID, status, service, destination, or country"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border border-[#CCCCCC] bg-[#F7F7F7] rounded-lg h-10 px-3 text-sm w-full sm:w-auto"
@@ -176,27 +197,97 @@ function MyBookings() {
       {/* Mobile View */}
       <div className="sm:hidden space-y-3">
         {filteredBookings.length > 0 ? (
-          filteredBookings.map((service) => (
-            <div key={service.id} className="border rounded-lg p-4">
+          filteredBookings.map((booking) => (
+            <div key={booking.id} className="border rounded-lg p-4">
+              {/* Service Info Section */}
+              {booking.Service && (
+                <div className="flex items-center gap-3 mb-3 pb-3 border-b">
+                  {booking.Service.image_url && (
+                    <div className="w-12 h-12 relative rounded-md overflow-hidden flex-shrink-0">
+                      <img
+                        src={booking.Service.image_url}
+                        alt={booking.Service.name}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <p className="font-medium text-sm line-clamp-1 cursor-help">
+                            {shortenServiceName(booking.Service.name, 25)}
+                          </p>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{booking.Service.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <p className="text-xs text-gray-500 capitalize">
+                      {formatServiceType(booking.Service.service_type)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Destination & Origin Section */}
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                  <p className="font-medium text-sm text-gray-600">From</p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-sm cursor-help">{shortenCountryName(booking.origin || 'Unknown', 15)}</p>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{booking.origin || 'Unknown origin'}</p>
+                        {booking.origin_country_iso && (
+                          <p className="text-xs text-gray-500">({booking.origin_country_iso})</p>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div>
+                  <p className="font-medium text-sm text-gray-600">To</p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-sm cursor-help">
+                          {shortenCountryName(booking.destination || 'Unknown', 15)}
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{booking.destination || 'Unknown destination'}</p>
+                        {booking.destination_country_iso && (
+                          <p className="text-xs text-gray-500">({booking.destination_country_iso})</p>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <p className="font-medium text-sm">Recipient</p>
-                  <p className="text-gray-600">{service.code || 'Recipient'}</p>
+                  <p className="font-medium text-sm">Order ID</p>
+                  <p className="text-gray-600">{booking.code || 'Order ID'}</p>
                 </div>
                 <div
                   className={`border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-2 rounded-full text-xs
-              ${statusColors[service.status]?.split(' ')[0] || 'bg-gray-300'}`}
+              ${statusColors[booking.status]?.split(' ')[0] || 'bg-gray-300'}`}
                 >
-                  {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
+                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).toLowerCase()}
                 </div>
               </div>
 
               {/* Additional Services Inline Display */}
-              {service.AdditionalBookingServices && service.AdditionalBookingServices.length > 0 && (
+              {booking.AdditionalBookingServices && booking.AdditionalBookingServices.length > 0 && (
                 <div className="mt-2">
                   <p className="font-medium text-sm mb-1">Additional services</p>
                   <ul className="text-gray-600 text-sm list-disc list-inside">
-                    {service.AdditionalBookingServices.map((s, idx) => (
+                    {booking.AdditionalBookingServices.map((s, idx) => (
                       <li key={idx}>
                         {s.name.replace(/_/g, ' ')}: £{s.amount}
                       </li>
@@ -208,16 +299,16 @@ function MyBookings() {
               <div className="flex justify-between items-center mt-3">
                 <div>
                   <p className="font-medium text-sm">Total Paid</p>
-                  <p className="text-gray-600">{`£${service.amount}`}</p>
+                  <p className="text-gray-600">{`£${booking.amount}`}</p>
                 </div>
                 <div>
                   <p className="font-medium text-sm">Created</p>
-                  <p className="text-gray-600">{new Date(service.createdAt).toLocaleDateString()}</p>
+                  <p className="text-gray-600">{new Date(booking.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={() => handleTrack(service.id)}
+                  onClick={() => handleTrack(booking.id)}
                   className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-4 py-2 rounded-md transition"
                 >
                   Track
@@ -234,7 +325,11 @@ function MyBookings() {
       <Table className="hidden sm:table min-w-full mt-4 mb-12">
         <TableHeader>
           <TableRow className="bg-[#FCE8E9] hover:bg-[#FCE8E9]">
-            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Recipient</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Service</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Type</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Origin</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Destination</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Order ID</TableHead>
             <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Status</TableHead>
             <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Total Paid</TableHead>
             <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Created</TableHead>
@@ -243,35 +338,136 @@ function MyBookings() {
         </TableHeader>
         <TableBody>
           {filteredBookings.length > 0 ? (
-            filteredBookings.map((service) => (
-              <TableRow key={service.id}>
+            filteredBookings.map((booking) => (
+              <TableRow key={booking.id}>
+                {/* Service Name Column with Tooltip */}
+                <TableCell className="py-4 px-2">
+                  {booking.Service ? (
+                    <div className="flex items-center gap-3">
+                      {booking.Service.image_url && (
+                        <div className="w-10 h-10 relative rounded-md overflow-hidden flex-shrink-0">
+                          <img
+                            src={booking.Service.image_url}
+                            alt={booking.Service.name}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      )}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="min-w-0 cursor-help">
+                              <p className="font-medium text-sm line-clamp-1">
+                                {shortenServiceName(booking.Service.name)}
+                              </p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[300px]">
+                            <p className="font-medium">{booking.Service.name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  ) : (
+                    <span className="text-gray-400">No service info</span>
+                  )}
+                </TableCell>
+
+                {/* Service Type Column */}
+                <TableCell className="py-4 px-2">
+                  {booking.Service ? (
+                    <span className="text-sm text-gray-600 capitalize">
+                      {formatServiceType(booking.Service.service_type)}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </TableCell>
+
+                {/* Origin Column */}
+                <TableCell className="py-4 px-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">
+                          <p className="text-sm font-medium">{shortenCountryName(booking.origin || 'Unknown')}</p>
+                          {booking.origin_country_iso && (
+                            <p className="text-xs text-gray-500">({booking.origin_country_iso})</p>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-medium">{booking.origin || 'Unknown origin'}</p>
+                        {booking.origin_country_iso && (
+                          <p className="text-sm">Country Code: {booking.origin_country_iso}</p>
+                        )}
+                        {booking.origin_postcode && <p className="text-sm">Postcode: {booking.origin_postcode}</p>}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
+
+                {/* Destination Column */}
+                <TableCell className="py-4 px-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">
+                          <p className="text-sm font-medium">{shortenCountryName(booking.destination || 'Unknown')}</p>
+                          {booking.destination_country_iso && (
+                            <p className="text-xs text-gray-500">({booking.destination_country_iso})</p>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-medium">{booking.destination || 'Unknown destination'}</p>
+                        {booking.destination_country_iso && (
+                          <p className="text-sm">Country Code: {booking.destination_country_iso}</p>
+                        )}
+                        {booking.destination_postcode && (
+                          <p className="text-sm">Postcode: {booking.destination_postcode}</p>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
+
+                {/* Order ID Column with Tooltip */}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <TableCell className="font-medium py-4 px-2 cursor-help">{service.code || 'Recipient'}</TableCell>
+                      <TableCell className="font-medium py-4 px-2 cursor-help">{booking.code || 'Order ID'}</TableCell>
                     </TooltipTrigger>
                     <TooltipContent className="whitespace-pre-line max-w-[250px]">
-                      {formatAdditionalServices(service.AdditionalBookingServices)}
+                      {formatAdditionalServices(booking.AdditionalBookingServices)}
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+
+                {/* Status Column */}
                 <TableCell>
                   <div
                     className={
                       `border h-7 flex items-center justify-center border-[#E3E3E3] font-medium px-0 rounded-full text-xs
-                        ${statusColors[service.status]?.split(' ')[0]}` || 'bg-gray-300'
+                        ${statusColors[booking.status]?.split(' ')[0]}` || 'bg-gray-300'
                     }
                   >
-                    {service.status.charAt(0).toUpperCase() + service.status.slice(1).toLowerCase()}
+                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).toLowerCase()}
                   </div>
                 </TableCell>
-                <TableCell className="font-medium py-4 px-2">{`£${service.amount}`}</TableCell>
+
+                {/* Total Paid Column */}
+                <TableCell className="font-medium py-4 px-2">{`£${booking.amount}`}</TableCell>
+
+                {/* Created Date Column */}
                 <TableCell className="font-medium py-4 px-2">
-                  {new Date(service.createdAt).toLocaleDateString()}
+                  {new Date(booking.createdAt).toLocaleDateString()}
                 </TableCell>
+
+                {/* Action Column */}
                 <TableCell className="py-4 px-2">
                   <button
-                    onClick={() => handleTrack(service.code)}
+                    onClick={() => handleTrack(booking.id)}
                     className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-3 py-1 rounded-md transition"
                   >
                     Track
@@ -281,7 +477,7 @@ function MyBookings() {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                 No bookings found
               </TableCell>
             </TableRow>

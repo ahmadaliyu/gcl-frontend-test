@@ -4,12 +4,13 @@ import { useMutation } from '@tanstack/react-query';
 type MutationProps = {
   payload: {
     type: string;
-    // full_name: string;
-    // email: string;
-    // phone: string;
+    full_name?: string;
+    email?: string;
+    phone?: string;
     no_of_items: number;
     address: string;
     description: string;
+    data: Object;
   };
 };
 
