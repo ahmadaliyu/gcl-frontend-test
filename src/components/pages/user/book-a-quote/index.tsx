@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hook';
 import { RootState } from '@/store/store';
 import { useClearCustom, useGetAddresses, useGetCities, useGetCountries, useGetQuotes } from '@/services';
 import { loadQuotes } from '@/store/auth/quoteDataSlice';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import Footer from '@/components/layout/main/footer';
@@ -30,11 +30,16 @@ import { useUploadFile } from '@/services/hooks/user';
 import Cookies from 'js-cookie';
 
 function BookAQuote() {
-  const [activeTab, setActiveTab] = useState<TTab>(tabs[0]);
   const [activeChannel, setActiveChannel] = useState<EChannels>(EChannels.WithinUK);
 
   const { data: countries, isLoading: isLoadingCountries } = useGetCountries();
   const { data: cities, isLoading: isLoadingCities } = useGetCities();
+
+  const searchParams = useSearchParams();
+
+  const isCustomClearance = searchParams?.get('isCustomClearance') === 'true';
+
+  const [activeTab, setActiveTab] = useState<TTab>(isCustomClearance ? tabs[1] : tabs[0]); // this will change when we have road and sea freight
 
   const dispatch = useAppDispatch();
 
@@ -124,9 +129,9 @@ function BookAQuote() {
 
             {/* Dynamic Form */}
             <div className="mt-6">
-              {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />}
+              {/* {activeTab.id === TTabIds.RoadFreight && <RoadFreightForm activeChannel={activeChannel} />} */}
               {activeTab.id === TTabIds.AirFreight && <AirFreightForm activeChannel={activeChannel} />}
-              {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />}
+              {/* {activeTab.id === TTabIds.SeaFreight && <SeaFreightForm activeChannel={activeChannel} />} */}
               {activeTab.id === TTabIds.CustomsClearance && <CustomsClearanceForm activeChannel={activeChannel} />}
             </div>
           </div>

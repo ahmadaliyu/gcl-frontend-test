@@ -15,6 +15,8 @@ import { useGetBooking } from '@/services';
 import { useRouter } from 'next/navigation';
 import LoadingSkeleton from './my-booking-skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 enum TabIds {
   SentPackages = 'sent-packages',
@@ -47,6 +49,8 @@ function MyBookings() {
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(StatusFilter.All);
   const [selectedDateFilter, setSelectedDateFilter] = useState<'all' | 'today' | 'last7days' | 'thisMonth'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, isLoading } = useGetBooking();
   const router = useRouter();
 
@@ -85,6 +89,11 @@ function MyBookings() {
   const handleBookNew = () => router.push('/user/book-a-quote');
   const handleTrack = (id: string) => router.push(`/user/shipment-tracking/${id}`);
 
+  const handleViewDetails = (booking: any) => {
+    setSelectedBooking(booking);
+    setIsModalOpen(true);
+  };
+
   const statusColors: Record<string, string> = {
     'Order Placed': 'bg-gray-200 text-gray-800',
     transit: 'bg-yellow-100 text-yellow-800',
@@ -93,7 +102,7 @@ function MyBookings() {
     'Clearance in Progress': 'bg-purple-100 text-purple-800',
     Cancelled: 'bg-red-600 text-red-200',
     Delivered: 'bg-green-400 text-green-200',
-    paid: 'bg-green-100 text-green-200',
+    paid: 'bg-green-100 text-green-800',
   };
 
   const formatAdditionalServices = (services?: { name: string; amount: string }[]) => {
@@ -116,6 +125,17 @@ function MyBookings() {
   const shortenCountryName = (name: string, maxLength: number = 20) => {
     if (name.length <= maxLength) return name;
     return name.substring(0, maxLength) + '...';
+  };
+
+  const formatLegDetails = (leg: any) => {
+    return {
+      from: leg.from?.replace(/_/g, ' ').toUpperCase() || 'Unknown',
+      to: leg.to?.replace(/_/g, ' ').toUpperCase() || 'Unknown',
+      courier: leg.courier || 'Not specified',
+      price: `£${leg.price || '0'}`,
+      amount: `£${leg.amount || '0'}`,
+      handlingFee: `£${leg.handlingFee || '0'}`,
+    };
   };
 
   if (isLoading) return <LoadingSkeleton />;
@@ -193,6 +213,206 @@ function MyBookings() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Booking Details Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Booking Details</DialogTitle>
+            <DialogDescription>Complete information for order {selectedBooking?.code}</DialogDescription>
+          </DialogHeader>
+
+          {selectedBooking && (
+            <div className="space-y-6">
+              {/* Header Section */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h3 className="font-semibold text-gray-700">Order ID</h3>
+                  <p className="text-lg font-mono">{selectedBooking.code}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-700">Status</h3>
+                  <Badge className={statusColors[selectedBooking.status]}>
+                    {selectedBooking.status.charAt(0).toUpperCase() + selectedBooking.status.slice(1).toLowerCase()}
+                  </Badge>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-700">Total Amount</h3>
+                  <p className="text-lg font-bold text-green-600">£{selectedBooking.amount}</p>
+                </div>
+              </div>
+
+              {/* Service Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Service Information</h3>
+                  {selectedBooking.Service && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        {selectedBooking.Service.image_url && (
+                          <img
+                            src={selectedBooking.Service.image_url}
+                            alt={selectedBooking.Service.name}
+                            className="w-16 h-16 object-cover rounded-lg"
+                          />
+                        )}
+                        <div>
+                          <p className="font-medium">{selectedBooking.Service.name}</p>
+                          <p className="text-sm text-gray-600 capitalize">
+                            {formatServiceType(selectedBooking.Service.service_type)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Dates</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Created:</span>
+                      <span>{new Date(selectedBooking.createdAt).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Last Updated:</span>
+                      <span>{new Date(selectedBooking.updatedAt).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Route Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Origin</h3>
+                  <div className="space-y-2">
+                    <p className="font-medium">{selectedBooking.origin}</p>
+                    {selectedBooking.origin_country_iso && (
+                      <p className="text-sm text-gray-600">Country: {selectedBooking.origin_country_iso}</p>
+                    )}
+                    {selectedBooking.origin_postcode && (
+                      <p className="text-sm text-gray-600">Postcode: {selectedBooking.origin_postcode}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Destination</h3>
+                  <div className="space-y-2">
+                    <p className="font-medium">{selectedBooking.destination}</p>
+                    {selectedBooking.destination_country_iso && (
+                      <p className="text-sm text-gray-600">Country: {selectedBooking.destination_country_iso}</p>
+                    )}
+                    {selectedBooking.destination_postcode && (
+                      <p className="text-sm text-gray-600">Postcode: {selectedBooking.destination_postcode}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Product Information */}
+              {selectedBooking.product_data && selectedBooking.product_data.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Product Information</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-200">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          <th className="border border-gray-200 px-4 py-2 text-left">Product Name</th>
+                          <th className="border border-gray-200 px-4 py-2 text-left">Code</th>
+                          <th className="border border-gray-200 px-4 py-2 text-left">Type</th>
+                          <th className="border border-gray-200 px-4 py-2 text-left">Quantity</th>
+                          <th className="border border-gray-200 px-4 py-2 text-left">Weight</th>
+                          <th className="border border-gray-200 px-4 py-2 text-left">Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedBooking.product_data.map((product: any, index: number) => (
+                          <tr key={index}>
+                            <td className="border border-gray-200 px-4 py-2">{product.product_book}</td>
+                            <td className="border border-gray-200 px-4 py-2">{product.product_code}</td>
+                            <td className="border border-gray-200 px-4 py-2">{product.product_type}</td>
+                            <td className="border border-gray-200 px-4 py-2">{product.product_qty}</td>
+                            <td className="border border-gray-200 px-4 py-2">{product.product_weight} kg</td>
+                            <td className="border border-gray-200 px-4 py-2">£{product.product_value}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {selectedBooking.product_data[0]?.product_details && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                      <h4 className="font-semibold text-sm mb-1">Product Details:</h4>
+                      <p className="text-sm">{selectedBooking.product_data[0].product_details}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Additional Services */}
+              {selectedBooking.AdditionalBookingServices && selectedBooking.AdditionalBookingServices.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Additional Services</h3>
+                  <div className="space-y-2">
+                    {selectedBooking.AdditionalBookingServices.map((service: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span className="capitalize">{service.name.replace(/_/g, ' ')}</span>
+                        <span className="font-semibold">£{service.amount}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Leg Details */}
+              {selectedBooking.leg_details && selectedBooking.leg_details.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Shipping Legs</h3>
+                  <div className="space-y-4">
+                    {selectedBooking.leg_details.map((leg: any, index: number) => {
+                      const formattedLeg = formatLegDetails(leg);
+                      return (
+                        <div key={index} className="p-4 border border-gray-200 rounded-lg">
+                          <div className="flex justify-between items-start mb-3">
+                            <h4 className="font-semibold">Leg {index + 1}</h4>
+                            <Badge variant="outline">{formattedLeg.courier}</Badge>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium">From:</span> {formattedLeg.from}
+                            </div>
+                            <div>
+                              <span className="font-medium">To:</span> {formattedLeg.to}
+                            </div>
+                            <div>
+                              <span className="font-medium">Price:</span> {formattedLeg.price}
+                            </div>
+                            <div>
+                              <span className="font-medium">Amount:</span> {formattedLeg.amount}
+                            </div>
+                            <div>
+                              <span className="font-medium">Handling Fee:</span> {formattedLeg.handlingFee}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Comments */}
+              {selectedBooking.comment && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Comments</h3>
+                  <p className="p-3 bg-yellow-50 rounded-lg">{selectedBooking.comment}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Mobile View */}
       <div className="sm:hidden space-y-3">
@@ -306,7 +526,13 @@ function MyBookings() {
                   <p className="text-gray-600">{new Date(booking.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex gap-2 justify-end">
+                <button
+                  onClick={() => handleViewDetails(booking)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md transition"
+                >
+                  View
+                </button>
                 <button
                   onClick={() => handleTrack(booking.id)}
                   className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-4 py-2 rounded-md transition"
@@ -333,7 +559,7 @@ function MyBookings() {
             <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Status</TableHead>
             <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Total Paid</TableHead>
             <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Created</TableHead>
-            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Action</TableHead>
+            <TableHead className="text-[#272727] font-medium text-sm py-3 px-2">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -464,14 +690,22 @@ function MyBookings() {
                   {new Date(booking.createdAt).toLocaleDateString()}
                 </TableCell>
 
-                {/* Action Column */}
+                {/* Actions Column */}
                 <TableCell className="py-4 px-2">
-                  <button
-                    onClick={() => handleTrack(booking.id)}
-                    className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-3 py-1 rounded-md transition"
-                  >
-                    Track
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleViewDetails(booking)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-md transition"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleTrack(booking.id)}
+                      className="bg-[#2E7D32] hover:bg-[#256b2b] text-white text-sm px-3 py-1 rounded-md transition"
+                    >
+                      Track
+                    </button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

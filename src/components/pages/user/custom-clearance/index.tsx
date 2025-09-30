@@ -2,9 +2,12 @@ import UserDashboardWrapper from '@/components/layout/user/user-dashboard-wrappe
 import { useGetCustomClearance } from '@/services/hooks/user';
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 function CustomClearance() {
   const { data, isPending } = useGetCustomClearance();
+
+  const router = useRouter();
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -37,6 +40,10 @@ function CustomClearance() {
 
   const clearances = data?.data || [];
 
+  const handleNewClearance = () => {
+    router.push('/user/book-a-quote?isCustomClearance=true');
+  };
+
   return (
     <UserDashboardWrapper>
       <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -48,12 +55,12 @@ function CustomClearance() {
                 <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Custom Clearance Requests</h1>
                 <p className="mt-1 text-sm text-gray-500">Manage and track all your custom clearance applications</p>
               </div>
-              <Link
-                href="/user/book-a-quote"
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 text-center"
+              <button
+                onClick={handleNewClearance}
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 New Clearance
-              </Link>
+              </button>
             </div>
 
             {clearances.length === 0 ? (
@@ -61,14 +68,14 @@ function CustomClearance() {
                 <div className="text-gray-400 text-4xl sm:text-6xl mb-4">📦</div>
                 <h3 className="text-lg font-medium text-gray-900">No clearance requests found</h3>
                 <p className="mt-1 text-sm text-gray-500">You haven't submitted any custom clearance requests yet.</p>
-                <div className="mt-6">
+                {/* <div className="mt-6">
                   <Link
                     href="/user/book-a-quote"
                     className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
                   >
                     Request Your First Clearance
                   </Link>
-                </div>
+                </div> */}
               </div>
             ) : (
               <>
