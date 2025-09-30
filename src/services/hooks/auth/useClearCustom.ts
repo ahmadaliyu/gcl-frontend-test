@@ -10,7 +10,7 @@ type MutationProps = {
     no_of_items: number;
     address: string;
     description: string;
-    data: Object;
+    waybil_doc: String;
   };
 };
 

@@ -263,6 +263,7 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
   const [filePreview, setFilePreview] = React.useState<string | null>(null);
   const [fileName, setFileName] = React.useState<string>('');
   const [uploadedFileData, setUploadedFileData] = React.useState<any>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = React.useState<any>(null);
 
   React.useEffect(() => {
     if (defaultAddress && !formData.address) {
@@ -361,6 +362,7 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
           };
 
           setUploadedFileData(newFile);
+          setUploadedFileUrl(fileData.filePath || fileData.url || fileData.path || null);
           // Don't clear selectedFile and filePreview - keep them for display
           showAlert('File uploaded successfully', 'success');
         },
@@ -406,13 +408,22 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
     }
 
     // Submit with file data as a separate object in the payload
+    console.log({
+      payload: {
+        type: formData.type,
+        no_of_items: formData.no_of_items || 0,
+        address: formData.address,
+        description: formData.description,
+        waybil_doc: uploadedFileUrl, // File data as separate object
+      },
+    });
     mutate({
       payload: {
         type: formData.type,
         no_of_items: formData.no_of_items || 0,
         address: formData.address,
         description: formData.description,
-        data: uploadedFileData, // File data as separate object
+        waybil_doc: uploadedFileUrl, // File data as separate object
       },
     });
   };
