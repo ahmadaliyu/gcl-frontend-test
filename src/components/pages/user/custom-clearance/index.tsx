@@ -18,6 +18,7 @@ function CustomClearance() {
       case 'rejected':
         return 'bg-red-100 text-red-800';
       case 'processing':
+      case 'in-progress':
         return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -32,6 +33,25 @@ function CustomClearance() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Function to get file name from path
+  const getFileNameFromPath = (filePath: string) => {
+    return filePath.split('/').pop() || 'file';
+  };
+
+  // Function to determine file type and icon
+  const getFileInfo = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
+      return { type: 'image', icon: '🖼️' };
+    } else if (['pdf'].includes(extension || '')) {
+      return { type: 'pdf', icon: '📄' };
+    } else if (['doc', 'docx'].includes(extension || '')) {
+      return { type: 'document', icon: '📝' };
+    } else {
+      return { type: 'file', icon: '📎' };
+    }
   };
 
   if (isPending) {
@@ -83,7 +103,7 @@ function CustomClearance() {
                           Type
                         </th>
                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Items
+                          Item(s)
                         </th>
                         <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
@@ -120,7 +140,7 @@ function CustomClearance() {
                           </td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">{clearance.no_of_items}</div>
-                            <div className="text-sm text-gray-500">items</div>
+                            {/* <div className="text-sm text-gray-500">items</div> */}
                           </td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                             <span
@@ -195,7 +215,7 @@ function CustomClearance() {
                             onClick={() => setSelectedClearance(clearance)}
                             className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                           >
-                            View
+                            View Details
                           </button>
                         </div>
                       </div>
@@ -208,44 +228,220 @@ function CustomClearance() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Expanded Modal */}
       {selectedClearance && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Clearance Details</h2>
-            <div className="space-y-2 text-sm text-gray-700">
-              <p>
-                <strong>Customer:</strong> {selectedClearance.first_name} {selectedClearance.last_name}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedClearance.email}
-              </p>
-              <p>
-                <strong>Type:</strong> {selectedClearance.type}
-              </p>
-              <p>
-                <strong>Items:</strong> {selectedClearance.no_of_items}
-              </p>
-              <p>
-                <strong>Status:</strong> {selectedClearance.status}
-              </p>
-              <p>
-                <strong>Created:</strong> {formatDate(selectedClearance.created_at)}
-              </p>
-              <p>
-                <strong>Address:</strong> {selectedClearance.address}
-              </p>
-              <p>
-                <strong>Description:</strong> {selectedClearance.description}
-              </p>
-            </div>
-            <div className="mt-6 flex justify-end">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Clearance Request Details</h2>
               <button
                 onClick={() => setSelectedClearance(null)}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
+                className="text-gray-400 hover:text-gray-600 text-2xl font-semibold"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column - Basic Information */}
+                <div className="space-y-6">
+                  {/* Customer Information */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">👤</span>
+                      Customer Information
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-500">Full Name:</span>
+                        <p className="text-gray-900">
+                          {selectedClearance.first_name} {selectedClearance.last_name}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-500">Email:</span>
+                        <p className="text-gray-900 break-all">{selectedClearance.email}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-500">Phone:</span>
+                        <p className="text-gray-900">{selectedClearance.phone}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-500">Address:</span>
+                        <p className="text-gray-900">{selectedClearance.address}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Clearance Details */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">📋</span>
+                      Clearance Details
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-500">Type:</span>
+                        <p className="text-gray-900 capitalize">{selectedClearance.type}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-500">Items:</span>
+                        <p className="text-gray-900">{selectedClearance.no_of_items}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-500">Status:</span>
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                            selectedClearance.status
+                          )}`}
+                        >
+                          {selectedClearance.status}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-500">Description:</span>
+                        <p className="text-gray-900">{selectedClearance.description || 'No description provided'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">🕒</span>
+                      Timeline
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-500">Created:</span>
+                        <span className="text-gray-900">{formatDate(selectedClearance.created_at)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-500">Last Updated:</span>
+                        <span className="text-gray-900">{formatDate(selectedClearance.updated_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column - Files */}
+                <div className="space-y-6">
+                  {/* Uploaded Files */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">📎</span>
+                      Uploaded Documents
+                    </h3>
+
+                    {/* Meta Files */}
+                    {selectedClearance.meta?.files && selectedClearance.meta.files.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Additional Files:</h4>
+                        <div className="space-y-2">
+                          {selectedClearance.meta.files.map((file: any, index: number) => {
+                            const fileName = getFileNameFromPath(file.filePath);
+                            const fileInfo = getFileInfo(fileName);
+                            return (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-3 bg-white rounded border border-gray-200"
+                              >
+                                <div className="flex items-center">
+                                  <span className="text-lg mr-3">{fileInfo.icon}</span>
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                      {file.name || fileName}
+                                    </p>
+                                    <p className="text-xs text-gray-500">{fileInfo.type.toUpperCase()}</p>
+                                  </div>
+                                </div>
+                                {/* <button
+                                  onClick={() => window.open(file.filePath, '_blank')}
+                                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                >
+                                  View
+                                </button> */}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Waybill Document */}
+                    {selectedClearance.waybil_doc && (
+                      <div>
+                        <h4 className="font-medium text-gray-700 mb-2">Waybill Document:</h4>
+                        <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                          <div className="flex items-center">
+                            <span className="text-lg mr-3">📦</span>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                {getFileNameFromPath(selectedClearance.waybil_doc)}
+                              </p>
+                              <p className="text-xs text-gray-500">Waybill</p>
+                            </div>
+                          </div>
+                          {/* <button
+                            onClick={() => window.open(selectedClearance.waybil_doc, '_blank')}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            View
+                          </button> */}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No Files Message */}
+                    {(!selectedClearance.meta?.files || selectedClearance.meta.files.length === 0) &&
+                      !selectedClearance.waybil_doc && (
+                        <div className="text-center py-4 text-gray-500">
+                          <p>No files uploaded</p>
+                        </div>
+                      )}
+                  </div>
+
+                  {/* Status Information */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">ℹ️</span>
+                      Request Information
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-500">Request ID:</span>
+                        <span className="text-gray-900 font-mono text-xs">{selectedClearance.id}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-500">User ID:</span>
+                        <span className="text-gray-900 font-mono text-xs">{selectedClearance.user_id}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+              <button
+                onClick={() => setSelectedClearance(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 Close
               </button>
+              {/* <button
+                onClick={() => {
+                  // Add any action for editing or processing
+                  console.log('Process clearance:', selectedClearance.id);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Process Request
+              </button> */}
             </div>
           </div>
         </div>
@@ -254,7 +450,7 @@ function CustomClearance() {
   );
 }
 
-// Responsive Skeleton Loading Component
+// Skeleton component remains the same...
 function ClearanceSkeleton() {
   return (
     <UserDashboardWrapper>

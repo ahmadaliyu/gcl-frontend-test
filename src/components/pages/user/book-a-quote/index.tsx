@@ -371,9 +371,39 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
 
   const { data: addresses } = useGetAddresses();
 
+  // Function to reset form to initial state
+  const resetForm = () => {
+    const defaultAddressObj = addresses?.data?.find((addr: any) => addr?.is_default) || null;
+    const defaultAddress = defaultAddressObj
+      ? `${defaultAddressObj.city || ''}, ${defaultAddressObj.state || ''}, ${defaultAddressObj.country || ''}, ${
+          defaultAddressObj.post_code || ''
+        }`
+          .replace(/\s*,\s*,/g, ',')
+          .trim()
+      : '';
+
+    setFormData({
+      type: '',
+      no_of_items: 0,
+      address: defaultAddress,
+      description: '',
+    });
+    setSelectedFile(null);
+    setFilePreview(null);
+    setFileName('');
+    setUploadedFileData(null);
+    setUploadedFileUrl(null);
+
+    // Clear file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const { mutate, isPending } = useClearCustom((response) => {
     if (response?.status === 200) {
       showAlert('Customs clearance data submitted successfully', 'success');
+      resetForm(); // Clear form after successful submission
     }
     if (response.response?.status === 400) {
       showAlert(`${response?.response.data.message}`, 'error');
@@ -527,6 +557,7 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
     setFilePreview(null);
     setFileName('');
     setUploadedFileData(null);
+    setUploadedFileUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -539,6 +570,7 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
     setFilePreview(null);
     setFileName('');
     setUploadedFileData(null);
+    setUploadedFileUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -556,16 +588,6 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
       return;
     }
 
-    // Submit with file data as a separate object in the payload
-    console.log({
-      payload: {
-        type: formData.type,
-        no_of_items: formData.no_of_items || 0,
-        address: formData.address,
-        description: formData.description,
-        waybil_doc: uploadedFileUrl, // File data as separate object
-      },
-    });
     mutate({
       payload: {
         type: formData.type,
@@ -696,9 +718,6 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
                   <p className="text-sm text-gray-500">
                     {((uploadedFileData?.fileSize || selectedFile?.size || 0) / 1024 / 1024).toFixed(2)} MB
                   </p>
-                  {/* {!uploadedFileData && (
-                    <p className="text-xs text-amber-600 mt-1">File selected but not uploaded yet</p>
-                  )} */}
                   {uploadedFileData && <p className="text-xs text-green-600 mt-1">File uploaded successfully</p>}
                 </div>
 
@@ -769,11 +788,6 @@ export const CustomsClearanceForm = ({ activeChannel }: { activeChannel?: EChann
           />
         </div>
       </div>
-
-      {/* Validation hint */}
-      {/* {!uploadedFileData && (
-        <p className="text-sm text-amber-600 mt-2 text-center">* File must be uploaded before submitting the form</p>
-      )} */}
     </form>
   );
 };
