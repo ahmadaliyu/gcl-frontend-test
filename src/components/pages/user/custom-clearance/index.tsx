@@ -1,13 +1,13 @@
 import UserDashboardWrapper from '@/components/layout/user/user-dashboard-wrapper';
 import { useGetCustomClearance } from '@/services/hooks/user';
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 function CustomClearance() {
   const { data, isPending } = useGetCustomClearance();
-
   const router = useRouter();
+  const [selectedClearance, setSelectedClearance] = useState<any | null>(null);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -68,14 +68,6 @@ function CustomClearance() {
                 <div className="text-gray-400 text-4xl sm:text-6xl mb-4">📦</div>
                 <h3 className="text-lg font-medium text-gray-900">No clearance requests found</h3>
                 <p className="mt-1 text-sm text-gray-500">You haven't submitted any custom clearance requests yet.</p>
-                {/* <div className="mt-6">
-                  <Link
-                    href="/user/book-a-quote"
-                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-                  >
-                    Request Your First Clearance
-                  </Link>
-                </div> */}
               </div>
             ) : (
               <>
@@ -109,11 +101,9 @@ function CustomClearance() {
                         <tr key={clearance.id} className="hover:bg-gray-50">
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
-                                  {clearance.first_name[0]}
-                                  {clearance.last_name[0]}
-                                </div>
+                              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+                                {clearance.first_name[0]}
+                                {clearance.last_name[0]}
                               </div>
                               <div className="ml-3">
                                 <div className="text-sm font-medium text-gray-900">
@@ -145,7 +135,12 @@ function CustomClearance() {
                             {formatDate(clearance.created_at)}
                           </td>
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button className="text-indigo-600 hover:text-indigo-900">View</button>
+                            <button
+                              onClick={() => setSelectedClearance(clearance)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              View
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -160,11 +155,9 @@ function CustomClearance() {
                       <div key={clearance.id} className="p-4 hover:bg-gray-50">
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                                {clearance.first_name[0]}
-                                {clearance.last_name[0]}
-                              </div>
+                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                              {clearance.first_name[0]}
+                              {clearance.last_name[0]}
                             </div>
                             <div className="ml-3">
                               <div className="text-sm font-medium text-gray-900">
@@ -198,7 +191,12 @@ function CustomClearance() {
                         </div>
 
                         <div className="flex justify-end">
-                          <button className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View</button>
+                          <button
+                            onClick={() => setSelectedClearance(clearance)}
+                            className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                          >
+                            View
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -209,6 +207,49 @@ function CustomClearance() {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      {selectedClearance && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Clearance Details</h2>
+            <div className="space-y-2 text-sm text-gray-700">
+              <p>
+                <strong>Customer:</strong> {selectedClearance.first_name} {selectedClearance.last_name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedClearance.email}
+              </p>
+              <p>
+                <strong>Type:</strong> {selectedClearance.type}
+              </p>
+              <p>
+                <strong>Items:</strong> {selectedClearance.no_of_items}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedClearance.status}
+              </p>
+              <p>
+                <strong>Created:</strong> {formatDate(selectedClearance.created_at)}
+              </p>
+              <p>
+                <strong>Address:</strong> {selectedClearance.address}
+              </p>
+              <p>
+                <strong>Description:</strong> {selectedClearance.description}
+              </p>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setSelectedClearance(null)}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </UserDashboardWrapper>
   );
 }
